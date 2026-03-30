@@ -1,0 +1,8 @@
+Screen {
+    background: #1a1a1a;
+}
+
+Log {
+    background: black;
+    color: lightgreen;
+}
