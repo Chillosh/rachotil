@@ -1,43 +1,56 @@
 import paramiko
+from textual.app import App, ComposeResult
+from textual.widgets import Footer, Header, Input, Log
 from ssh.connection import host, user, password
 
 
-def main():
-    print("--- RACHOTIL TERMINAL ---")
-    print(f"Připojování k {user}@{host}...")
+class Rachotil(App):
+    TITLE = "Rachotil"
+    BINDINGS = [("q", "quit", "Quit")]
 
-    client = paramiko.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    def compose(self) -> ComposeResult:
+        yield Header()
+        yield Log(id="terminal_log")
+        yield Input(placeholder=f"Zadej příkaz pro {user}@{host}...", id="prikaz_input")
+        yield Footer()
 
-    try:
-        client.connect(hostname=host, username=user, password=password, timeout=10)
-        print("Spojení navázáno! Napiš 'exit' pro ukončení.\n")
+    def on_mount(self) -> None:
+        try:
+            self.client = paramiko.SSHClient()
+            self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            self.client.connect(hostname=host, username=user, password=password, timeout=10)
+        except Exception as e:
+            self.log_message(f"CHYBA PŘIPOJENÍ: {e}")
 
-        while True:
-            prikaz = input(f"{user}@{host}:~$ ")
+    def log_message(self, text: str) -> None:
+        self.query_one("#terminal_log").write_line(text)
 
-            if prikaz.lower() in ["exit", "quit"]:
-                break
+    async def on_input_submitted(self, event: Input.Submitted) -> None:
+        prikaz = event.value.strip()
 
-            if not prikaz.strip():
-                continue
+        if prikaz.lower() in ["exit", "quit"]:
+            return self.exit()
 
-            stdin, stdout, stderr = client.exec_command(prikaz)
-            vystup = stdout.read().decode()
-            chyby = stderr.read().decode()
+        if prikaz:
+            self.log_message(f"{user}@{host}:~$ {prikaz}")
+            self.query_one("#prikaz_input").value = ""
 
-            if vystup:
-                print(vystup, end="")
-            if chyby:
-                print(f"CHYBA: {chyby}", end="")
+            try:
+                stdin, stdout, stderr = self.client.exec_command(prikaz)
+                vystup = stdout.read().decode()
+                chyby = stderr.read().decode()
 
-    except Exception as e:
-        print(f"\nCHYBA PŘIPOJENÍ: {e}")
-        print("Ujisti se, že máš zapnutou VPN!")
-    finally:
-        client.close()
-        print("\nSpojení ukončeno.")
+                if vystup:
+                    self.log_message(vystup.strip())
+                if chyby:
+                    self.log_message(f"{chyby.strip()}")
+            except Exception as e:
+                self.log_message(f"Chyba při provádění: {e}")
+
+    def on_unmount(self) -> None:
+        if hasattr(self, 'client'):
+            self.client.close()
 
 
 if __name__ == "__main__":
-    main()
+    Rachotil().run()
