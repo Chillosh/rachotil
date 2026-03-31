@@ -1,24 +1,33 @@
 Screen {
     background: #1a1a1a;
-    layers: base overlay;
 }
 
 Log {
     height: 1fr;
-    layer: base;
+    background: black;
+    color: lightgreen;
 }
 
-#prikaz_input {
+#sshInput {
     dock: bottom;
-    layer: base;
 }
 
-#tool_selector {
-    layer: overlay;
-    position: absolute;
-    offset: 25% 25%;
-    width: 60%;
-    height: 15;
+#stats_label {
+    content-align: center middle;
+    height: 1fr;
+    width: 100%;
+    color: cyan;
+}
+
+MenuScreen {
+    align: center middle;
+    background: black 50%;
+}
+
+#main_menu {
+    width: 50%;
+    height: auto;
+    max-height: 15;
     border: double $accent;
     background: $surface;
 }
