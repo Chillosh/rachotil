@@ -12,13 +12,6 @@ Log {
     dock: bottom;
 }
 
-#stats_label {
-    content-align: center middle;
-    height: 1fr;
-    width: 100%;
-    color: cyan;
-}
-
 MenuScreen {
     align: center middle;
     background: black 50%;

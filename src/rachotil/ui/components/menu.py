@@ -6,12 +6,10 @@ from textual.widgets.option_list import Option
 class MenuScreen(ModalScreen[str]):
     CSS_PATH = "../styles.tcss"
 
-    BINDINGS = [("escape", "zavrit", "Zavřít"), ("space", "zavrit", "Zavřít")]
-
     def compose(self):
         yield OptionList(
-            Option("SSH", id="term"),
             Option("Stats", id="stats"),
+            Option("SSH", id="term"),
             Option("Settings", id="settings"),
             id="main_menu"
         )
