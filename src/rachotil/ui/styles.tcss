@@ -1,8 +1,24 @@
 Screen {
     background: #1a1a1a;
+    layers: base overlay;
 }
 
 Log {
-    background: black;
-    color: lightgreen;
+    height: 1fr;
+    layer: base;
+}
+
+#prikaz_input {
+    dock: bottom;
+    layer: base;
+}
+
+#tool_selector {
+    layer: overlay;
+    position: absolute;
+    offset: 25% 25%;
+    width: 60%;
+    height: 15;
+    border: double $accent;
+    background: $surface;
 }
