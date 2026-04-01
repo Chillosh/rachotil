@@ -8,19 +8,34 @@ Log {
     color: lightgreen;
 }
 
-#sshInput {
-    dock: bottom;
-}
-
 MenuScreen {
     align: center middle;
     background: black 50%;
 }
 
-#main_menu {
-    width: 50%;
+StatsSettingsModal {
+    align: center middle;
+    background: black 40%;
+}
+
+OptionList {
+    width: 40;
     height: auto;
-    max-height: 15;
     border: double $accent;
     background: $surface;
+}
+
+Horizontal {
+    width: 40;
+    height: 3;
+    align: center middle;
+    margin-top: 1;
+}
+
+#save {
+    background: green 60%;
+}
+
+#cancel {
+    background: red 60%;
 }
