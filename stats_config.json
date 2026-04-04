@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "blocks": [
+    {
+      "id": "ram_cpu",
+      "label": "RAM+CPU monitoring",
+      "command": "top -bn1 | head -n 15",
+      "interval_seconds": 2,
+      "enabled": false,
+      "built_in": true
+    },
+    {
+      "id": "disk",
+      "label": "DISK load",
+      "command": "df -h",
+      "interval_seconds": 10,
+      "enabled": false,
+      "built_in": true
+    },
+    {
+      "id": "network",
+      "label": "NETWORK",
+      "command": "ip addr show",
+      "interval_seconds": 10,
+      "enabled": false,
+      "built_in": true
+    },
+    {
+      "id": "processes",
+      "label": "PROCESSES",
+      "command": "ps aux --sort=-%mem | head -n 10",
+      "interval_seconds": 10,
+      "enabled": false,
+      "built_in": true
+    },
+    {
+      "id": "services",
+      "label": "SERVICES",
+      "command": "systemctl status | head -n 15",
+      "interval_seconds": 10,
+      "enabled": false,
+      "built_in": true
+    },
+    {
+      "id": "users",
+      "label": "USERS",
+      "command": "w",
+      "interval_seconds": 10,
+      "enabled": false,
+      "built_in": true
+    },
+    {
+      "id": "custom_test",
+      "label": "test",
+      "command": "free -h",
+      "interval_seconds": 5,
+      "enabled": true,
+      "built_in": false
+    }
+  ]
+}

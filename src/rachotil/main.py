@@ -1,5 +1,10 @@
+from ssh.config import load_env_config
 from ui.app import Rachotil
 
-if __name__ == "__main__":
+def main() -> None:
+    load_env_config()
     app = Rachotil()
     app.run()
+
+if __name__ == "__main__":
+    main()

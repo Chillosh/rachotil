@@ -1,8 +1,10 @@
-from textual.screen import Screen, ModalScreen
-from textual.widgets import Header, Footer, Button, SelectionList
-from textual.containers import Horizontal
-from textual.widgets.option_list import Option
+import re
 from textual import on
+from textual.containers import Horizontal, Vertical
+from textual.screen import ModalScreen, Screen
+from textual.widgets import Button, Footer, Header, Input, SelectionList, Static
+from ssh.config import get_ssh_config, save_ssh_config
+from stats.config import load_stats_config, save_stats_config
 
 CSS_PATH = "../styles.tcss"
 
@@ -10,27 +12,133 @@ class SettingsScreen(Screen):
     def compose(self):
         yield Header()
         yield Button("Stats Configuration", id="stats")
+        yield Button("SSH Connection Settings", id="ssh")
         yield Footer()
 
     @on(Button.Pressed, "#stats")
     def show_stats_menu(self):
         self.app.push_screen(StatsSettingsModal())
 
+    @on(Button.Pressed, "#ssh")
+    def show_ssh_menu(self):
+        self.app.push_screen(SSHSettingsModal())
+
 class StatsSettingsModal(ModalScreen):
+    def __init__(self):
+        super().__init__()
+        self.config = load_stats_config()
+        self.blocks = self.config["blocks"]
+
     def compose(self):
+        yield Static("Enable/disable stat blocks")
         yield SelectionList(
-            ("RAM+CPU monitoring", 0),
-            ("DISK load", 1),
-            ("NETWORK", 2),
-            ("PROCESSES", 3),
-            ("SERVICES", 4),
-            ("USERS", 5),
-            id="stats_options"
+            *((block["label"], block["id"]) for block in self.blocks),
+            id="stats_options",
         )
+        yield Static("Add custom stat block")
+        with Vertical():
+            yield Input(placeholder="Label (example: Docker)", id="custom_label")
+            yield Input(placeholder="Command (example: docker ps)", id="custom_command")
+            yield Input(placeholder="Interval in seconds (example: 5)", id="custom_interval")
         with Horizontal():
+            yield Button("Add Custom", id="add_custom")
             yield Button("Save", id="save")
             yield Button("Cancel", id="cancel")
+        yield Static("", id="stats_message")
+
+    def on_mount(self):
+        selection_list = self.query_one("#stats_options", SelectionList)
+        for block in self.blocks:
+            if block.get("enabled"):
+                selection_list.select(block["id"])
+
+    @on(Button.Pressed, "#add_custom")
+    def add_custom_block(self):
+        label = self.query_one("#custom_label", Input).value.strip()
+        command = self.query_one("#custom_command", Input).value.strip()
+        interval_raw = self.query_one("#custom_interval", Input).value.strip()
+        message = self.query_one("#stats_message", Static)
+
+        if not label or not command or not interval_raw:
+            message.update("Please fill label, command and interval.")
+            return
+
+        try:
+            interval = int(interval_raw)
+            if interval < 1:
+                raise ValueError
+        except ValueError:
+            message.update("Interval must be a positive number.")
+            return
+
+        slug = re.sub(r"[^a-z0-9]+", "_", label.lower()).strip("_") or "custom"
+        block_id = f"custom_{slug}"
+        existing = {block["id"] for block in self.blocks}
+        suffix = 2
+        while block_id in existing:
+            block_id = f"custom_{slug}_{suffix}"
+            suffix += 1
+
+        self.blocks.append(
+            {
+                "id": block_id,
+                "label": label,
+                "command": command,
+                "interval_seconds": interval,
+                "enabled": True,
+                "built_in": False,
+            }
+        )
+
+        selection_list = self.query_one("#stats_options", SelectionList)
+        if hasattr(selection_list, "add_option"):
+            selection_list.add_option((label, block_id))
+            selection_list.select(block_id)
+        elif hasattr(selection_list, "add_options"):
+            selection_list.add_options([(label, block_id)])
+            selection_list.select(block_id)
+
+        self.query_one("#custom_label", Input).value = ""
+        self.query_one("#custom_command", Input).value = ""
+        self.query_one("#custom_interval", Input).value = ""
+        message.update("Custom block added. Save to persist changes.")
+
+    @on(Button.Pressed, "#save")
+    def save_stats_settings(self):
+        selected_ids = set(self.query_one("#stats_options", SelectionList).selected)
+
+        for block in self.blocks:
+            block["enabled"] = block["id"] in selected_ids
+
+        save_stats_config({"version": self.config.get("version", 1), "blocks": self.blocks})
+        self.app.pop_screen()
 
     @on(Button.Pressed, "#cancel")
     def return_to_settings(self):
+        self.app.pop_screen()
+
+class SSHSettingsModal(ModalScreen):
+    def compose(self):
+        config = get_ssh_config()
+        with Vertical():
+            yield Static("SSH Host")
+            yield Input(value=config["host"], id="ssh_host")
+            yield Static("SSH User")
+            yield Input(value=config["user"], id="ssh_user")
+            yield Static("SSH Password")
+            yield Input(value=config["password"], password=True, id="ssh_password")
+        with Horizontal():
+            yield Button("Save", id="save_ssh")
+            yield Button("Cancel", id="cancel_ssh")
+
+    @on(Button.Pressed, "#save_ssh")
+    def save_settings(self):
+        host = self.query_one("#ssh_host", Input).value.strip()
+        user = self.query_one("#ssh_user", Input).value.strip()
+        password = self.query_one("#ssh_password", Input).value
+        save_ssh_config(host=host, user=user, password=password)
+        self.app.pop_screen()
+
+    @on(Button.Pressed, "#cancel_ssh")
+    def cancel_settings(self):
         self.app.pop_screen()
