@@ -42,15 +42,27 @@ class StatsSettingsModal(ModalScreen):
             yield Input(placeholder="Interval in seconds (example: 5)", id="custom_interval")
         with Horizontal():
             yield Button("Add Custom", id="add_custom")
+            yield Button("Delete Selected Custom", id="delete_custom")
             yield Button("Save", id="save")
             yield Button("Cancel", id="cancel")
         yield Static("", id="stats_message")
 
-    def on_mount(self):
+    def _rebuild_stats_options(self, selected_values: set[str] | None = None) -> None:
         selection_list = self.query_one("#stats_options", SelectionList)
-        for block in self.blocks:
-            if block.get("enabled"):
-                selection_list.select(block["id"])
+        selection_list.clear_options()
+        selection_list.add_options(
+            [(block["label"], block["id"]) for block in self.blocks]
+        )
+
+        if selected_values is None:
+            selected_values = {block["id"] for block in self.blocks if block.get("enabled")}
+
+        valid_values = {block["id"] for block in self.blocks}
+        for value in selected_values & valid_values:
+            selection_list.select(value)
+
+    def on_mount(self):
+        self._rebuild_stats_options()
 
     @on(Button.Pressed, "#add_custom")
     def add_custom_block(self):
@@ -90,18 +102,34 @@ class StatsSettingsModal(ModalScreen):
             }
         )
 
-        selection_list = self.query_one("#stats_options", SelectionList)
-        if hasattr(selection_list, "add_option"):
-            selection_list.add_option((label, block_id))
-            selection_list.select(block_id)
-        elif hasattr(selection_list, "add_options"):
-            selection_list.add_options([(label, block_id)])
-            selection_list.select(block_id)
+        selected_values = set(self.query_one("#stats_options", SelectionList).selected)
+        selected_values.add(block_id)
+        self._rebuild_stats_options(selected_values)
 
         self.query_one("#custom_label", Input).value = ""
         self.query_one("#custom_command", Input).value = ""
         self.query_one("#custom_interval", Input).value = ""
         message.update("Custom block added. Save to persist changes.")
+
+    @on(Button.Pressed, "#delete_custom")
+    def delete_custom_blocks(self):
+        selection_list = self.query_one("#stats_options", SelectionList)
+        message = self.query_one("#stats_message", Static)
+        selected_ids = set(selection_list.selected)
+
+        custom_ids = [
+            block["id"]
+            for block in self.blocks
+            if not block.get("built_in") and block["id"] in selected_ids
+        ]
+        if not custom_ids:
+            message.update("Select one or more custom blocks to delete.")
+            return
+
+        self.blocks = [block for block in self.blocks if block["id"] not in custom_ids]
+        self._rebuild_stats_options(selected_ids - set(custom_ids))
+
+        message.update(f"Deleted {len(custom_ids)} custom block(s). Save to persist changes.")
 
     @on(Button.Pressed, "#save")
     def save_stats_settings(self):
