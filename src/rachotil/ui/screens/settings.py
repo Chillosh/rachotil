@@ -155,6 +155,8 @@ class SSHSettingsModal(ModalScreen):
             yield Input(value=config["user"], id="ssh_user")
             yield Static("SSH Password")
             yield Input(value=config["password"], password=True, id="ssh_password")
+            yield Static("SUDO Password (optional, defaults to SSH password)")
+            yield Input(value=config.get("sudo_password", ""), password=True, id="ssh_sudo_password")
         with Horizontal():
             yield Button("Save", id="save_ssh")
             yield Button("Cancel", id="cancel_ssh")
@@ -164,7 +166,8 @@ class SSHSettingsModal(ModalScreen):
         host = self.query_one("#ssh_host", Input).value.strip()
         user = self.query_one("#ssh_user", Input).value.strip()
         password = self.query_one("#ssh_password", Input).value
-        save_ssh_config(host=host, user=user, password=password)
+        sudo_password = self.query_one("#ssh_sudo_password", Input).value
+        save_ssh_config(host=host, user=user, password=password, sudo_password=sudo_password)
         self.app.pop_screen()
 
     @on(Button.Pressed, "#cancel_ssh")

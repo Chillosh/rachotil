@@ -15,7 +15,12 @@ class StatsScreen(Screen):
 
     def on_mount(self):
         config = get_ssh_config()
-        self.ssh_connect = SSH(config["host"], config["user"], config["password"])
+        self.ssh_connect = SSH(
+            config["host"],
+            config["user"],
+            config["password"],
+            config.get("sudo_password"),
+        )
         self.blocks = get_enabled_stats_blocks()
         self.stats_data = {block["id"]: "" for block in self.blocks}
 

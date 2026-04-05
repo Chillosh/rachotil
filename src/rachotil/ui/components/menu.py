@@ -10,6 +10,7 @@ class MenuScreen(ModalScreen[str]):
         yield OptionList(
             Option("Stats", id="stats"),
             Option("SSH", id="term"),
+            Option("Management", id="management"),
             Option("Settings", id="settings"),
             id="main_menu"
         )

@@ -1,10 +1,11 @@
 import paramiko
 
 class SSH:
-    def __init__(self, host, user, password):
+    def __init__(self, host, user, password, sudo_password=None):
         self.host = host
         self.user = user
         self.password = password
+        self.sudo_password = sudo_password or password
         self.client = paramiko.SSHClient()
         self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         self.shell = None
@@ -21,9 +22,31 @@ class SSH:
 
     def run_command(self, command, get_pty=False):
         stdin, stdout, stderr = self.client.exec_command(command, get_pty=get_pty)
-        if get_pty:
-            stdout.channel.recv_exit_status()
-        return stdout.read().decode(), stderr.read().decode()
+        out = stdout.read().decode()
+        err = stderr.read().decode()
+        stdout.channel.recv_exit_status()
+        return out, err
+
+    def run_sudo_command(self, command, sudo_password=None):
+        password = sudo_password if sudo_password is not None else self.sudo_password
+        prepared = command.strip()
+        if not prepared:
+            return "", "Empty command"
+
+        if not prepared.startswith("sudo "):
+            prepared = f"sudo -S -p '' {prepared}"
+        else:
+            prepared = prepared.replace("sudo ", "sudo -S -p '' ", 1)
+
+        stdin, stdout, stderr = self.client.exec_command(prepared, get_pty=True)
+        if password:
+            stdin.write(password + "\n")
+            stdin.flush()
+
+        out = stdout.read().decode()
+        err = stderr.read().decode()
+        stdout.channel.recv_exit_status()
+        return out, err
 
     def open_shell(self):
         self.shell = self.client.invoke_shell(width=120, height=40)

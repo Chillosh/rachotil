@@ -15,7 +15,12 @@ class TerminalScreen(Screen):
         config = get_ssh_config()
         self.host = config["host"]
         self.user = config["user"]
-        self.ssh_conn = SSH(self.host, self.user, config["password"])
+        self.ssh_conn = SSH(
+            self.host,
+            self.user,
+            config["password"],
+            config.get("sudo_password"),
+        )
         log = self.query_one("#terminal_log", Log)
 
         try:

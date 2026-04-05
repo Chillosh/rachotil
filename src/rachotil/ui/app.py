@@ -1,5 +1,6 @@
 from textual.app import App
 from .components.menu import MenuScreen
+from .screens.management import ManagementScreen
 from .screens.settings import SettingsScreen
 from .screens.terminal import TerminalScreen
 from .screens.stats import StatsScreen
@@ -21,6 +22,8 @@ class Rachotil(App):
                 self.switch_screen(TerminalScreen())
             elif choice == "stats":
                 self.switch_screen(StatsScreen())
+            elif choice == "management":
+                self.switch_screen(ManagementScreen())
             elif choice == "settings":
                 self.switch_screen(SettingsScreen())
 
