@@ -1,0 +1,2 @@
+[console_scripts]
+rachotil = rachotil.main:main
