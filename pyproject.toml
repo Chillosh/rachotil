@@ -19,6 +19,9 @@ dynamic = ["dependencies"]
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements.txt"]}
 
+[tool.setuptools.package-data]
+"rachotil.ui" = ["*.tcss"]
+
 [project.scripts]
 rachotil = "rachotil.main:main"
 
