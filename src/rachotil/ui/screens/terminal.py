@@ -1,8 +1,8 @@
+import re
 from textual.screen import Screen
 from textual.widgets import Header, Footer, Log, Input
 from ...ssh.ssh import SSH
 from ...ssh.config import get_ssh_config
-
 
 class TerminalScreen(Screen):
     def compose(self):
@@ -26,11 +26,15 @@ class TerminalScreen(Screen):
         try:
             self.ssh_conn.connect()
             self.ssh_conn.open_shell()
-            self.set_interval(0.25, self.poll_shell_output)
+            self.set_interval(0.5, self.poll_shell_output)
             log.write_line(f"Connected to {self.host}@{self.user} (interactive shell)")
         except Exception as e:
             log.write_line(f"Error: {e}")
 
+    def clean_ansi(self, text):
+        ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+        return ansi_escape.sub('', text)
+    
     def on_input_submitted(self, event: Input.Submitted) -> None:
         command = event.value.strip()
         log = self.query_one("#terminal_log", Log)
@@ -51,9 +55,9 @@ class TerminalScreen(Screen):
 
         output = self.ssh_conn.shell_read()
         if output:
+            clean_output = self.clean_ansi(output)
             log = self.query_one("#terminal_log", Log)
-            for line in output.splitlines():
-                log.write_line(line)
+            log.write_line(clean_output)
 
     def on_unmount(self):
         if hasattr(self, 'ssh_conn'):

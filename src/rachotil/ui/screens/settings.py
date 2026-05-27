@@ -1,19 +1,60 @@
 import re
 from textual import on
-from textual.containers import Horizontal, Vertical
+from textual.containers import Horizontal, Vertical, Container
 from textual.screen import ModalScreen, Screen
-from textual.widgets import Button, Footer, Header, Input, SelectionList, Static
+from textual.widgets import Button, Footer, Header, Input, SelectionList, Static, RadioSet, RadioButton
 from ...ssh.config import get_ssh_config, save_ssh_config
 from ...stats.config import load_stats_config, save_stats_config
 
-CSS_PATH = "../styles.tcss"
-
 class SettingsScreen(Screen):
+    CSS_PATH = "../styles.tcss"
+    BINDINGS = [
+        ("m", "open_main_menu", "Menu"),
+        ("q", "quit", "Quit")
+    ]
+
     def compose(self):
         yield Header()
-        yield Button("Stats Configuration", id="stats")
-        yield Button("SSH Connection Settings", id="ssh")
         yield Footer()
+        with Vertical(id="settings-main"):
+            yield Static("Control Panel & Settings", id="settings-title")
+            
+            with Container(classes="settings-card"):
+                yield Static("Interface Customization", classes="card-label")
+                with RadioSet(id="theme-panel"):
+                    yield RadioButton("Default Dark Theme", id="theme-dark", value=True)
+                    yield RadioButton("Light Matrix Theme", id="theme-light")
+                    yield RadioButton("Cyberpunk Terminal", id="theme-cyber")
+                    yield RadioButton("Solarized Code", id="theme-solarized")
+                    yield RadioButton("Retro DOS", id="theme-retro")
+
+            with Container(classes="settings-card"):
+                yield Static("System Configurations", classes="card-label")
+                with Horizontal(classes="card-buttons"):
+                    yield Button("Stats Configuration", id="stats", variant="primary")
+                    yield Button("SSH Connection Settings", id="ssh", variant="primary")
+
+    def action_open_main_menu(self) -> None:
+        self.app.action_show_menu()
+
+    def action_quit(self) -> None:
+        self.app.action_quit()
+
+    def on_radio_set_changed(self, event: RadioSet.Changed) -> None:
+        selected_id = event.radio_set.pressed_button.id
+        all_classes = ["light-layout", "cyber-layout", "solarized-layout", "retro-layout"]
+        
+        for cls in all_classes:
+            self.app.remove_class(cls)
+
+        if selected_id == "theme-light":
+            self.app.add_class("light-layout")
+        elif selected_id == "theme-cyber":
+            self.app.add_class("cyber-layout")
+        elif selected_id == "theme-solarized":
+            self.app.add_class("solarized-layout")
+        elif selected_id == "theme-retro":
+            self.app.add_class("retro-layout")
 
     @on(Button.Pressed, "#stats")
     def show_stats_menu(self):

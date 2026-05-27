@@ -49,7 +49,7 @@ class SSH:
         return out, err
 
     def open_shell(self):
-        self.shell = self.client.invoke_shell(width=120, height=40)
+        self.shell = self.client.invoke_shell(width=120, height=40, term="dumb")
         self.shell.settimeout(0.0)
         return self.shell
 
@@ -59,15 +59,43 @@ class SSH:
         self.shell.send(command.rstrip("\n") + "\n")
 
     def shell_read(self):
-        if self.shell is None:
+        if self.shell is None or not self.shell.recv_ready():
             return ""
+        
+        return self.shell.recv(65535).decode(errors="ignore")
 
-        output = []
-        while self.shell.recv_ready():
-            output.append(self.shell.recv(4096).decode(errors="ignore"))
-        while self.shell.recv_stderr_ready():
-            output.append(self.shell.recv_stderr(4096).decode(errors="ignore"))
-        return "".join(output)
+    def get_sftp_client(self):
+        return self.client.open_sftp()
+
+    def download_file(self, remote_path, local_path):
+        sftp = self.get_sftp_client()
+        try:
+            sftp.get(remote_path, local_path)
+            return True, f"Downloaded {remote_path} to {local_path}"
+        except Exception as e:
+            return False, f"Download failed: {str(e)}"
+        finally:
+            sftp.close()
+
+    def upload_file(self, local_path, remote_path):
+        sftp = self.get_sftp_client()
+        try:
+            sftp.put(local_path, remote_path)
+            return True, f"Uploaded {local_path} to {remote_path}"
+        except Exception as e:
+            return False, f"Upload failed: {str(e)}"
+        finally:
+            sftp.close()
+
+    def file_exists(self, remote_path):
+        sftp = self.get_sftp_client()
+        try:
+            sftp.stat(remote_path)
+            return True
+        except IOError:
+            return False
+        finally:
+            sftp.close()
 
     def close(self):
         if self.shell is not None:
