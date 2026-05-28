@@ -1,4 +1,5 @@
 from textual.app import App
+from rachotil.ui.screens.file_manager import FileManagerScreen
 from rachotil.ui.screens.services import ServicesScreen
 from rachotil.ui.screens.firewall import FirewallScreen
 from rachotil.ui.screens.dashboard import DashboardScreen
@@ -29,6 +30,8 @@ class Rachotil(App):
                 self.switch_screen(DashboardScreen())
             elif choice == "stats":
                 self.switch_screen(StatsScreen())
+            elif choice == "file_manager":
+                self.switch_screen(FileManagerScreen())
             elif choice == "management":
                 self.switch_screen(ManagementScreen())
             elif choice == "backup":

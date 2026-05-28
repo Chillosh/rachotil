@@ -10,6 +10,7 @@ class MenuScreen(ModalScreen[str]):
         ("System Dashboard", "dashboard"),
         ("Stats Monitoring", "stats"),
         ("SSH Terminal", "term"),
+        ("File Manager", "file_manager"),
         ("Management Tools", "management"),
         ("Backup Manager", "backup"),
         ("Snapshot Manager", "snapshot"),
