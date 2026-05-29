@@ -1,5 +1,7 @@
 from textual.app import App
+from rachotil.ui.screens.docker import DockerScreen
 from rachotil.ui.screens.file_manager import FileManagerScreen
+from rachotil.ui.screens.network_manager import NetworkManagerScreen
 from rachotil.ui.screens.services import ServicesScreen
 from rachotil.ui.screens.firewall import FirewallScreen
 from rachotil.ui.screens.dashboard import DashboardScreen
@@ -44,5 +46,9 @@ class Rachotil(App):
                 self.switch_screen(ServicesScreen())
             elif choice == "firewall":
                 self.switch_screen(FirewallScreen())
+            elif choice == "docker":
+                self.switch_screen(DockerScreen())
+            elif choice == "network":
+                self.switch_screen(NetworkManagerScreen())
 
         self.push_screen(MenuScreen(), check_menu_result)

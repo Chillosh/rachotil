@@ -16,7 +16,9 @@ class MenuScreen(ModalScreen[str]):
         ("Snapshot Manager", "snapshot"),
         ("Service Manager", "services"),
         ("Firewall Manager", "firewall"),
-        ("Settings", "settings")
+        ("Docker Dashboard", "docker"),
+        ("Settings", "settings"),
+        ("Network Services", "network")
     ]
 
     def compose(self):
