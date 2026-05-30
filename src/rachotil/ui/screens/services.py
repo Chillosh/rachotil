@@ -2,48 +2,42 @@ from textual.screen import Screen
 from textual.widgets import Header, Footer, Static, Button, DataTable, Log
 from textual.containers import Vertical, Horizontal
 from textual import work
-from ...ssh.config import get_ssh_config
-from ...ssh.ssh import SSH
+from ...core.systemctl import SystemctlManager
 
 class ServicesScreen(Screen):
     CSS_PATH = "../styles.tcss"
+    BINDINGS = [
+        ("ctrl+m", "open_main_menu", "Menu"),
+        ("q", "quit", "Quit")
+    ]
 
     def __init__(self):
         super().__init__()
-        self.ssh = None
+        self.sys_mgr = SystemctlManager()
 
     def compose(self):
         yield Header()
         yield Footer()
-        
         with Vertical(id="services-main"):
             yield Static("Service Manager", id="services-title")
-            
             with Horizontal(id="services-actions"):
                 yield Button("Refresh List", id="btn-refresh-svc", variant="default")
                 yield Button("Start", id="btn-start-svc", variant="success")
                 yield Button("Stop", id="btn-stop-svc", variant="error")
                 yield Button("Restart", id="btn-restart-svc", variant="warning")
-                
             yield DataTable(id="services-table", cursor_type="row")
             yield Log(id="services-log", classes="status-display")
+
+    def action_open_main_menu(self) -> None:
+        self.app.action_show_menu()
+
+    def action_quit(self) -> None:
+        self.app.action_quit()
 
     def on_mount(self) -> None:
         table = self.query_one("#services-table", DataTable)
         table.add_columns("Service Name", "Status")
-        
-        try:
-            config = get_ssh_config()
-            self.ssh = SSH(
-                host=config["host"],
-                user=config["user"],
-                password=config["password"],
-                sudo_password=config.get("sudo_password")
-            )
-            self.ssh.connect()
-            self.refresh_services()
-        except Exception as e:
-            self.write_log(f"Connection failed: {str(e)}")
+        self.refresh_services()
 
     def write_log(self, message: str) -> None:
         try:
@@ -61,29 +55,18 @@ class ServicesScreen(Screen):
 
     @work(thread=True)
     def refresh_services(self) -> None:
-        if not self.ssh:
-            return
-            
         self.write_log("Scanning system for active service units...")
         try:
-            cmd = "systemctl list-units --type=service --all --no-pager --plain"
-            out, err = self.ssh.run_command(cmd)
-            
+            services = self.sys_mgr.get_all_services()
             results = []
-            for line in out.split("\n"):
-                parts = line.strip().split()
-                if len(parts) >= 3 and parts[0].endswith(".service"):
-                    svc_name = parts[0].replace(".service", "")
-                    active_state = parts[2]
-                    
-                    if active_state == "active":
-                        display_status = "[bold green]Active[/bold green]"
-                    elif active_state in ["inactive", "failed"]:
-                        display_status = f"[bold red]{active_state.capitalize()}[/bold red]"
-                    else:
-                        display_status = f"[yellow]{active_state}[/yellow]"
-                        
-                    results.append((svc_name, display_status))
+            for svc_name, active_state in services:
+                if active_state == "active":
+                    display_status = "[bold green]Active[/bold green]"
+                elif active_state in ["inactive", "failed"]:
+                    display_status = f"[bold red]{active_state.capitalize()}[/bold red]"
+                else:
+                    display_status = f"[yellow]{active_state}[/yellow]"
+                results.append((svc_name, display_status))
             
             self.app.call_from_thread(self._update_table, results)
             self.write_log(f"Scan complete. Found {len(results)} services.")
@@ -113,7 +96,8 @@ class ServicesScreen(Screen):
 
         self.write_log(f"Sending {action} command to {svc_name}...")
         try:
-            out, err = self.ssh.run_sudo_command(f"systemctl {action} {svc_name}")
+            out, err = self.sys_mgr.manage_service(svc_name, action)
+            self.write_log(f"Command finished.")
             self.refresh_services()
         except Exception as e:
             self.write_log(f"Error: {str(e)}")

@@ -1,9 +1,7 @@
-from .ssh.config import load_env_config
-from .ui.app import Rachotil
+from rachotil.ui.app import RachotilApp
 
-def main() -> None:
-    load_env_config()
-    app = Rachotil()
+def main():
+    app = RachotilApp()
     app.run()
 
 if __name__ == "__main__":

@@ -3,15 +3,18 @@ from textual import on
 from textual.containers import Horizontal, Vertical, Container
 from textual.screen import ModalScreen, Screen
 from textual.widgets import Button, Footer, Header, Input, SelectionList, Static, RadioSet, RadioButton
-from ...ssh.config import get_ssh_config, save_ssh_config
-from ...stats.config import load_stats_config, save_stats_config
+from ...storage.config_store import ConfigStore
 
 class SettingsScreen(Screen):
     CSS_PATH = "../styles.tcss"
     BINDINGS = [
-        ("m", "open_main_menu", "Menu"),
+        ("ctrl+m", "open_main_menu", "Menu"),
         ("q", "quit", "Quit")
     ]
+
+    def __init__(self):
+        super().__init__()
+        self.db = ConfigStore()
 
     def compose(self):
         yield Header()
@@ -40,10 +43,18 @@ class SettingsScreen(Screen):
     def action_quit(self) -> None:
         self.app.action_quit()
 
+    def on_mount(self):
+        saved_theme = self.db.get("theme", "theme-dark")
+        try:
+            self.query_one(f"#{saved_theme}", RadioButton).value = True
+        except:
+            pass
+
     def on_radio_set_changed(self, event: RadioSet.Changed) -> None:
         selected_id = event.radio_set.pressed_button.id
-        all_classes = ["light-layout", "cyber-layout", "solarized-layout", "retro-layout"]
+        self.db.set("theme", selected_id)
         
+        all_classes = ["light-layout", "cyber-layout", "solarized-layout", "retro-layout"]
         for cls in all_classes:
             self.app.remove_class(cls)
 
@@ -67,8 +78,9 @@ class SettingsScreen(Screen):
 class StatsSettingsModal(ModalScreen):
     def __init__(self):
         super().__init__()
-        self.config = load_stats_config()
-        self.blocks = self.config["blocks"]
+        self.db = ConfigStore()
+        self.stats_data = self.db.get("stats", {"blocks": []})
+        self.blocks = self.stats_data.get("blocks", [])
 
     def compose(self):
         yield Static("Enable/disable stat blocks")
@@ -91,9 +103,7 @@ class StatsSettingsModal(ModalScreen):
     def _rebuild_stats_options(self, selected_values: set[str] | None = None) -> None:
         selection_list = self.query_one("#stats_options", SelectionList)
         selection_list.clear_options()
-        selection_list.add_options(
-            [(block["label"], block["id"]) for block in self.blocks]
-        )
+        selection_list.add_options([(block["label"], block["id"]) for block in self.blocks])
 
         if selected_values is None:
             selected_values = {block["id"] for block in self.blocks if block.get("enabled")}
@@ -113,73 +123,34 @@ class StatsSettingsModal(ModalScreen):
         message = self.query_one("#stats_message", Static)
 
         if not label or not command or not interval_raw:
-            message.update("Please fill label, command and interval.")
-            return
-
-        try:
-            interval = int(interval_raw)
-            if interval < 1:
-                raise ValueError
-        except ValueError:
-            message.update("Interval must be a positive number.")
+            message.update("Please fill all fields.")
             return
 
         slug = re.sub(r"[^a-z0-9]+", "_", label.lower()).strip("_") or "custom"
         block_id = f"custom_{slug}"
-        existing = {block["id"] for block in self.blocks}
-        suffix = 2
-        while block_id in existing:
-            block_id = f"custom_{slug}_{suffix}"
-            suffix += 1
-
-        self.blocks.append(
-            {
-                "id": block_id,
-                "label": label,
-                "command": command,
-                "interval_seconds": interval,
-                "enabled": True,
-                "built_in": False,
-            }
-        )
+        
+        self.blocks.append({
+            "id": block_id,
+            "label": label,
+            "command": command,
+            "interval_seconds": int(interval_raw),
+            "enabled": True,
+            "built_in": False,
+        })
 
         selected_values = set(self.query_one("#stats_options", SelectionList).selected)
         selected_values.add(block_id)
         self._rebuild_stats_options(selected_values)
-
-        self.query_one("#custom_label", Input).value = ""
-        self.query_one("#custom_command", Input).value = ""
-        self.query_one("#custom_interval", Input).value = ""
-        message.update("Custom block added. Save to persist changes.")
-
-    @on(Button.Pressed, "#delete_custom")
-    def delete_custom_blocks(self):
-        selection_list = self.query_one("#stats_options", SelectionList)
-        message = self.query_one("#stats_message", Static)
-        selected_ids = set(selection_list.selected)
-
-        custom_ids = [
-            block["id"]
-            for block in self.blocks
-            if not block.get("built_in") and block["id"] in selected_ids
-        ]
-        if not custom_ids:
-            message.update("Select one or more custom blocks to delete.")
-            return
-
-        self.blocks = [block for block in self.blocks if block["id"] not in custom_ids]
-        self._rebuild_stats_options(selected_ids - set(custom_ids))
-
-        message.update(f"Deleted {len(custom_ids)} custom block(s). Save to persist changes.")
+        message.update("Custom block added.")
 
     @on(Button.Pressed, "#save")
     def save_stats_settings(self):
         selected_ids = set(self.query_one("#stats_options", SelectionList).selected)
-
         for block in self.blocks:
             block["enabled"] = block["id"] in selected_ids
 
-        save_stats_config({"version": self.config.get("version", 1), "blocks": self.blocks})
+        self.stats_data["blocks"] = self.blocks
+        self.db.set("stats", self.stats_data)
         self.app.pop_screen()
 
     @on(Button.Pressed, "#cancel")
@@ -187,16 +158,20 @@ class StatsSettingsModal(ModalScreen):
         self.app.pop_screen()
 
 class SSHSettingsModal(ModalScreen):
+    def __init__(self):
+        super().__init__()
+        self.db = ConfigStore()
+
     def compose(self):
-        config = get_ssh_config()
+        config = self.db.get("ssh", {})
         with Vertical():
             yield Static("SSH Host")
-            yield Input(value=config["host"], id="ssh_host")
+            yield Input(value=config.get("host", ""), id="ssh_host")
             yield Static("SSH User")
-            yield Input(value=config["user"], id="ssh_user")
+            yield Input(value=config.get("user", ""), id="ssh_user")
             yield Static("SSH Password")
-            yield Input(value=config["password"], password=True, id="ssh_password")
-            yield Static("SUDO Password (optional, defaults to SSH password)")
+            yield Input(value=config.get("password", ""), password=True, id="ssh_password")
+            yield Static("SUDO Password")
             yield Input(value=config.get("sudo_password", ""), password=True, id="ssh_sudo_password")
         with Horizontal():
             yield Button("Save", id="save_ssh")
@@ -204,11 +179,13 @@ class SSHSettingsModal(ModalScreen):
 
     @on(Button.Pressed, "#save_ssh")
     def save_settings(self):
-        host = self.query_one("#ssh_host", Input).value.strip()
-        user = self.query_one("#ssh_user", Input).value.strip()
-        password = self.query_one("#ssh_password", Input).value
-        sudo_password = self.query_one("#ssh_sudo_password", Input).value
-        save_ssh_config(host=host, user=user, password=password, sudo_password=sudo_password)
+        new_config = {
+            "host": self.query_one("#ssh_host", Input).value.strip(),
+            "user": self.query_one("#ssh_user", Input).value.strip(),
+            "password": self.query_one("#ssh_password", Input).value,
+            "sudo_password": self.query_one("#ssh_sudo_password", Input).value
+        }
+        self.db.set("ssh", new_config)
         self.app.pop_screen()
 
     @on(Button.Pressed, "#cancel_ssh")

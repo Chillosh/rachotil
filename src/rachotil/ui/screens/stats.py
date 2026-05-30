@@ -1,76 +1,57 @@
-from datetime import datetime
-from textual import work
 from textual.screen import Screen
-from textual.widgets import Footer, Header, Log
-from ...ssh.config import get_ssh_config
-from ...ssh.ssh import SSH
-from ...stats.config import get_enabled_stats_blocks
-
+from textual.widgets import Header, Footer, Static
+from textual.containers import Vertical, Horizontal
+from textual import work
+from ...core.ssh_client import SSHClientWrapper
+from ...storage.config_store import ConfigStore
 
 class StatsScreen(Screen):
+    def __init__(self):
+        super().__init__()
+        self.ssh = SSHClientWrapper()
+        self.db = ConfigStore()
+        self.timers = []
+
     def compose(self):
         yield Header()
-        yield Log(id="output")
         yield Footer()
+        with Vertical(id="stats-main"):
+            yield Static("Live Stats Monitoring", id="stats-title")
+            yield Vertical(id="stats-container")
 
-    def on_mount(self):
-        config = get_ssh_config()
-        self.ssh_connect = SSH(
-            config["host"],
-            config["user"],
-            config["password"],
-            config.get("sudo_password"),
-        )
-        self.blocks = get_enabled_stats_blocks()
-        self.stats_data = {block["id"]: "" for block in self.blocks}
+    def on_mount(self) -> None:
+        container = self.query_one("#stats-container", Vertical)
+        stats_data = self.db.get("stats", {"blocks": []})
+        blocks = stats_data.get("blocks", [])
 
-        log = self.query_one("#output", Log)
-        log.auto_scroll = False
-
-        if not self.blocks:
-            log.write_line("No stat blocks are enabled. Open Settings -> Stats Configuration.")
+        active_blocks = [b for b in blocks if b.get("enabled", False)]
+        
+        if not active_blocks:
+            container.mount(Static("No stat blocks enabled. Go to Settings.", classes="stats-box"))
             return
 
-        try:
-            self.ssh_connect.connect()
-            self.set_interval(1, self.refresh_screen)
-            for block in self.blocks:
-                self.set_interval(
-                    block["interval_seconds"],
-                    lambda b=block: self.run_stats_command(b["command"], b["id"]),
-                )
-                self.run_stats_command(block["command"], block["id"])
-        except Exception as e:
-            log.write_line(f"Error: {e}")
+        for block in active_blocks:
+            widget_id = f"stat-{block['id']}"
+            box = Static(f"{block['label']}\nLoading...", id=widget_id, classes="stats-box")
+            container.mount(box)
+            
+            t = self.set_interval(
+                block.get("interval_seconds", 5), 
+                lambda b=block, wid=widget_id: self.update_block(b, wid)
+            )
+            self.timers.append(t)
+            self.update_block(block, widget_id)
 
     @work(thread=True)
-    def run_stats_command(self, command, block_id):
+    def update_block(self, block: dict, widget_id: str) -> None:
         try:
-            out, err = self.ssh_connect.run_command(command)
-            if out:
-                self.stats_data[block_id] = out.strip()
-            elif err:
-                self.stats_data[block_id] = err.strip()
+            out, err = self.ssh.run_command(block["command"])
+            result = out.strip() if out.strip() else err.strip()
+            display_text = f"[bold]{block['label']}[/bold]\n{result}"
+            self.app.call_from_thread(lambda: self.query_one(f"#{widget_id}", Static).update(display_text))
         except Exception as e:
-            self.stats_data[block_id] = f"Error: {e}"
+            self.app.call_from_thread(lambda: self.query_one(f"#{widget_id}", Static).update(f"[bold]{block['label']}[/bold]\nError: {e}"))
 
-    def refresh_screen(self):
-        log = self.query_one("#output", Log)
-        pos = log.scroll_y
-        log.clear()
-
-        cas = datetime.now().strftime("%H:%M:%S")
-        log.write_line(f"[{cas}] SERVER STATS\n" + "=" * 40)
-
-        for block in self.blocks:
-            block_id = block["id"]
-            if self.stats_data.get(block_id):
-                log.write_line(f"\n--- {block['label'].upper()} ---")
-                log.write_line(self.stats_data[block_id])
-
-        log.scroll_y = pos
-
-    def on_unmount(self):
-        if hasattr(self, "ssh_connect"):
-            self.ssh_connect.close()
-
+    def on_unmount(self) -> None:
+        for t in self.timers:
+            t.stop()
