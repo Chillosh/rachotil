@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -e
 
 echo "======================================"
@@ -7,7 +6,7 @@ echo " Starting Rachotil Server Setup..."
 echo "======================================"
 
 if [ "$EUID" -eq 0 ]; then
-  echo "Please do not run this script directly as root. Run it as your normal user (it will ask for sudo password when needed)."
+  echo "Please do not run this script directly as root. Run it as your normal user."
   exit 1
 fi
 
@@ -39,18 +38,19 @@ if [ ! -d "venv" ]; then
 fi
 
 source venv/bin/activate
-echo "[4/5] Installing Python libraries (Textual, Paramiko)..."
+echo "[4/5] Installing Python libraries..."
 pip install --upgrade pip
 pip install -r requirements.txt
 
 echo "[5/5] Creating global 'rachotil' command..."
 LAUNCHER_PATH="$(pwd)/rachotil-launcher.sh"
 
-cat << 'EOF' > "$LAUNCHER_PATH"
+cat << EOF > "$LAUNCHER_PATH"
 #!/bin/bash
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
-source "$DIR/venv/bin/activate"
-python3 -m src.rachotil.main
+cd "$(pwd)"
+source venv/bin/activate
+export PYTHONPATH="$(pwd)/src"
+python3 src/rachotil/main.py
 EOF
 
 chmod +x "$LAUNCHER_PATH"
@@ -60,6 +60,6 @@ sudo usermod -aG docker $USER
 
 echo "======================================"
 echo " Installation Complete!"
-echo " Please log out and log back in (or reconnect SSH) for Docker permissions to apply."
+echo " Please log out and log back in for Docker permissions to apply."
 echo " You can now start the app anytime by typing: rachotil"
 echo "======================================"
