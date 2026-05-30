@@ -6,10 +6,6 @@ from ...core.systemctl import SystemctlManager
 
 class ServicesScreen(Screen):
     CSS_PATH = "../styles.tcss"
-    BINDINGS = [
-        ("ctrl+m", "open_main_menu", "Menu"),
-        ("q", "quit", "Quit")
-    ]
 
     def __init__(self):
         super().__init__()

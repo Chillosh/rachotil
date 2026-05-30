@@ -8,13 +8,18 @@ from .screens.docker import DockerScreen
 from .screens.firewall import FirewallScreen
 from .screens.file_manager import FileManagerScreen
 from .screens.network_manager import NetworkManagerScreen
+from .screens.backup import BackupScreen
+from .screens.snapshot import SnapshotScreen
+from .screens.management import ManagementScreen
+from .screens.stats import StatsScreen
+from .screens.terminal import TerminalScreen
 from ..storage.config_store import ConfigStore
 
 class RachotilApp(App):
     CSS_PATH = "styles.tcss"
     BINDINGS = [
-        Binding("ctrl+m", "show_menu", "Menu"),
-        Binding("q", "quit", "Quit"),
+        ("m", "show_menu", "Menu"),
+        ("q", "quit", "Quit"),
     ]
 
     def __init__(self):
@@ -49,3 +54,8 @@ class RachotilApp(App):
         elif name == "firewall": self.push_screen(FirewallScreen())
         elif name == "file_manager": self.push_screen(FileManagerScreen())
         elif name == "network_manager": self.push_screen(NetworkManagerScreen())
+        elif name == "backup": self.push_screen(BackupScreen())
+        elif name == "snapshot": self.push_screen(SnapshotScreen())
+        elif name == "management": self.push_screen(ManagementScreen())
+        elif name == "stats": self.push_screen(StatsScreen())
+        elif name == "terminal": self.push_screen(TerminalScreen())

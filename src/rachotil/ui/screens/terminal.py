@@ -4,10 +4,6 @@ from textual.widgets import Header, Footer, Log, Input
 from ...core.ssh_client import SSHClientWrapper
 
 class TerminalScreen(Screen):
-    BINDINGS = [
-        ("ctrl+m", "open_main_menu", "Menu"),
-        ("q", "quit", "Quit")
-    ]
 
     def compose(self):
         yield Header()

@@ -11,6 +11,11 @@ class MenuScreen(ModalScreen[str]):
         ("UFW Firewall", "firewall"),
         ("SFTP Explorer", "file_manager"),
         ("Network Services", "network_manager"),
+        ("Backup Manager (Rsync)", "backup"),
+        ("Snapshot Manager (Timeshift)", "snapshot"),
+        ("Server Management Tools", "management"),
+        ("Live Stats Monitoring", "stats"),
+        ("Interactive SSH Terminal", "terminal"),
         ("Settings", "settings")
     ]
 

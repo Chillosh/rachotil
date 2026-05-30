@@ -7,10 +7,6 @@ from ...storage.config_store import ConfigStore
 
 class SettingsScreen(Screen):
     CSS_PATH = "../styles.tcss"
-    BINDINGS = [
-        ("ctrl+m", "open_main_menu", "Menu"),
-        ("q", "quit", "Quit")
-    ]
 
     def __init__(self):
         super().__init__()
