@@ -183,7 +183,3 @@ class SSHSettingsModal(ModalScreen):
         }
         self.db.set("ssh", new_config)
         self.app.pop_screen()
-
-    @on(Button.Pressed, "#cancel_ssh")
-    def cancel_settings(self):
-        self.app.pop_screen()

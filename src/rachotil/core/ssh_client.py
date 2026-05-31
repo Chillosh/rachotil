@@ -28,11 +28,11 @@ class SSHClientWrapper:
         stdin, stdout, stderr = self.client.exec_command(cmd)
         return stdout.read().decode('utf-8'), stderr.read().decode('utf-8')
 
-    def run_sudo_command(self, cmd: str):
+    def run_sudo_command(self, cmd: str, timeout: int = 10):
         if not self.connected:
             self.connect()
         sudo_cmd = f"sudo -S -p '' {cmd}"
-        stdin, stdout, stderr = self.client.exec_command(sudo_cmd)
+        stdin, stdout, stderr = self.client.exec_command(sudo_cmd, timeout=timeout)
         stdin.write(self.sudo_password + "\n")
         stdin.flush()
         return stdout.read().decode('utf-8'), stderr.read().decode('utf-8')
