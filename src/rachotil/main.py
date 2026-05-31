@@ -1,10 +1,10 @@
-from rachotil.ui.app import RachotilApp
+from .ssh.config import load_env_config
+from .ui.app import Rachotil
 
-def main():
-    app = RachotilApp()
+def main() -> None:
+    load_env_config()
+    app = Rachotil()
     app.run()
 
 if __name__ == "__main__":
     main()
-
-#After some testing I found out nothing really works after whole day of refactoring so I will have to fix pretty much the whole thing, just because I wanted some better looking code

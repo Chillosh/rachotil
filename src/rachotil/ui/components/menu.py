@@ -4,19 +4,21 @@ from textual.widgets.option_list import Option
 from textual.containers import Vertical
 
 class MenuScreen(ModalScreen[str]):
+    CSS_PATH = "../styles.tcss"
+
     ALL_OPTIONS = [
         ("System Dashboard", "dashboard"),
+        ("Stats Monitoring", "stats"),
+        ("SSH Terminal", "term"),
+        ("File Manager", "file_manager"),
+        ("Management Tools", "management"),
+        ("Backup Manager", "backup"),
+        ("Snapshot Manager", "snapshot"),
         ("Service Manager", "services"),
+        ("Firewall Manager", "firewall"),
         ("Docker Dashboard", "docker"),
-        ("UFW Firewall", "firewall"),
-        ("SFTP Explorer", "file_manager"),
-        ("Network Services", "network_manager"),
-        ("Backup Manager (Rsync)", "backup"),
-        ("Snapshot Manager (Timeshift)", "snapshot"),
-        ("Server Management Tools", "management"),
-        ("Live Stats Monitoring", "stats"),
-        ("Interactive SSH Terminal", "terminal"),
-        ("Settings", "settings")
+        ("Settings", "settings"),
+        ("Network Services", "network")
     ]
 
     def compose(self):
@@ -40,3 +42,6 @@ class MenuScreen(ModalScreen[str]):
 
     def on_option_list_option_selected(self, event: OptionList.OptionSelected) -> None:
         self.dismiss(event.option_id)
+
+    def action_close(self) -> None:
+        self.dismiss(None)

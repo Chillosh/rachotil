@@ -4,42 +4,51 @@ from textual.containers import Vertical, Horizontal
 from textual import work
 import os
 import stat
-from ...core.ssh_client import SSHClientWrapper
-from ...storage.config_store import ConfigStore
+from ...ssh.config import get_ssh_config
+from ...ssh.ssh import SSH
 
 class FileManagerScreen(Screen):
+    CSS_PATH = "../styles.tcss"
+
     def __init__(self):
         super().__init__()
-        self.ssh = SSHClientWrapper()
-        self.db = ConfigStore()
+        self.ssh = None
         self.sftp = None
         self.current_path = "/"
 
     def compose(self):
         yield Header()
         yield Footer()
+        
         with Vertical(id="fm-main"):
             yield Static("SFTP File Explorer", id="fm-title")
+            
             with Horizontal(id="fm-controls"):
                 yield Static("Path:", id="fm-path-label")
                 yield Static("/", id="fm-current-path")
                 yield Button("Up (..)", id="btn-up-dir", variant="warning")
                 yield Button("Refresh", id="btn-refresh-dir", variant="default")
+
             yield DataTable(id="fm-table", cursor_type="row")
             yield Log(id="fm-log", classes="status-display")
 
     def on_mount(self) -> None:
         table = self.query_one("#fm-table", DataTable)
         table.add_columns("Type", "Name", "Size", "Permissions")
-        self.init_sftp()
-
-    @work(thread=True)
-    def init_sftp(self) -> None:
+        
         try:
-            self.sftp = self.ssh.get_sftp()
-            user = self.db.get("ssh", {}).get("user", "root")
-            if user != "root":
-                self.current_path = f"/home/{user}"
+            config = get_ssh_config()
+            self.ssh = SSH(
+                host=config["host"],
+                user=config["user"],
+                password=config["password"],
+                sudo_password=config.get("sudo_password")
+            )
+            self.ssh.connect()
+            self.sftp = self.ssh.get_sftp_client()
+            
+            if config["user"] != "root":
+                self.current_path = f"/home/{config['user']}"
             else:
                 self.current_path = "/root"
                 
@@ -78,6 +87,7 @@ class FileManagerScreen(Screen):
         self.write_log(f"Loading {self.current_path}...")
         try:
             self.app.call_from_thread(lambda: self.query_one("#fm-current-path", Static).update(self.current_path))
+            
             directory_items = self.sftp.listdir_attr(self.current_path)
             
             dirs = []
@@ -92,6 +102,7 @@ class FileManagerScreen(Screen):
                     size = f"{item.st_size / 1024:.1f} KB"
                     
                 perms = stat.filemode(item.st_mode)
+                
                 if is_dir:
                     dirs.append(("[DIR]", item.filename, "", perms))
                 else:
@@ -100,7 +111,8 @@ class FileManagerScreen(Screen):
             dirs.sort(key=lambda x: x[1].lower())
             files.sort(key=lambda x: x[1].lower())
             
-            self.app.call_from_thread(self._update_table, dirs + files)
+            all_items = dirs + files
+            self.app.call_from_thread(self._update_table, all_items)
         except Exception as e:
             self.write_log(f"Error reading directory: {str(e)}")
 
@@ -132,7 +144,12 @@ class FileManagerScreen(Screen):
             downloads_dir = os.path.join(os.path.expanduser("~"), "Downloads")
             os.makedirs(downloads_dir, exist_ok=True)
             local_path = os.path.join(downloads_dir, filename)
+            
             self.sftp.get(remote_path, local_path)
             self.write_log(f"Successfully downloaded to: {local_path}")
         except Exception as e:
             self.write_log(f"Download failed: {str(e)}")
+
+    def on_unmount(self) -> None:
+        if self.sftp:
+            self.sftp.close()

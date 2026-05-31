@@ -1,35 +1,33 @@
 import re
 from textual.screen import Screen
 from textual.widgets import Header, Footer, Log, Input
-from ...core.ssh_client import SSHClientWrapper
+from ...ssh.ssh import SSH
+from ...ssh.config import get_ssh_config
 
 class TerminalScreen(Screen):
-
     def compose(self):
         yield Header()
         yield Log(id="terminal_log")
         yield Input(id="sshInput", placeholder="Enter command ...")
         yield Footer()
 
-    def action_open_main_menu(self) -> None:
-        self.app.action_show_menu()
-
-    def action_quit(self) -> None:
-        self.app.action_quit()
-
     def on_mount(self):
-        self.ssh_conn = SSHClientWrapper()
+        config = get_ssh_config()
+        self.host = config["host"]
+        self.user = config["user"]
+        self.ssh_conn = SSH(
+            self.host,
+            self.user,
+            config["password"],
+            config.get("sudo_password"),
+        )
         log = self.query_one("#terminal_log", Log)
 
         try:
             self.ssh_conn.connect()
             self.ssh_conn.open_shell()
             self.set_interval(0.5, self.poll_shell_output)
-            
-            # Bezpečné vytažení jména a hosta čistě pro UI log
-            user = self.ssh_conn.db.get("ssh", {}).get("user", "user")
-            host = self.ssh_conn.db.get("ssh", {}).get("host", "host")
-            log.write_line(f"Connected to {host}@{user} (interactive shell)")
+            log.write_line(f"Connected to {self.host}@{self.user} (interactive shell)")
         except Exception as e:
             log.write_line(f"Error: {e}")
 
@@ -43,10 +41,7 @@ class TerminalScreen(Screen):
         input_box = self.query_one("#sshInput", Input)
 
         if command:
-            user = self.ssh_conn.db.get("ssh", {}).get("user", "user")
-            host = self.ssh_conn.db.get("ssh", {}).get("host", "host")
-            log.write_line(f"\n{user}@{host}:~$ {command}")
-            
+            log.write_line(f"\n{self.user}@{self.host}:~$ {command}")
         input_box.value = ""
 
         try:
@@ -55,7 +50,7 @@ class TerminalScreen(Screen):
             log.write_line(f"Critical error: {e}")
 
     def poll_shell_output(self):
-        if not hasattr(self, "ssh_conn") or not self.ssh_conn.connected:
+        if not hasattr(self, "ssh_conn"):
             return
 
         output = self.ssh_conn.shell_read()

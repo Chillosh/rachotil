@@ -1,61 +1,54 @@
 from textual.app import App
-from textual.binding import Binding
+from rachotil.ui.screens.docker import DockerScreen
+from rachotil.ui.screens.file_manager import FileManagerScreen
+from rachotil.ui.screens.network_manager import NetworkManagerScreen
+from rachotil.ui.screens.services import ServicesScreen
+from rachotil.ui.screens.firewall import FirewallScreen
+from rachotil.ui.screens.dashboard import DashboardScreen
+from rachotil.ui.screens.snapshot import SnapshotScreen
 from .components.menu import MenuScreen
-from .screens.dashboard import DashboardScreen
-from .screens.services import ServicesScreen
-from .screens.settings import SettingsScreen
-from .screens.docker import DockerScreen
-from .screens.firewall import FirewallScreen
-from .screens.file_manager import FileManagerScreen
-from .screens.network_manager import NetworkManagerScreen
-from .screens.backup import BackupScreen
-from .screens.snapshot import SnapshotScreen
 from .screens.management import ManagementScreen
-from .screens.stats import StatsScreen
+from .screens.settings import SettingsScreen
 from .screens.terminal import TerminalScreen
-from ..storage.config_store import ConfigStore
+from .screens.stats import StatsScreen
+from .screens.backup import BackupScreen
 
-class RachotilApp(App):
+
+class Rachotil(App):
     CSS_PATH = "styles.tcss"
     BINDINGS = [
-        ("m", "show_menu", "Menu"),
-        ("q", "quit", "Quit"),
+        ("space", "show_menu", "Menu"),
+        ("q", "quit", "Quit")
     ]
 
-    def __init__(self):
-        super().__init__()
-        self.db = ConfigStore()
-
-    def on_mount(self):
-        theme = self.db.get("theme", "theme-dark")
-        if theme == "theme-light":
-            self.add_class("light-layout")
-        elif theme == "theme-cyber":
-            self.add_class("cyber-layout")
-        elif theme == "theme-solarized":
-            self.add_class("solarized-layout")
-        elif theme == "theme-retro":
-            self.add_class("retro-layout")
-            
+    def on_mount(self) -> None:
         self.push_screen(DashboardScreen())
 
-    def action_show_menu(self):
-        def check_menu(screen_name):
-            if screen_name:
-                self.switch_screen(screen_name)
-        self.push_screen(MenuScreen(), check_menu)
+    def action_show_menu(self) -> None:
+        def check_menu_result(choice: str | None) -> None:
+            if choice == "term":
+                self.switch_screen(TerminalScreen())
+            elif choice == "dashboard":
+                self.switch_screen(DashboardScreen())
+            elif choice == "stats":
+                self.switch_screen(StatsScreen())
+            elif choice == "file_manager":
+                self.switch_screen(FileManagerScreen())
+            elif choice == "management":
+                self.switch_screen(ManagementScreen())
+            elif choice == "backup":
+                self.switch_screen(BackupScreen())
+            elif choice == "settings":
+                self.switch_screen(SettingsScreen())
+            elif choice == "snapshot":
+                self.switch_screen(SnapshotScreen())
+            elif choice == "services":
+                self.switch_screen(ServicesScreen())
+            elif choice == "firewall":
+                self.switch_screen(FirewallScreen())
+            elif choice == "docker":
+                self.switch_screen(DockerScreen())
+            elif choice == "network":
+                self.switch_screen(NetworkManagerScreen())
 
-    def switch_screen(self, name: str):
-        self.pop_screen()
-        if name == "dashboard": self.push_screen(DashboardScreen())
-        elif name == "services": self.push_screen(ServicesScreen())
-        elif name == "settings": self.push_screen(SettingsScreen())
-        elif name == "docker": self.push_screen(DockerScreen())
-        elif name == "firewall": self.push_screen(FirewallScreen())
-        elif name == "file_manager": self.push_screen(FileManagerScreen())
-        elif name == "network_manager": self.push_screen(NetworkManagerScreen())
-        elif name == "backup": self.push_screen(BackupScreen())
-        elif name == "snapshot": self.push_screen(SnapshotScreen())
-        elif name == "management": self.push_screen(ManagementScreen())
-        elif name == "stats": self.push_screen(StatsScreen())
-        elif name == "terminal": self.push_screen(TerminalScreen())
+        self.push_screen(MenuScreen(), check_menu_result)
