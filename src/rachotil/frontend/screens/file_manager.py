@@ -4,8 +4,8 @@ from textual.containers import Vertical, Horizontal
 from textual import work
 import os
 import stat
-from ...ssh.config import get_ssh_config
-from ...ssh.ssh import SSH
+from ...backend.ssh.config import get_ssh_config
+from ...backend.ssh.ssh import SSH
 
 class FileManagerScreen(Screen):
     CSS_PATH = "../styles.tcss"

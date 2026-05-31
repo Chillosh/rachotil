@@ -2,8 +2,8 @@ from textual.screen import Screen
 from textual.widgets import Header, Footer, Static
 from textual.containers import Horizontal, Vertical
 from textual import work
-from ...ssh.config import get_ssh_config
-from ...ssh.ssh import SSH
+from ...backend.ssh.config import get_ssh_config
+from ...backend.ssh.ssh import SSH
 
 class DashboardScreen(Screen):
     CSS_PATH = "../styles.tcss"

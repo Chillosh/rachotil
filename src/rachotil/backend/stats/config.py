@@ -55,7 +55,6 @@ _DEFAULT_BLOCKS = [
 
 
 def _config_path() -> Path:
-    # config.py -> stats -> rachotil -> src -> project root
     project_root = Path(__file__).resolve().parents[3]
     return project_root / "stats_config.json"
 

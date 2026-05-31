@@ -3,8 +3,8 @@ from textual import on
 from textual.containers import Horizontal, Vertical, Container
 from textual.screen import ModalScreen, Screen
 from textual.widgets import Button, Footer, Header, Input, SelectionList, Static, RadioSet, RadioButton
-from ...ssh.config import get_ssh_config, save_ssh_config
-from ...stats.config import load_stats_config, save_stats_config
+from ...backend.ssh.config import get_ssh_config, save_ssh_config
+from ...backend.stats.config import load_stats_config, save_stats_config
 
 class SettingsScreen(Screen):
     CSS_PATH = "../styles.tcss"

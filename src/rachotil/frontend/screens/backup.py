@@ -2,8 +2,8 @@ from textual.screen import Screen
 from textual.widgets import Header, Footer, Static, Button, Input, Label, Checkbox, OptionList, Log
 from textual.containers import Container, Vertical, Horizontal, ScrollableContainer
 from textual import work
-from ...ssh.config import get_ssh_config
-from ...ssh.ssh import SSH
+from ...backend.ssh.config import get_ssh_config
+from ...backend.ssh.ssh import SSH
 import os
 from datetime import datetime
 

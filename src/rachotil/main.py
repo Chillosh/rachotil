@@ -1,5 +1,5 @@
-from .ssh.config import load_env_config
-from .ui.app import Rachotil
+from .backend.ssh.config import load_env_config
+from .frontend.app import Rachotil
 
 def main() -> None:
     load_env_config()
