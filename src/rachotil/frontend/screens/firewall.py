@@ -2,8 +2,8 @@ from textual.screen import Screen
 from textual.widgets import Header, Footer, Static, Button, Input, DataTable, Log
 from textual.containers import Vertical, Horizontal
 from textual import work
-from ...backend.ssh.config import get_ssh_config
-from ...backend.ssh.ssh import SSH
+from ...backend.components.ssh.config import get_ssh_config
+from ...backend.components.ssh.ssh import SSH
 
 class FirewallScreen(Screen):
     CSS_PATH = "../styles.tcss"

@@ -8,6 +8,11 @@ You can use it for:
 - live server stats with custom blocks
 - settings and `.env` management in app
 - management actions for systemd, journalctl, processes, and APT
+- docker managment
+- file managing
+- firewall settings
+- backup and snapshot
+- track services and network
 
 ---
 

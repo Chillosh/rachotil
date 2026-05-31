@@ -3,8 +3,8 @@ from textual import on, work
 from textual.containers import Horizontal, Vertical
 from textual.screen import Screen
 from textual.widgets import Button, Footer, Header, Input, Log, Static
-from ...backend.ssh.config import get_ssh_config
-from ...backend.ssh.ssh import SSH
+from ...backend.components.ssh.config import get_ssh_config
+from ...backend.components.ssh.ssh import SSH
 
 
 class ManagementScreen(Screen):

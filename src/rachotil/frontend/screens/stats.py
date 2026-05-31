@@ -2,9 +2,9 @@ from datetime import datetime
 from textual import work
 from textual.screen import Screen
 from textual.widgets import Footer, Header, Log
-from ...backend.ssh.config import get_ssh_config
-from ...backend.ssh.ssh import SSH
-from ...backend.stats.config import get_enabled_stats_blocks
+from ...backend.components.ssh.config import get_ssh_config
+from ...backend.components.ssh.ssh import SSH
+from ...backend.components.stats.config import get_enabled_stats_blocks
 
 
 class StatsScreen(Screen):
