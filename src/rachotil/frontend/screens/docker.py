@@ -2,8 +2,10 @@ from textual.screen import Screen
 from textual.widgets import Header, Footer, Static, Button, DataTable, Log
 from textual.containers import Vertical, Horizontal, Container
 from textual import work
+
 from ...backend.components.ssh.config import get_ssh_config
 from ...backend.components.ssh.ssh import SSH
+from ...backend.components.docker.docker_manager import DockerManager
 
 class DockerScreen(Screen):
     CSS_PATH = "../styles.tcss"
@@ -11,6 +13,7 @@ class DockerScreen(Screen):
     def __init__(self):
         super().__init__()
         self.ssh = None
+        self.docker_mgr = None
 
     def compose(self):
         yield Header()
@@ -48,6 +51,7 @@ class DockerScreen(Screen):
                 sudo_password=config.get("sudo_password")
             )
             self.ssh.connect()
+            self.docker_mgr = DockerManager(self.ssh)
             self.write_status("Connected successfully. Checking Docker installation...")
             self.check_docker_and_refresh()
         except Exception as e:
@@ -71,47 +75,30 @@ class DockerScreen(Screen):
 
     @work(thread=True)
     def check_docker_and_refresh(self) -> None:
-        if not self.ssh:
+        if not self.docker_mgr:
             return
             
-        out, err = self.ssh.run_command("docker --version")
-        if "command not found" in err or "command not found" in out:
-            self.write_status("Error: Docker is not installed on the server.")
+        success, message = self.docker_mgr.check_docker_installed()
+        if not success:
+            self.write_status(f"Error: {message}")
             self.write_status("Install it manually or use the Service Manager.")
             return
             
-        self.write_status(f"Found {out.strip()}. Loading containers...")
+        self.write_status(f"Found {message}. Loading containers...")
         self.refresh_containers()
 
     @work(thread=True)
     def refresh_containers(self) -> None:
-        if not self.ssh:
+        if not self.docker_mgr:
             return
             
-        try:
-            cmd = "docker ps -a --format '{{.Names}}|{{.State}}|{{.Status}}|{{.Image}}'"
-            out, err = self.ssh.run_sudo_command(cmd)
-            
-            results = []
-            for line in out.strip().split("\n"):
-                if line.strip():
-                    parts = line.split("|")
-                    if len(parts) == 4:
-                        name, state, status, image = parts
-                        
-                        if state == "running":
-                            display_state = f"[bold green]{state.capitalize()}[/bold green]"
-                        elif state == "exited":
-                            display_state = f"[bold red]{state.capitalize()}[/bold red]"
-                        else:
-                            display_state = f"[yellow]{state.capitalize()}[/yellow]"
-                            
-                        results.append((name, display_state, status, image))
-            
-            self.app.call_from_thread(self._update_table, results)
-            self.write_status(f"Refreshed. Found {len(results)} containers.")
-        except Exception as e:
-            self.write_status(f"Failed to fetch containers: {str(e)}")
+        success, results = self.docker_mgr.get_containers()
+        
+        if success:
+             self.app.call_from_thread(self._update_table, results)
+             self.write_status(f"Refreshed. Found {len(results)} containers.")
+        else:
+             self.write_status(results)
 
     def _update_table(self, data: list) -> None:
         table = self.query_one("#docker-table", DataTable)
@@ -121,6 +108,9 @@ class DockerScreen(Screen):
 
     @work(thread=True)
     def manage_container(self, btn_id: str) -> None:
+        if not self.docker_mgr:
+             return
+
         table = self.query_one("#docker-table", DataTable)
         try:
             row_key = table.coordinate_to_cell_key(table.cursor_coordinate)
@@ -134,16 +124,24 @@ class DockerScreen(Screen):
         elif btn_id == "btn-stop-docker": action = "stop"
         elif btn_id == "btn-restart-docker": action = "restart"
 
+        if not action:
+            return
+
         self.write_status(f"Executing '{action}' on container {container_name}...")
-        try:
-            out, err = self.ssh.run_sudo_command(f"docker {action} {container_name}")
-            self.write_status(f"Command completed: {out.strip() or err.strip()}")
-            self.refresh_containers()
-        except Exception as e:
-            self.write_status(f"Error: {str(e)}")
+        
+        success, message = self.docker_mgr.manage_container(action, container_name)
+        
+        if success:
+             self.write_status(f"Command completed: {message}")
+             self.refresh_containers()
+        else:
+             self.write_status(message)
 
     @work(thread=True)
     def fetch_container_logs(self) -> None:
+        if not self.docker_mgr:
+             return
+
         table = self.query_one("#docker-table", DataTable)
         try:
             row_key = table.coordinate_to_cell_key(table.cursor_coordinate)
@@ -153,17 +151,14 @@ class DockerScreen(Screen):
             return
 
         self.write_status(f"Fetching logs for {container_name}...")
-        try:
-            out, err = self.ssh.run_sudo_command(f"docker logs --tail 50 {container_name}")
-            
-            log_output = out if out else err
-            if not log_output:
-                log_output = "No logs available or container is empty."
-                
+        
+        success, log_output = self.docker_mgr.get_container_logs(container_name)
+        
+        if success:
             self.app.call_from_thread(self._update_log_view, container_name, log_output)
             self.write_status("Logs loaded successfully.")
-        except Exception as e:
-            self.write_status(f"Failed to fetch logs: {str(e)}")
+        else:
+            self.write_status(log_output)
 
     def _update_log_view(self, name: str, log_data: str) -> None:
         title = self.query_one("#docker-log-title", Static)

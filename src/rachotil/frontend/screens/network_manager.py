@@ -2,8 +2,10 @@ from textual.screen import Screen
 from textual.widgets import Header, Footer, Static, Button, DataTable, Log
 from textual.containers import Vertical, Horizontal
 from textual import work
+
 from ...backend.components.ssh.config import get_ssh_config
 from ...backend.components.ssh.ssh import SSH
+from ...backend.components.network.network_manager import NetworkManager
 
 class NetworkManagerScreen(Screen):
     CSS_PATH = "../styles.tcss"
@@ -11,12 +13,7 @@ class NetworkManagerScreen(Screen):
     def __init__(self):
         super().__init__()
         self.ssh = None
-        self.supported_software = [
-            {"id": "pihole", "name": "Pi-hole", "type": "Docker / Native", "service": "pihole"},
-            {"id": "adguard", "name": "AdGuard Home", "type": "Docker / Native", "service": "adguard-home"},
-            {"id": "dnsmasq", "name": "Dnsmasq DNS/DHCP", "type": "Native", "service": "dnsmasq"},
-            {"id": "dhcpd", "name": "ISC DHCP Server", "type": "Native", "service": "isc-dhcp-server"}
-        ]
+        self.net_mgr = None
 
     def compose(self):
         yield Header()
@@ -45,6 +42,7 @@ class NetworkManagerScreen(Screen):
                 sudo_password=config.get("sudo_password")
             )
             self.ssh.connect()
+            self.net_mgr = NetworkManager(self.ssh)
             self.scan_network_services()
         except Exception as e:
             self.write_log(f"Connection failed: {str(e)}")
@@ -64,43 +62,18 @@ class NetworkManagerScreen(Screen):
 
     @work(thread=True)
     def scan_network_services(self) -> None:
-        if not self.ssh:
+        if not self.net_mgr:
             return
             
         self.write_log("Scanning server for network applications...")
-        results = []
         
-        for soft in self.supported_software:
-            installed = "Not Installed"
-            running = "Stopped"
-            
-            out_sys, _ = self.ssh.run_command(f"systemctl is-active {soft['service']}")
-            if out_sys.strip() == "active":
-                installed = "Installed (System)"
-                running = "Running"
-            elif out_sys.strip() in ["inactive", "failed"]:
-                installed = "Installed (System)"
-                running = "Stopped"
-                
-            if installed == "Not Installed":
-                out_dock, _ = self.ssh.run_command(f"docker ps --filter name={soft['service']} --format '{{{{.Status}}}}'")
-                if out_dock.strip():
-                    installed = "Installed (Docker)"
-                    if "Up" in out_dock:
-                        running = "Running"
-                else:
-                    out_dock_all, _ = self.ssh.run_command(f"docker ps -a --filter name={soft['service']} --format '{{{{.Names}}}}'")
-                    if out_dock_all.strip():
-                        installed = "Installed (Docker)"
-                        running = "Stopped"
-
-            display_inst = f"[bold green]{installed}[/bold green]" if "Installed" in installed else "[yaml_not_inst]Not Installed[/yaml_not_inst]"
-            display_run = f"[bold green]Running[/bold green]" if running == "Running" else f"[bold red]{running}[/bold red]"
-            
-            results.append((soft["name"], soft["type"], display_inst, display_run, soft["id"]))
-            
-        self.app.call_from_thread(self._update_table, results)
-        self.write_log("Scan finished data updated.")
+        success, result = self.net_mgr.scan_services()
+        
+        if success:
+            self.app.call_from_thread(self._update_table, result)
+            self.write_log("Scan finished, data updated.")
+        else:
+            self.write_log(f"Error: {result}")
 
     def _update_table(self, data: list) -> None:
         table = self.query_one("#net-table", DataTable)
@@ -110,6 +83,9 @@ class NetworkManagerScreen(Screen):
 
     @work(thread=True)
     def view_detailed_status(self) -> None:
+        if not self.net_mgr:
+            return
+            
         table = self.query_one("#net-table", DataTable)
         try:
             row_key = table.coordinate_to_cell_key(table.cursor_coordinate)
@@ -118,17 +94,16 @@ class NetworkManagerScreen(Screen):
             self.write_log("Error: No service selected.")
             return
 
-        soft = next((s for s in self.supported_software if s["id"] == soft_id), None)
-        if not soft:
+        self.write_log("Fetching diagnostic info...")
+        
+        success, details = self.net_mgr.get_service_details(soft_id)
+        
+        if not success:
+            self.write_log(f"Error: {details}")
             return
-
-        self.write_log(f"Fetching diagnostic info for {soft['name']}...")
+            
+        self.write_log(f"--- Systemd Status ({details['name']}) ---")
+        self.write_log(details['systemd'])
         
-        out_sys, _ = self.ssh.run_command(f"systemctl status {soft['service']} --no-pager -n 5")
-        out_dock, _ = self.ssh.run_command(f"docker logs --tail 5 {soft['service']}")
-        
-        self.write_log(f"--- Systemd Status ({soft['name']}) ---")
-        self.write_log(out_sys.strip() if out_sys.strip() else "No Native Systemd unit active.")
-        
-        self.write_log(f"--- Recent Container Logs ({soft['name']}) ---")
-        self.write_log(out_dock.strip() if out_dock.strip() else "No active Docker container logs found.")
+        self.write_log(f"--- Recent Container Logs ({details['name']}) ---")
+        self.write_log(details['docker'])

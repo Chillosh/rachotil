@@ -1,10 +1,21 @@
-import re
 from textual.screen import Screen
 from textual.widgets import Header, Footer, Log, Input
-from ...backend.components.ssh.ssh import SSH
+
 from ...backend.components.ssh.config import get_ssh_config
+from ...backend.components.ssh.ssh import SSH
+from ...backend.components.terminal.terminal_manager import TerminalManager
+
 
 class TerminalScreen(Screen):
+    CSS_PATH = "../styles.tcss"
+    
+    def __init__(self):
+        super().__init__()
+        self.ssh_conn = None
+        self.term_mgr = None
+        self.host = ""
+        self.user = ""
+
     def compose(self):
         yield Header()
         yield Log(id="terminal_log")
@@ -15,26 +26,30 @@ class TerminalScreen(Screen):
         config = get_ssh_config()
         self.host = config["host"]
         self.user = config["user"]
-        self.ssh_conn = SSH(
-            self.host,
-            self.user,
-            config["password"],
-            config.get("sudo_password"),
-        )
         log = self.query_one("#terminal_log", Log)
 
         try:
+            self.ssh_conn = SSH(
+                self.host,
+                self.user,
+                config["password"],
+                config.get("sudo_password"),
+            )
             self.ssh_conn.connect()
-            self.ssh_conn.open_shell()
-            self.set_interval(0.5, self.poll_shell_output)
-            log.write_line(f"Connected to {self.host}@{self.user} (interactive shell)")
+            
+            self.term_mgr = TerminalManager(self.ssh_conn)
+            success, message = self.term_mgr.open_shell()
+            
+            if success:
+                poll_interval = self.term_mgr.config.get("poll_interval", 0.5)
+                self.set_interval(poll_interval, self.poll_shell_output)
+                log.write_line(f"Connected to {self.host}@{self.user} (interactive shell)")
+            else:
+                log.write_line(message)
+                
         except Exception as e:
             log.write_line(f"Error: {e}")
 
-    def clean_ansi(self, text):
-        ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
-        return ansi_escape.sub('', text)
-    
     def on_input_submitted(self, event: Input.Submitted) -> None:
         command = event.value.strip()
         log = self.query_one("#terminal_log", Log)
@@ -44,21 +59,20 @@ class TerminalScreen(Screen):
             log.write_line(f"\n{self.user}@{self.host}:~$ {command}")
         input_box.value = ""
 
-        try:
-            self.ssh_conn.shell_send(command)
-        except Exception as e:
-            log.write_line(f"Critical error: {e}")
+        if self.term_mgr:
+            success, message = self.term_mgr.send_command(command)
+            if not success:
+                log.write_line(message)
 
     def poll_shell_output(self):
-        if not hasattr(self, "ssh_conn"):
+        if not self.term_mgr:
             return
 
-        output = self.ssh_conn.shell_read()
+        output = self.term_mgr.read_output()
         if output:
-            clean_output = self.clean_ansi(output)
             log = self.query_one("#terminal_log", Log)
-            log.write_line(clean_output)
+            log.write_line(output)
 
     def on_unmount(self):
-        if hasattr(self, 'ssh_conn'):
+        if self.ssh_conn:
             self.ssh_conn.close()

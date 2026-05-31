@@ -1,0 +1,120 @@
+{
+    "services": {
+        "title": "Systemd services",
+        "target_placeholder": "Service name (example: nginx.service)",
+        "extra_placeholder": "Optional argument",
+        "actions": {
+            "primary": {
+                "label": "List services",
+                "command": "systemctl list-units --type=service --all --no-pager",
+                "sudo": false
+            },
+            "secondary": {
+                "label": "Status target",
+                "command": "systemctl status {target} --no-pager",
+                "sudo": false,
+                "requires_target": true
+            },
+            "tertiary": {
+                "label": "Enable+Start",
+                "command": "systemctl enable --now {target}",
+                "sudo": true,
+                "requires_target": true
+            },
+            "quaternary": {
+                "label": "Disable+Stop",
+                "command": "systemctl disable --now {target}",
+                "sudo": true,
+                "requires_target": true
+            }
+        }
+    },
+    "journal": {
+        "title": "Journalctl logs",
+        "target_placeholder": "Unit name (example: nginx.service)",
+        "extra_placeholder": "Lines or --since value (example: 200 or '1 hour ago')",
+        "actions": {
+            "primary": {
+                "label": "Last 100 logs",
+                "command": "journalctl -n 100 --no-pager",
+                "sudo": false
+            },
+            "secondary": {
+                "label": "Unit logs",
+                "command": "journalctl -u {target} -n 150 --no-pager",
+                "sudo": false,
+                "requires_target": true
+            },
+            "tertiary": {
+                "label": "Since value",
+                "command": "journalctl --since {extra} -n 200 --no-pager",
+                "sudo": false,
+                "requires_extra": true
+            },
+            "quaternary": {
+                "label": "Vacuum by days",
+                "command": "journalctl --vacuum-time={extra}d",
+                "sudo": true,
+                "requires_extra": true
+            }
+        }
+    },
+    "processes": {
+        "title": "Process management",
+        "target_placeholder": "PID or process name",
+        "extra_placeholder": "Optional argument",
+        "actions": {
+            "primary": {
+                "label": "Top CPU",
+                "command": "ps aux --sort=-%cpu | head -n 20",
+                "sudo": false
+            },
+            "secondary": {
+                "label": "Top RAM",
+                "command": "ps aux --sort=-%mem | head -n 20",
+                "sudo": false
+            },
+            "tertiary": {
+                "label": "Find process",
+                "command": "ps aux | grep -i {target} | grep -v grep",
+                "sudo": false,
+                "requires_target": true
+            },
+            "quaternary": {
+                "label": "Kill PID",
+                "command": "kill -9 {target}",
+                "sudo": true,
+                "requires_target": true
+            }
+        }
+    },
+    "packages": {
+        "title": "APT package management",
+        "target_placeholder": "Package name (example: htop)",
+        "extra_placeholder": "Optional argument",
+        "actions": {
+            "primary": {
+                "label": "APT update",
+                "command": "apt-get update",
+                "sudo": true
+            },
+            "secondary": {
+                "label": "APT upgrade -y",
+                "command": "apt-get upgrade -y",
+                "sudo": true
+            },
+            "tertiary": {
+                "label": "Install package",
+                "command": "apt-get install -y {target}",
+                "sudo": true,
+                "requires_target": true
+            },
+            "quaternary": {
+                "label": "Remove package",
+                "command": "apt-get remove -y {target}",
+                "sudo": true,
+                "requires_target": true
+            }
+        }
+    }
+}

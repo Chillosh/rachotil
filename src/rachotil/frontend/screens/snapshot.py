@@ -1,9 +1,11 @@
 from textual.screen import Screen
-from textual.widgets import Header, Footer, Static, Button, Input, Label, Log, DataTable
+from textual.widgets import Header, Footer, Static, Button, Input, Log, DataTable
 from textual.containers import Container, Vertical, Horizontal
 from textual import work
+
 from ...backend.components.ssh.config import get_ssh_config
 from ...backend.components.ssh.ssh import SSH
+from ...backend.components.snapshot.snapshot_manager import SnapshotManager
 
 class SnapshotScreen(Screen):
     CSS_PATH = "../styles.tcss"
@@ -11,6 +13,7 @@ class SnapshotScreen(Screen):
     def __init__(self):
         super().__init__()
         self.ssh = None
+        self.snap_mgr = None
 
     def compose(self):
         yield Header()
@@ -47,6 +50,7 @@ class SnapshotScreen(Screen):
                 sudo_password=config.get("sudo_password")
             )
             self.ssh.connect()
+            self.snap_mgr = SnapshotManager(self.ssh)
             self.write_log(f"Successfully connected to {config['host']}")
             self.refresh_snapshots()
         except Exception as e:
@@ -73,34 +77,18 @@ class SnapshotScreen(Screen):
 
     @work(thread=True)
     def refresh_snapshots(self) -> None:
-        if not self.ssh:
+        if not self.snap_mgr:
             return
 
         self.write_log("Fetching snapshots list from server...")
-        try:
-            out, err = self.ssh.run_sudo_command("timeshift --list")
-            
-            if "command not found" in err or "command not found" in out:
-                self.write_log("Error: 'timeshift' is not installed on the server.")
-                self.write_log("Run: sudo apt install timeshift")
-                return
-
-            parsed_data = []
-            lines = out.split("\n")
-            for line in lines:
-                parts = line.strip().split()
-                if len(parts) >= 3 and parts[0].isdigit() and parts[1] == '>':
-                    s_id = parts[0]
-                    s_date = parts[2]
-                    s_tags = parts[3] if len(parts) > 3 else ""
-                    s_desc = " ".join(parts[4:]) if len(parts) > 4 else ""
-                    parsed_data.append((s_id, s_date, s_tags, s_desc))
-
-            self.app.call_from_thread(self._update_table, parsed_data)
+        
+        success, result = self.snap_mgr.get_snapshots()
+        
+        if success:
+            self.app.call_from_thread(self._update_table, result)
             self.write_log("Snapshot list updated.")
-
-        except Exception as e:
-            self.write_log(f"Failed to fetch snapshots: {str(e)}")
+        else:
+            self.write_log(result)
 
     def _update_table(self, data: list) -> None:
         table = self.query_one("#snapshot-table", DataTable)
@@ -110,32 +98,28 @@ class SnapshotScreen(Screen):
 
     @work(thread=True)
     def create_snapshot(self, description: str) -> None:
-        if not self.ssh:
+        if not self.snap_mgr:
             return
 
         self.write_log("Creating new system snapshot. This may take a few minutes...")
-        try:
-            cmd = "timeshift --create"
-            if description:
-                cmd += f" --comments '{description}'"
-            
-            out, err = self.ssh.run_sudo_command(cmd)
-            
-            if "E:" in out or "Error" in err:
-                self.write_log("Failed to create snapshot.")
-                self.write_log(err or out)
-            else:
-                self.write_log("Snapshot created successfully.")
-                self.app.call_from_thread(
-                    lambda: setattr(self.query_one("#snapshot-desc-input", Input), "value", "")
-                )
-                self.refresh_snapshots()
-
-        except Exception as e:
-            self.write_log(f"Error creating snapshot: {str(e)}")
+        
+        success, message = self.snap_mgr.create_snapshot(description)
+        
+        if success:
+            self.write_log(message)
+            self.app.call_from_thread(
+                lambda: setattr(self.query_one("#snapshot-desc-input", Input), "value", "")
+            )
+            self.refresh_snapshots()
+        else:
+            self.write_log("Failed to create snapshot.")
+            self.write_log(message)
 
     @work(thread=True)
     def delete_selected_snapshot(self) -> None:
+        if not self.snap_mgr:
+            return
+            
         table = self.query_one("#snapshot-table", DataTable)
         try:
             row_key = table.coordinate_to_cell_key(table.cursor_coordinate)
@@ -145,16 +129,18 @@ class SnapshotScreen(Screen):
             return
 
         self.write_log(f"Deleting snapshot {snap_name}...")
-        try:
-            cmd = f"timeshift --delete --snapshot '{snap_name}'"
-            out, err = self.ssh.run_sudo_command(cmd)
-            self.write_log(f"Snapshot {snap_name} deleted.")
+        
+        success, message = self.snap_mgr.delete_snapshot(snap_name)
+        self.write_log(message)
+        
+        if success:
             self.refresh_snapshots()
-        except Exception as e:
-            self.write_log(f"Error deleting snapshot: {str(e)}")
 
     @work(thread=True)
     def restore_selected_snapshot(self) -> None:
+        if not self.snap_mgr:
+            return
+            
         table = self.query_one("#snapshot-table", DataTable)
         try:
             row_key = table.coordinate_to_cell_key(table.cursor_coordinate)
@@ -166,9 +152,5 @@ class SnapshotScreen(Screen):
         self.write_log(f"WARNING: Restoring system to {snap_name}...")
         self.write_log("The server will automatically reboot if successful.")
         
-        try:
-            cmd = f"timeshift --restore --snapshot '{snap_name}' --yes"
-            self.ssh.run_sudo_command(cmd)
-            self.write_log("Restore command sent. Connection may drop due to reboot.")
-        except Exception as e:
-            self.write_log(f"Error during restore: {str(e)}")
+        success, message = self.snap_mgr.restore_snapshot(snap_name)
+        self.write_log(message)

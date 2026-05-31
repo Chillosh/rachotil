@@ -3,16 +3,13 @@ from textual import on
 from textual.containers import Horizontal, Vertical, Container
 from textual.screen import ModalScreen, Screen
 from textual.widgets import Button, Footer, Header, Input, SelectionList, Static, RadioSet, RadioButton
+
 from ...backend.components.ssh.config import get_ssh_config, save_ssh_config
 from ...backend.components.stats.config import load_stats_config, save_stats_config
 
 class SettingsScreen(Screen):
     CSS_PATH = "../styles.tcss"
-    BINDINGS = [
-        ("m", "open_main_menu", "Menu"),
-        ("q", "quit", "Quit")
-    ]
-
+    
     def compose(self):
         yield Header()
         yield Footer()
@@ -63,6 +60,7 @@ class SettingsScreen(Screen):
     @on(Button.Pressed, "#ssh")
     def show_ssh_menu(self):
         self.app.push_screen(SSHSettingsModal())
+
 
 class StatsSettingsModal(ModalScreen):
     def __init__(self):
@@ -185,6 +183,7 @@ class StatsSettingsModal(ModalScreen):
     @on(Button.Pressed, "#cancel")
     def return_to_settings(self):
         self.app.pop_screen()
+
 
 class SSHSettingsModal(ModalScreen):
     def compose(self):

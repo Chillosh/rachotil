@@ -2,8 +2,10 @@ from textual.screen import Screen
 from textual.widgets import Header, Footer, Static, Button, Input, DataTable, Log
 from textual.containers import Vertical, Horizontal
 from textual import work
+
 from ...backend.components.ssh.config import get_ssh_config
 from ...backend.components.ssh.ssh import SSH
+from ...backend.components.firewall.firewall_manager import FirewallManager
 
 class FirewallScreen(Screen):
     CSS_PATH = "../styles.tcss"
@@ -11,6 +13,7 @@ class FirewallScreen(Screen):
     def __init__(self):
         super().__init__()
         self.ssh = None
+        self.firewall_mgr = None
 
     def compose(self):
         yield Header()
@@ -47,6 +50,7 @@ class FirewallScreen(Screen):
                 sudo_password=config.get("sudo_password")
             )
             self.ssh.connect()
+            self.firewall_mgr = FirewallManager(self.ssh)
             self.write_log("Connected successfully.")
             self.refresh_ufw()
         except Exception as e:
@@ -74,44 +78,26 @@ class FirewallScreen(Screen):
 
     @work(thread=True)
     def toggle_ufw(self, action: str) -> None:
-        if not self.ssh:
+        if not self.firewall_mgr:
             return
+            
         self.write_log(f"Executing UFW {action}...")
-        out, err = self.ssh.run_sudo_command(f"ufw --force {action}")
-        self.write_log(out.strip() or err.strip())
-        self.refresh_ufw()
+        success, message = self.firewall_mgr.toggle_ufw(action)
+        self.write_log(message)
+        
+        if success:
+            self.refresh_ufw()
 
     @work(thread=True)
     def refresh_ufw(self) -> None:
-        if not self.ssh:
+        if not self.firewall_mgr:
             return
             
-        out, err = self.ssh.run_sudo_command("ufw status numbered")
-        lines = out.split("\n")
+        success, message, rules = self.firewall_mgr.get_status_and_rules()
+        self.write_log(message)
         
-        if "inactive" in out.lower():
-            self.write_log("UFW is currently INACTIVE.")
-            self.app.call_from_thread(self._update_table, [])
-            return
-            
-        self.write_log("UFW is ACTIVE. Parsing rules...")
-        results = []
-        parsing_rules = False
-        
-        for line in lines:
-            if line.startswith("[ 1]"): 
-                parsing_rules = True
-            
-            if parsing_rules and line.strip() and line.startswith("["):
-                parts = line.replace("]", "").replace("[", "").split()
-                if len(parts) >= 4:
-                    rule_id = parts[0].strip()
-                    rule_to = parts[1].strip()
-                    rule_action = parts[2].strip()
-                    rule_from = parts[3].strip()
-                    results.append((rule_id, rule_to, rule_action, rule_from))
-        
-        self.app.call_from_thread(self._update_table, results)
+        if success:
+            self.app.call_from_thread(self._update_table, rules)
 
     def _update_table(self, data: list) -> None:
         table = self.query_one("#firewall-table", DataTable)
@@ -121,27 +107,32 @@ class FirewallScreen(Screen):
 
     @work(thread=True)
     def add_rule(self) -> None:
-        port = self.query_one("#fw-port", Input).value.strip()
-        proto = self.query_one("#fw-proto", Input).value.strip().lower()
-        
-        if not port:
-            self.write_log("Error: Port is required.")
+        if not self.firewall_mgr:
             return
             
-        cmd = f"ufw allow {port}"
-        if proto in ["tcp", "udp"]:
-            cmd += f"/{proto}"
-            
-        self.write_log(f"Adding rule: {cmd}")
-        out, err = self.ssh.run_sudo_command(cmd)
-        self.write_log(out.strip() or err.strip())
+        port_input = self.query_one("#fw-port", Input)
+        proto_input = self.query_one("#fw-proto", Input)
         
-        self.app.call_from_thread(lambda: setattr(self.query_one("#fw-port", Input), "value", ""))
-        self.app.call_from_thread(lambda: setattr(self.query_one("#fw-proto", Input), "value", ""))
+        port = port_input.value.strip()
+        proto = proto_input.value.strip().lower()
+        
+        self.write_log(f"Adding rule for port {port}...")
+        success, message = self.firewall_mgr.add_rule(port, proto)
+        
+        if not success:
+            self.write_log(f"Error: {message}")
+            return
+            
+        self.write_log(message)
+        self.app.call_from_thread(lambda: setattr(port_input, "value", ""))
+        self.app.call_from_thread(lambda: setattr(proto_input, "value", ""))
         self.refresh_ufw()
 
     @work(thread=True)
     def delete_rule(self) -> None:
+        if not self.firewall_mgr:
+            return
+            
         table = self.query_one("#firewall-table", DataTable)
         try:
             row_key = table.coordinate_to_cell_key(table.cursor_coordinate)
@@ -151,6 +142,8 @@ class FirewallScreen(Screen):
             return
             
         self.write_log(f"Deleting rule ID {rule_id}...")
-        out, err = self.ssh.run_sudo_command(f"ufw --force delete {rule_id}")
-        self.write_log(out.strip() or err.strip())
-        self.refresh_ufw()
+        success, message = self.firewall_mgr.delete_rule(rule_id)
+        
+        self.write_log(message)
+        if success:
+            self.refresh_ufw()

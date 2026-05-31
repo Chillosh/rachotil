@@ -2,65 +2,26 @@ import json
 from pathlib import Path
 from typing import Any
 
-_DEFAULT_BLOCKS = [
-    {
-        "id": "ram_cpu",
-        "label": "RAM+CPU monitoring",
-        "command": "top -bn1 | head -n 15",
-        "interval_seconds": 2,
-        "enabled": True,
-        "built_in": True,
-    },
-    {
-        "id": "disk",
-        "label": "DISK load",
-        "command": "df -h",
-        "interval_seconds": 10,
-        "enabled": True,
-        "built_in": True,
-    },
-    {
-        "id": "network",
-        "label": "NETWORK",
-        "command": "ip addr show",
-        "interval_seconds": 10,
-        "enabled": True,
-        "built_in": True,
-    },
-    {
-        "id": "processes",
-        "label": "PROCESSES",
-        "command": "ps aux --sort=-%mem | head -n 10",
-        "interval_seconds": 10,
-        "enabled": True,
-        "built_in": True,
-    },
-    {
-        "id": "services",
-        "label": "SERVICES",
-        "command": "systemctl status | head -n 15",
-        "interval_seconds": 10,
-        "enabled": True,
-        "built_in": True,
-    },
-    {
-        "id": "users",
-        "label": "USERS",
-        "command": "w",
-        "interval_seconds": 10,
-        "enabled": True,
-        "built_in": True,
-    },
-]
+def _storage_dir() -> Path:
+    path = Path(__file__).resolve().parents[2] / "storage"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
 
+def get_available_defaults() -> list[dict[str, Any]]:
+    path = _storage_dir() / "default_blocks.json"
+    if not path.exists():
+        return []
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return []
 
 def _config_path() -> Path:
-    project_root = Path(__file__).resolve().parents[3]
-    return project_root / "stats_config.json"
+    return _storage_dir() / "stats_config.json"
 
 
 def _default_config() -> dict[str, Any]:
-    return {"version": 1, "blocks": [dict(item) for item in _DEFAULT_BLOCKS]}
+    return {"version": 1, "blocks": get_available_defaults()}
 
 
 def _validate_block(block: Any) -> bool:

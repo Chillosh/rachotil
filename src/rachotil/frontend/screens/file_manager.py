@@ -3,9 +3,10 @@ from textual.widgets import Header, Footer, Static, Button, DataTable, Log
 from textual.containers import Vertical, Horizontal
 from textual import work
 import os
-import stat
+
 from ...backend.components.ssh.config import get_ssh_config
 from ...backend.components.ssh.ssh import SSH
+from ...backend.components.file_manager.sftp_manager import SFTPManager
 
 class FileManagerScreen(Screen):
     CSS_PATH = "../styles.tcss"
@@ -13,7 +14,7 @@ class FileManagerScreen(Screen):
     def __init__(self):
         super().__init__()
         self.ssh = None
-        self.sftp = None
+        self.sftp_mgr = None
         self.current_path = "/"
 
     def compose(self):
@@ -45,15 +46,19 @@ class FileManagerScreen(Screen):
                 sudo_password=config.get("sudo_password")
             )
             self.ssh.connect()
-            self.sftp = self.ssh.get_sftp_client()
             
-            if config["user"] != "root":
-                self.current_path = f"/home/{config['user']}"
+            self.sftp_mgr = SFTPManager(self.ssh)
+            if self.sftp_mgr.open_sftp():
+                if config["user"] != "root":
+                    self.current_path = f"/home/{config['user']}"
+                else:
+                    self.current_path = "/root"
+                    
+                self.write_log(f"Connected to SFTP. Starting at {self.current_path}")
+                self.load_directory()
             else:
-                self.current_path = "/root"
+                self.write_log("Failed to open SFTP session.")
                 
-            self.write_log(f"Connected to SFTP. Starting at {self.current_path}")
-            self.load_directory()
         except Exception as e:
             self.write_log(f"Connection failed: {str(e)}")
 
@@ -81,40 +86,18 @@ class FileManagerScreen(Screen):
 
     @work(thread=True)
     def load_directory(self) -> None:
-        if not self.sftp:
+        if not self.sftp_mgr:
             return
             
         self.write_log(f"Loading {self.current_path}...")
-        try:
-            self.app.call_from_thread(lambda: self.query_one("#fm-current-path", Static).update(self.current_path))
-            
-            directory_items = self.sftp.listdir_attr(self.current_path)
-            
-            dirs = []
-            files = []
-            
-            for item in directory_items:
-                is_dir = stat.S_ISDIR(item.st_mode)
-                size = f"{item.st_size} B"
-                if item.st_size > 1048576:
-                    size = f"{item.st_size / 1048576:.1f} MB"
-                elif item.st_size > 1024:
-                    size = f"{item.st_size / 1024:.1f} KB"
-                    
-                perms = stat.filemode(item.st_mode)
-                
-                if is_dir:
-                    dirs.append(("[DIR]", item.filename, "", perms))
-                else:
-                    files.append(("[FILE]", item.filename, size, perms))
-                    
-            dirs.sort(key=lambda x: x[1].lower())
-            files.sort(key=lambda x: x[1].lower())
-            
-            all_items = dirs + files
-            self.app.call_from_thread(self._update_table, all_items)
-        except Exception as e:
-            self.write_log(f"Error reading directory: {str(e)}")
+        self.app.call_from_thread(lambda: self.query_one("#fm-current-path", Static).update(self.current_path))
+        
+        success, result = self.sftp_mgr.list_directory(self.current_path)
+        
+        if success:
+            self.app.call_from_thread(self._update_table, result)
+        else:
+            self.write_log(result)
 
     def _update_table(self, data: list) -> None:
         table = self.query_one("#fm-table", DataTable)
@@ -139,17 +122,14 @@ class FileManagerScreen(Screen):
 
     @work(thread=True)
     def download_file(self, remote_path: str, filename: str) -> None:
-        self.write_log(f"Starting download: {filename}...")
-        try:
-            downloads_dir = os.path.join(os.path.expanduser("~"), "Downloads")
-            os.makedirs(downloads_dir, exist_ok=True)
-            local_path = os.path.join(downloads_dir, filename)
+        if not self.sftp_mgr:
+            return
             
-            self.sftp.get(remote_path, local_path)
-            self.write_log(f"Successfully downloaded to: {local_path}")
-        except Exception as e:
-            self.write_log(f"Download failed: {str(e)}")
+        self.write_log(f"Starting download: {filename}...")
+        
+        success, message = self.sftp_mgr.download_file(remote_path, filename)
+        self.write_log(message)
 
     def on_unmount(self) -> None:
-        if self.sftp:
-            self.sftp.close()
+        if self.sftp_mgr:
+            self.sftp_mgr.close_sftp()

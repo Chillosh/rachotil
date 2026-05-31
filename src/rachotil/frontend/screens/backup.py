@@ -2,10 +2,10 @@ from textual.screen import Screen
 from textual.widgets import Header, Footer, Static, Button, Input, Label, Checkbox, OptionList, Log
 from textual.containers import Container, Vertical, Horizontal, ScrollableContainer
 from textual import work
+from datetime import datetime
 from ...backend.components.ssh.config import get_ssh_config
 from ...backend.components.ssh.ssh import SSH
-import os
-from datetime import datetime
+from ...backend.components.backup.backup_manager import BackupManager
 
 class BackupScreen(Screen):
     CSS_PATH = "../styles.tcss"
@@ -22,6 +22,7 @@ class BackupScreen(Screen):
     def __init__(self):
         super().__init__()
         self.ssh = None
+        self.backup_mgr = None
         self.selected_dirs = set(self.DEFAULT_DIRS.keys())
         self.additional_dirs = set()
         self.checkbox_to_path = {}
@@ -76,6 +77,7 @@ class BackupScreen(Screen):
                 sudo_password=config.get("sudo_password")
             )
             self.ssh.connect()
+            self.backup_mgr = BackupManager(self.ssh)
             self.write_log(f"Successfully connected to {config['host']}")
         except Exception as e:
             self.write_log(f"Connection failed: {str(e)}")
@@ -105,12 +107,10 @@ class BackupScreen(Screen):
     
     @work(thread=True)
     def search_directories(self, query: str) -> None:
-        if not self.ssh:
+        if not self.backup_mgr:
             return
         try:
-            cmd = f"find / -maxdepth 4 -name '*{query}*' -type d 2>/dev/null | head -10"
-            out, err = self.ssh.run_command(cmd)
-            results = [line.strip() for line in out.strip().split("\n") if line.strip()]
+            results = self.backup_mgr.search_directories(query)
             self.app.call_from_thread(self._update_search_ui, results)
         except Exception as e:
             self.write_log(f"Search error: {str(e)}")
@@ -138,59 +138,30 @@ class BackupScreen(Screen):
     
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "create-download-btn":
-            self.create_and_download_backup()
+            self.execute_backup()
         elif event.button.id == "cancel-btn":
             self.app.action_show_menu()
     
     @work(thread=True)
-    def create_and_download_backup(self) -> None:
-        try:
-            if not self.selected_dirs and not self.additional_dirs:
-                self.write_log("Error: Select at least one directory for backup.")
-                return
-            
-            backup_name = self.query_one("#backup-name", Input).value.strip()
-            if not backup_name:
-                self.write_log("Error: Backup name cannot be empty.")
-                return
-            
-            if not backup_name.endswith(".tar.gz"):
-                backup_name += ".tar.gz"
-            
-            all_dirs = list(self.selected_dirs) + list(self.additional_dirs)
-            dirs_str = " ".join(f'"{d}"' for d in all_dirs)
-            
-            self.write_log(f"Step 1/3: Archiving data on server into {backup_name}...")
-            self.write_log(f"Includes: {', '.join(all_dirs)}")
-            
-            remote_archive = f"/tmp/{backup_name}"
-            cmd = f"tar -czf {remote_archive} {dirs_str} 2>&1"
-            
-            out, err = self.ssh.run_sudo_command(cmd)
-            
-            if not self.ssh.file_exists(remote_archive):
-                self.write_log("Error: Backup creation on server failed.")
-                self.write_log(f"Error details: {err or out}")
-                return
-            
-            self.write_log("Step 1/3 completed. Archive created on server.")
-            
-            downloads_dir = os.path.join(os.path.expanduser("~"), "Downloads")
-            os.makedirs(downloads_dir, exist_ok=True)
-            local_file = os.path.join(downloads_dir, backup_name)
-            
-            self.write_log(f"Step 2/3: Downloading data to local machine...")
-            self.write_log(f"Path: {local_file}")
-            
-            success, message = self.ssh.download_file(remote_archive, local_file)
-            
-            if success:
-                self.write_log("Step 2/3 completed. File successfully downloaded.")
-                self.write_log("Step 3/3: Cleaning up remote server /tmp directory...")
-                self.ssh.run_command(f"rm {remote_archive}")
-                self.write_log("SUCCESS: Backup is ready in your Downloads folder.")
-            else:
-                self.write_log(f"Download failed: {message}")
+    def execute_backup(self) -> None:
+        if not self.backup_mgr:
+             self.write_log("Error: Connection to server not established.")
+             return
+
+        backup_name = self.query_one("#backup-name", Input).value.strip()
+        all_dirs = list(self.selected_dirs) + list(self.additional_dirs)
         
+        try:
+            success, message = self.backup_mgr.create_and_download_backup(
+                dirs_to_backup=all_dirs, 
+                backup_name=backup_name,
+                status_callback=self.write_log
+            )
+            
+            if not success:
+                self.write_log(f"Error: {message}")
+            else:
+                self.write_log(message)
+                
         except Exception as e:
             self.write_log(f"Critical error: {str(e)}")

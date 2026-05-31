@@ -2,8 +2,10 @@ from textual.screen import Screen
 from textual.widgets import Header, Footer, Static, Button, DataTable, Log
 from textual.containers import Vertical, Horizontal
 from textual import work
+
 from ...backend.components.ssh.config import get_ssh_config
 from ...backend.components.ssh.ssh import SSH
+from ...backend.components.services.services_manager import ServicesManager
 
 class ServicesScreen(Screen):
     CSS_PATH = "../styles.tcss"
@@ -11,6 +13,7 @@ class ServicesScreen(Screen):
     def __init__(self):
         super().__init__()
         self.ssh = None
+        self.services_mgr = None
 
     def compose(self):
         yield Header()
@@ -41,6 +44,7 @@ class ServicesScreen(Screen):
                 sudo_password=config.get("sudo_password")
             )
             self.ssh.connect()
+            self.services_mgr = ServicesManager(self.ssh)
             self.refresh_services()
         except Exception as e:
             self.write_log(f"Connection failed: {str(e)}")
@@ -61,34 +65,18 @@ class ServicesScreen(Screen):
 
     @work(thread=True)
     def refresh_services(self) -> None:
-        if not self.ssh:
+        if not self.services_mgr:
             return
             
         self.write_log("Scanning system for active service units...")
-        try:
-            cmd = "systemctl list-units --type=service --all --no-pager --plain"
-            out, err = self.ssh.run_command(cmd)
-            
-            results = []
-            for line in out.split("\n"):
-                parts = line.strip().split()
-                if len(parts) >= 3 and parts[0].endswith(".service"):
-                    svc_name = parts[0].replace(".service", "")
-                    active_state = parts[2]
-                    
-                    if active_state == "active":
-                        display_status = "[bold green]Active[/bold green]"
-                    elif active_state in ["inactive", "failed"]:
-                        display_status = f"[bold red]{active_state.capitalize()}[/bold red]"
-                    else:
-                        display_status = f"[yellow]{active_state}[/yellow]"
-                        
-                    results.append((svc_name, display_status))
-            
-            self.app.call_from_thread(self._update_table, results)
-            self.write_log(f"Scan complete. Found {len(results)} services.")
-        except Exception as e:
-            self.write_log(f"Scan failed: {str(e)}")
+        
+        success, results = self.services_mgr.get_services()
+        
+        if success:
+             self.app.call_from_thread(self._update_table, results)
+             self.write_log(f"Scan complete. Found {len(results)} services.")
+        else:
+             self.write_log(results)
 
     def _update_table(self, data: list) -> None:
         table = self.query_one("#services-table", DataTable)
@@ -98,6 +86,9 @@ class ServicesScreen(Screen):
 
     @work(thread=True)
     def manage_service(self, btn_id: str) -> None:
+        if not self.services_mgr:
+             return
+
         table = self.query_one("#services-table", DataTable)
         try:
             row_key = table.coordinate_to_cell_key(table.cursor_coordinate)
@@ -110,10 +101,17 @@ class ServicesScreen(Screen):
         if btn_id == "btn-start-svc": action = "start"
         elif btn_id == "btn-stop-svc": action = "stop"
         elif btn_id == "btn-restart-svc": action = "restart"
+        
+        if not action:
+            return
 
-        self.write_log(f"Sending {action} command to {svc_name}...")
-        try:
-            out, err = self.ssh.run_sudo_command(f"systemctl {action} {svc_name}")
-            self.refresh_services()
-        except Exception as e:
-            self.write_log(f"Error: {str(e)}")
+        self.write_log(f"Sending '{action}' command to {svc_name}...")
+        
+        success, message = self.services_mgr.manage_service(action, svc_name)
+        
+        if success:
+             if message:
+                 self.write_log(f"Command output: {message}")
+             self.refresh_services()
+        else:
+             self.write_log(message)

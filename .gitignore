@@ -3,7 +3,11 @@
 .venv/
 **/__pycache__/
 *.py[cod]
-*.json
+*$py.class
 *.egg-info/
 build/
 dist/
+src/rachotil/backend/storage/ssh_config.json
+src/rachotil/backend/storage/stats_config.json
+src/rachotil/backend/storage/terminal_config.json
+src/rachotil/backend/storage/snapshot_config.json

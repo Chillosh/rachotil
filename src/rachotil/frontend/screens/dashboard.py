@@ -2,8 +2,10 @@ from textual.screen import Screen
 from textual.widgets import Header, Footer, Static
 from textual.containers import Horizontal, Vertical
 from textual import work
+
 from ...backend.components.ssh.config import get_ssh_config
 from ...backend.components.ssh.ssh import SSH
+from ...backend.components.dashboard.dashboard_manager import DashboardManager
 
 class DashboardScreen(Screen):
     CSS_PATH = "../styles.tcss"
@@ -11,6 +13,7 @@ class DashboardScreen(Screen):
     def __init__(self):
         super().__init__()
         self.ssh = None
+        self.dashboard_mgr = None
 
     def compose(self):
         yield Header()
@@ -43,29 +46,23 @@ class DashboardScreen(Screen):
                 sudo_password=config.get("sudo_password")
             )
             self.ssh.connect()
-            self.fetch_sys_info()
+            self.dashboard_mgr = DashboardManager(self.ssh)
+            self.update_sys_info()
         except Exception as e:
             self.query_one("#dashboard-info", Static).update(f"Connection failed: {str(e)}")
 
     @work(thread=True)
-    def fetch_sys_info(self):
-        if not self.ssh:
+    def update_sys_info(self):
+        if not self.dashboard_mgr:
             return
             
-        cmd = """
-        echo "OS: $(grep PRETTY_NAME /etc/os-release | cut -d'=' -f2 | tr -d '\"')"
-        echo "Kernel: $(uname -r)"
-        echo "Uptime: $(uptime -p)"
-        echo "RAM: $(free -m | awk '/Mem:/ {print $3" MB / "$2" MB"}')"
-        echo "Disk (/): $(df -h / | awk 'NR==2 {print $3" / "$2" ("$5")"}')"
-        """
+        success, result = self.dashboard_mgr.fetch_sys_info()
         
-        try:
-            out, err = self.ssh.run_command(cmd)
-            self.app.call_from_thread(
-                lambda: self.query_one("#dashboard-info", Static).update(out.strip())
+        if success:
+             self.app.call_from_thread(
+                lambda: self.query_one("#dashboard-info", Static).update(result)
             )
-        except Exception as e:
-            self.app.call_from_thread(
-                lambda: self.query_one("#dashboard-info", Static).update(f"Error: {str(e)}")
+        else:
+             self.app.call_from_thread(
+                lambda: self.query_one("#dashboard-info", Static).update(f"Error: {result}")
             )
