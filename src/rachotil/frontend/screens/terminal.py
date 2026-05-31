@@ -1,3 +1,7 @@
+"""
+Screen for providing an interactive terminal shell via SSH.
+"""
+
 from textual.screen import Screen
 from textual.widgets import Header, Footer, Log, Input
 
@@ -7,6 +11,9 @@ from ...backend.components.terminal.terminal_manager import TerminalManager
 
 
 class TerminalScreen(Screen):
+    """
+    UI Screen that acts as a terminal emulator connected to the remote host.
+    """
     CSS_PATH = "../styles.tcss"
     
     def __init__(self):
@@ -16,13 +23,13 @@ class TerminalScreen(Screen):
         self.host = ""
         self.user = ""
 
-    def compose(self):
+    def compose(self) -> None:
         yield Header()
         yield Log(id="terminal_log")
         yield Input(id="sshInput", placeholder="Enter command ...")
         yield Footer()
 
-    def on_mount(self):
+    def on_mount(self) -> None:
         config = get_ssh_config()
         self.host = config["host"]
         self.user = config["user"]
@@ -64,7 +71,10 @@ class TerminalScreen(Screen):
             if not success:
                 log.write_line(message)
 
-    def poll_shell_output(self):
+    def poll_shell_output(self) -> None:
+        """
+        Periodically read and display output from the interactive SSH shell.
+        """
         if not self.term_mgr:
             return
 
@@ -73,6 +83,6 @@ class TerminalScreen(Screen):
             log = self.query_one("#terminal_log", Log)
             log.write_line(output)
 
-    def on_unmount(self):
+    def on_unmount(self) -> None:
         if self.ssh_conn:
             self.ssh_conn.close()

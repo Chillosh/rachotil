@@ -1,10 +1,30 @@
+"""
+Module for fetching system information for the dashboard.
+"""
+
 from ...components.ssh.ssh import SSH
 
 class DashboardManager:
+    """
+    Manager class for retrieving high-level system status and information.
+    """
+
     def __init__(self, ssh_client: SSH):
+        """
+        Initialize the DashboardManager.
+
+        Args:
+            ssh_client (SSH): Connected SSH client instance.
+        """
         self.ssh = ssh_client
 
     def fetch_sys_info(self) -> tuple[bool, str]:
+        """
+        Fetch basic system information including OS, kernel, uptime, RAM, and disk usage.
+
+        Returns:
+            tuple[bool, str]: A tuple containing a success flag and the formatted system info string or error message.
+        """
         if not self.ssh:
             return False, "SSH client is not connected."
 

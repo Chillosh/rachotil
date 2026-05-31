@@ -1,3 +1,7 @@
+"""
+Screen for managing and creating remote server backups.
+"""
+
 from textual.screen import Screen
 from textual.widgets import Header, Footer, Static, Button, Input, Label, Checkbox, OptionList, Log
 from textual.containers import Container, Vertical, Horizontal, ScrollableContainer
@@ -8,6 +12,9 @@ from ...backend.components.ssh.ssh import SSH
 from ...backend.components.backup.backup_manager import BackupManager
 
 class BackupScreen(Screen):
+    """
+    UI Screen for selecting directories, searching for additional paths, and performing backups.
+    """
     CSS_PATH = "../styles.tcss"
     
     DEFAULT_DIRS = {
@@ -27,7 +34,7 @@ class BackupScreen(Screen):
         self.additional_dirs = set()
         self.checkbox_to_path = {}
     
-    def compose(self):
+    def compose(self) -> None:
         yield Header()
         yield Footer()
         
@@ -107,6 +114,9 @@ class BackupScreen(Screen):
     
     @work(thread=True)
     def search_directories(self, query: str) -> None:
+        """
+        Search for remote directories based on query.
+        """
         if not self.backup_mgr:
             return
         try:
@@ -144,6 +154,9 @@ class BackupScreen(Screen):
     
     @work(thread=True)
     def execute_backup(self) -> None:
+        """
+        Create and download the backup archive.
+        """
         if not self.backup_mgr:
              self.write_log("Error: Connection to server not established.")
              return

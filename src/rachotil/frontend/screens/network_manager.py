@@ -1,3 +1,7 @@
+"""
+Screen for managing and scanning network services on the remote server.
+"""
+
 from textual.screen import Screen
 from textual.widgets import Header, Footer, Static, Button, DataTable, Log
 from textual.containers import Vertical, Horizontal
@@ -8,6 +12,9 @@ from ...backend.components.ssh.ssh import SSH
 from ...backend.components.network.network_manager import NetworkManager
 
 class NetworkManagerScreen(Screen):
+    """
+    UI Screen for scanning and viewing details of network services.
+    """
     CSS_PATH = "../styles.tcss"
 
     def __init__(self):
@@ -15,7 +22,7 @@ class NetworkManagerScreen(Screen):
         self.ssh = None
         self.net_mgr = None
 
-    def compose(self):
+    def compose(self) -> None:
         yield Header()
         yield Footer()
         
@@ -62,6 +69,9 @@ class NetworkManagerScreen(Screen):
 
     @work(thread=True)
     def scan_network_services(self) -> None:
+        """
+        Scan the remote server for known network services.
+        """
         if not self.net_mgr:
             return
             
@@ -83,6 +93,9 @@ class NetworkManagerScreen(Screen):
 
     @work(thread=True)
     def view_detailed_status(self) -> None:
+        """
+        Fetch and display detailed status information for the selected service.
+        """
         if not self.net_mgr:
             return
             

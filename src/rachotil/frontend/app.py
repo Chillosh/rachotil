@@ -1,3 +1,7 @@
+"""
+Main application class for Rachotil.
+"""
+
 from textual.app import App
 from rachotil.frontend.screens.docker import DockerScreen
 from rachotil.frontend.screens.file_manager import FileManagerScreen
@@ -15,6 +19,9 @@ from .screens.backup import BackupScreen
 
 
 class Rachotil(App):
+    """
+    Main Textual Application for controlling remote Linux servers.
+    """
     CSS_PATH = "styles.tcss"
     BINDINGS = [
         ("space", "show_menu", "Menu"),
@@ -25,6 +32,9 @@ class Rachotil(App):
         self.push_screen(DashboardScreen())
 
     def action_show_menu(self) -> None:
+        """
+        Display the main menu overlay.
+        """
         def check_menu_result(choice: str | None) -> None:
             if choice == "term":
                 self.switch_screen(TerminalScreen())

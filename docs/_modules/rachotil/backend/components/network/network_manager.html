@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>rachotil.backend.components.network.network_manager &#8212; src  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for rachotil.backend.components.network.network_manager</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module for scanning and managing network services on the remote server.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">...components.ssh.ssh</span><span class="w"> </span><span class="kn">import</span> <span class="n">SSH</span>
+
+<div class="viewcode-block" id="NetworkManager">
+<a class="viewcode-back" href="../../../../../rachotil.backend.components.network.html#rachotil.backend.components.network.network_manager.NetworkManager">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">NetworkManager</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Manager class for identifying and checking the status of pre-defined network services.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ssh_client</span><span class="p">:</span> <span class="n">SSH</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the NetworkManager.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ssh_client (SSH): Connected SSH client instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ssh</span> <span class="o">=</span> <span class="n">ssh_client</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_storage_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the path to the network services configuration file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Path: The resolved Path object for the configuration file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;storage&quot;</span> <span class="o">/</span> <span class="s2">&quot;network_services.json&quot;</span>
+
+<div class="viewcode-block" id="NetworkManager.load_software">
+<a class="viewcode-back" href="../../../../../rachotil.backend.components.network.html#rachotil.backend.components.network.network_manager.NetworkManager.load_software">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_software</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load network software definitions from storage.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list[dict]: A list of dictionaries defining services to scan.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage_path</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="NetworkManager.scan_services">
+<a class="viewcode-back" href="../../../../../rachotil.backend.components.network.html#rachotil.backend.components.network.network_manager.NetworkManager.scan_services">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">scan_services</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">|</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Scan the remote server for the status of configured network services.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple[bool, list[tuple[str, str, str, str, str]] | str]: A success flag and either a list of service status tuples or an error message.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ssh</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;SSH client is not connected.&quot;</span>
+
+        <span class="n">software_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_software</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">software_list</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;No services configured in network_services.json.&quot;</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">soft</span> <span class="ow">in</span> <span class="n">software_list</span><span class="p">:</span>
+            <span class="n">installed</span> <span class="o">=</span> <span class="s2">&quot;Not Installed&quot;</span>
+            <span class="n">running</span> <span class="o">=</span> <span class="s2">&quot;Stopped&quot;</span>
+            
+            <span class="n">out_sys</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">run_command</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;systemctl is-active </span><span class="si">{</span><span class="n">soft</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">out_sys</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;active&quot;</span><span class="p">:</span>
+                <span class="n">installed</span> <span class="o">=</span> <span class="s2">&quot;Installed (System)&quot;</span>
+                <span class="n">running</span> <span class="o">=</span> <span class="s2">&quot;Running&quot;</span>
+            <span class="k">elif</span> <span class="n">out_sys</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;inactive&quot;</span><span class="p">,</span> <span class="s2">&quot;failed&quot;</span><span class="p">]:</span>
+                <span class="n">installed</span> <span class="o">=</span> <span class="s2">&quot;Installed (System)&quot;</span>
+                <span class="n">running</span> <span class="o">=</span> <span class="s2">&quot;Stopped&quot;</span>
+                
+            <span class="k">if</span> <span class="n">installed</span> <span class="o">==</span> <span class="s2">&quot;Not Installed&quot;</span><span class="p">:</span>
+                <span class="n">out_dock</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">run_command</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;docker ps --filter name=</span><span class="si">{</span><span class="n">soft</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> --format &#39;</span><span class="se">{{{{</span><span class="s2">.Status</span><span class="se">}}}}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">out_dock</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                    <span class="n">installed</span> <span class="o">=</span> <span class="s2">&quot;Installed (Docker)&quot;</span>
+                    <span class="k">if</span> <span class="s2">&quot;Up&quot;</span> <span class="ow">in</span> <span class="n">out_dock</span><span class="p">:</span>
+                        <span class="n">running</span> <span class="o">=</span> <span class="s2">&quot;Running&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">out_dock_all</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">run_command</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;docker ps -a --filter name=</span><span class="si">{</span><span class="n">soft</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> --format &#39;</span><span class="se">{{{{</span><span class="s2">.Names</span><span class="se">}}}}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">out_dock_all</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                        <span class="n">installed</span> <span class="o">=</span> <span class="s2">&quot;Installed (Docker)&quot;</span>
+                        <span class="n">running</span> <span class="o">=</span> <span class="s2">&quot;Stopped&quot;</span>
+
+            <span class="n">display_inst</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[bold green]</span><span class="si">{</span><span class="n">installed</span><span class="si">}</span><span class="s2">[/bold green]&quot;</span> <span class="k">if</span> <span class="s2">&quot;Installed&quot;</span> <span class="ow">in</span> <span class="n">installed</span> <span class="k">else</span> <span class="s2">&quot;[yaml_not_inst]Not Installed[/yaml_not_inst]&quot;</span>
+            <span class="n">display_run</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[bold green]Running[/bold green]&quot;</span> <span class="k">if</span> <span class="n">running</span> <span class="o">==</span> <span class="s2">&quot;Running&quot;</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;[bold red]</span><span class="si">{</span><span class="n">running</span><span class="si">}</span><span class="s2">[/bold red]&quot;</span>
+            
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">soft</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">soft</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span> <span class="n">display_inst</span><span class="p">,</span> <span class="n">display_run</span><span class="p">,</span> <span class="n">soft</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]))</span>
+            
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">results</span></div>
+
+
+<div class="viewcode-block" id="NetworkManager.get_service_details">
+<a class="viewcode-back" href="../../../../../rachotil.backend.components.network.html#rachotil.backend.components.network.network_manager.NetworkManager.get_service_details">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_service_details</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">soft_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">dict</span> <span class="o">|</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fetch detailed status and logs for a specific service.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            soft_id (str): The unique identifier of the service.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple[bool, dict | str]: A success flag and either a dictionary with details or an error message.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ssh</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;SSH client is not connected.&quot;</span>
+            
+        <span class="n">software_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_software</span><span class="p">()</span>
+        <span class="n">soft</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">software_list</span> <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">soft_id</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">soft</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Service not found in configuration.&quot;</span>
+
+        <span class="n">out_sys</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">run_command</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;systemctl status </span><span class="si">{</span><span class="n">soft</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> --no-pager -n 5&quot;</span><span class="p">)</span>
+        <span class="n">out_dock</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">run_command</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;docker logs --tail 5 </span><span class="si">{</span><span class="n">soft</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">soft</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;systemd&quot;</span><span class="p">:</span> <span class="n">out_sys</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">if</span> <span class="n">out_sys</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;No Native Systemd unit active.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;docker&quot;</span><span class="p">:</span> <span class="n">out_dock</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">if</span> <span class="n">out_dock</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;No active Docker container logs found.&quot;</span>
+        <span class="p">}</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../../index.html">src</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../rachotil.html">rachotil package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, Author.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

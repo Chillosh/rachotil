@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>rachotil.frontend.screens.backup &#8212; src  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for rachotil.frontend.screens.backup</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Screen for managing and creating remote server backups.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">textual.screen</span><span class="w"> </span><span class="kn">import</span> <span class="n">Screen</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">textual.widgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">Header</span><span class="p">,</span> <span class="n">Footer</span><span class="p">,</span> <span class="n">Static</span><span class="p">,</span> <span class="n">Button</span><span class="p">,</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Label</span><span class="p">,</span> <span class="n">Checkbox</span><span class="p">,</span> <span class="n">OptionList</span><span class="p">,</span> <span class="n">Log</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">textual.containers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Container</span><span class="p">,</span> <span class="n">Vertical</span><span class="p">,</span> <span class="n">Horizontal</span><span class="p">,</span> <span class="n">ScrollableContainer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">textual</span><span class="w"> </span><span class="kn">import</span> <span class="n">work</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">...backend.components.ssh.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_ssh_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">...backend.components.ssh.ssh</span><span class="w"> </span><span class="kn">import</span> <span class="n">SSH</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">...backend.components.backup.backup_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">BackupManager</span>
+
+<div class="viewcode-block" id="BackupScreen">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.backup.BackupScreen">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BackupScreen</span><span class="p">(</span><span class="n">Screen</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    UI Screen for selecting directories, searching for additional paths, and performing backups.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">CSS_PATH</span> <span class="o">=</span> <span class="s2">&quot;../styles.tcss&quot;</span>
+    
+    <span class="n">DEFAULT_DIRS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;/etc&quot;</span><span class="p">:</span> <span class="s2">&quot;System configuration&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;/home&quot;</span><span class="p">:</span> <span class="s2">&quot;User home directories&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;/var/www&quot;</span><span class="p">:</span> <span class="s2">&quot;Web content&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;/root&quot;</span><span class="p">:</span> <span class="s2">&quot;Root home directory&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;/opt&quot;</span><span class="p">:</span> <span class="s2">&quot;Optional software&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;/srv&quot;</span><span class="p">:</span> <span class="s2">&quot;Server data&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ssh</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backup_mgr</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selected_dirs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_DIRS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">additional_dirs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkbox_to_path</span> <span class="o">=</span> <span class="p">{}</span>
+    
+<div class="viewcode-block" id="BackupScreen.compose">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.backup.BackupScreen.compose">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compose</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">Header</span><span class="p">()</span>
+        <span class="k">yield</span> <span class="n">Footer</span><span class="p">()</span>
+        
+        <span class="k">with</span> <span class="n">Vertical</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;backup-main&quot;</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">Static</span><span class="p">(</span><span class="s2">&quot;Backup Manager&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;backup-title&quot;</span><span class="p">)</span>
+            
+            <span class="k">with</span> <span class="n">ScrollableContainer</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;backup-dirs-container&quot;</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">Label</span><span class="p">(</span><span class="s2">&quot;[bold cyan]1. Default directories:[/bold cyan]&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">desc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_DIRS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">safe_name</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
+                    <span class="n">cb_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;dir-</span><span class="si">{</span><span class="n">safe_name</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">checkbox_to_path</span><span class="p">[</span><span class="n">cb_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">path</span>
+                    <span class="k">yield</span> <span class="n">Checkbox</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">desc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">cb_id</span><span class="p">)</span>
+            
+            <span class="k">with</span> <span class="n">Horizontal</span><span class="p">(</span><span class="n">classes</span><span class="o">=</span><span class="s2">&quot;horizontal-container&quot;</span><span class="p">):</span>
+                <span class="k">with</span> <span class="n">Container</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;backup-additional&quot;</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="s2">&quot;column&quot;</span><span class="p">):</span>
+                    <span class="k">yield</span> <span class="n">Label</span><span class="p">(</span><span class="s2">&quot;[bold cyan]2. Find additional directory:[/bold cyan]&quot;</span><span class="p">)</span>
+                    <span class="k">yield</span> <span class="n">Input</span><span class="p">(</span><span class="n">placeholder</span><span class="o">=</span><span class="s2">&quot;Enter path part (e.g., log)&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;search-input&quot;</span><span class="p">)</span>
+                    <span class="k">yield</span> <span class="n">Label</span><span class="p">(</span><span class="s2">&quot;Results (click to add):&quot;</span><span class="p">)</span>
+                    <span class="k">yield</span> <span class="n">OptionList</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;search-results-list&quot;</span><span class="p">)</span>
+                
+                <span class="k">with</span> <span class="n">Container</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;backup-custom-selected&quot;</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="s2">&quot;column&quot;</span><span class="p">):</span>
+                    <span class="k">yield</span> <span class="n">Label</span><span class="p">(</span><span class="s2">&quot;[bold cyan]Manually added directories:[/bold cyan]&quot;</span><span class="p">)</span>
+                    <span class="k">yield</span> <span class="n">OptionList</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;custom-dirs-list&quot;</span><span class="p">)</span>
+            
+            <span class="k">with</span> <span class="n">Container</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;backup-options&quot;</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">Label</span><span class="p">(</span><span class="s2">&quot;[bold cyan]3. Backup name:[/bold cyan]&quot;</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="n">Input</span><span class="p">(</span>
+                    <span class="n">value</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;backup-</span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">-%H%M%S&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">.tar.gz&quot;</span><span class="p">,</span>
+                    <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;backup-name&quot;</span>
+                <span class="p">)</span>
+            
+            <span class="k">with</span> <span class="n">Horizontal</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;backup-buttons&quot;</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Create &amp; Download Backup&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;create-download-btn&quot;</span><span class="p">,</span> <span class="n">variant</span><span class="o">=</span><span class="s2">&quot;primary&quot;</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Cancel&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;cancel-btn&quot;</span><span class="p">,</span> <span class="n">variant</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">)</span>
+            
+            <span class="k">yield</span> <span class="n">Log</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;backup-status-log&quot;</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="s2">&quot;status-display&quot;</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="BackupScreen.on_mount">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.backup.BackupScreen.on_mount">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_mount</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="s2">&quot;Initialization... Connecting to server.&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">get_ssh_config</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ssh</span> <span class="o">=</span> <span class="n">SSH</span><span class="p">(</span>
+                <span class="n">host</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">],</span>
+                <span class="n">user</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">],</span>
+                <span class="n">password</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;password&quot;</span><span class="p">],</span>
+                <span class="n">sudo_password</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sudo_password&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">backup_mgr</span> <span class="o">=</span> <span class="n">BackupManager</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssh</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Successfully connected to </span><span class="si">{</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Connection failed: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="BackupScreen.write_log">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.backup.BackupScreen.write_log">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">log_widget</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#backup-status-log&quot;</span><span class="p">,</span> <span class="n">Log</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">call_from_thread</span><span class="p">(</span><span class="n">log_widget</span><span class="o">.</span><span class="n">write_line</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="BackupScreen.on_checkbox_changed">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.backup.BackupScreen.on_checkbox_changed">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_checkbox_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Checkbox</span><span class="o">.</span><span class="n">Changed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">checkbox_id</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">checkbox</span><span class="o">.</span><span class="n">id</span>
+        <span class="k">if</span> <span class="n">checkbox_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkbox_to_path</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkbox_to_path</span><span class="p">[</span><span class="n">checkbox_id</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">selected_dirs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">selected_dirs</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="BackupScreen.on_input_changed">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.backup.BackupScreen.on_input_changed">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_input_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Input</span><span class="o">.</span><span class="n">Changed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="s2">&quot;search-input&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">search_directories</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#search-results-list&quot;</span><span class="p">,</span> <span class="n">OptionList</span><span class="p">)</span><span class="o">.</span><span class="n">clear_options</span><span class="p">()</span></div>
+
+    
+<div class="viewcode-block" id="BackupScreen.search_directories">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.backup.BackupScreen.search_directories">[docs]</a>
+    <span class="nd">@work</span><span class="p">(</span><span class="n">thread</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">search_directories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Search for remote directories based on query.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">backup_mgr</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backup_mgr</span><span class="o">.</span><span class="n">search_directories</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">call_from_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_update_search_ui</span><span class="p">,</span> <span class="n">results</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Search error: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_update_search_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#search-results-list&quot;</span><span class="p">,</span> <span class="n">OptionList</span><span class="p">)</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">clear_options</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">additional_dirs</span> <span class="ow">and</span> <span class="n">path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_dirs</span><span class="p">:</span>
+                <span class="n">options</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BackupScreen.on_option_list_option_selected">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.backup.BackupScreen.on_option_list_option_selected">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_option_list_option_selected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">OptionList</span><span class="o">.</span><span class="n">OptionSelected</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">option_list</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="s2">&quot;search-results-list&quot;</span><span class="p">:</span>
+            <span class="n">selected_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">prompt</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">additional_dirs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">selected_path</span><span class="p">)</span>
+            <span class="n">custom_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#custom-dirs-list&quot;</span><span class="p">,</span> <span class="n">OptionList</span><span class="p">)</span>
+            <span class="n">custom_list</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="n">selected_path</span><span class="p">)</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">option_list</span><span class="o">.</span><span class="n">remove_option_at_index</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">option_index</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Added directory to backup: </span><span class="si">{</span><span class="n">selected_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">option_list</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="s2">&quot;custom-dirs-list&quot;</span><span class="p">:</span>
+            <span class="n">selected_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">option</span><span class="o">.</span><span class="n">prompt</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">additional_dirs</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">selected_path</span><span class="p">)</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">option_list</span><span class="o">.</span><span class="n">remove_option_at_index</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">option_index</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Removed directory: </span><span class="si">{</span><span class="n">selected_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="BackupScreen.on_button_pressed">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.backup.BackupScreen.on_button_pressed">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_button_pressed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Button</span><span class="o">.</span><span class="n">Pressed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="s2">&quot;create-download-btn&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">execute_backup</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="s2">&quot;cancel-btn&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">action_show_menu</span><span class="p">()</span></div>
+
+    
+<div class="viewcode-block" id="BackupScreen.execute_backup">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.backup.BackupScreen.execute_backup">[docs]</a>
+    <span class="nd">@work</span><span class="p">(</span><span class="n">thread</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">execute_backup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create and download the backup archive.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">backup_mgr</span><span class="p">:</span>
+             <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="s2">&quot;Error: Connection to server not established.&quot;</span><span class="p">)</span>
+             <span class="k">return</span>
+
+        <span class="n">backup_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#backup-name&quot;</span><span class="p">,</span> <span class="n">Input</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">all_dirs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">selected_dirs</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">additional_dirs</span><span class="p">)</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">success</span><span class="p">,</span> <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backup_mgr</span><span class="o">.</span><span class="n">create_and_download_backup</span><span class="p">(</span>
+                <span class="n">dirs_to_backup</span><span class="o">=</span><span class="n">all_dirs</span><span class="p">,</span> 
+                <span class="n">backup_name</span><span class="o">=</span><span class="n">backup_name</span><span class="p">,</span>
+                <span class="n">status_callback</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">write_log</span>
+            <span class="p">)</span>
+            
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+                
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Critical error: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">src</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../rachotil.html">rachotil package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, Author.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

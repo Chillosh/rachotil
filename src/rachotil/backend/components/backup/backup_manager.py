@@ -1,12 +1,40 @@
+"""
+Module for managing server backups.
+Provides functionality to search directories and create/download archives.
+"""
+
 import os
 from datetime import datetime
+from typing import Callable
 from ..ssh.ssh import SSH
 
 class BackupManager:
+    """
+    Manager class for handling backup operations on the remote server.
+    """
+
     def __init__(self, ssh_client: SSH):
+        """
+        Initialize the BackupManager.
+
+        Args:
+            ssh_client (SSH): Connected SSH client instance.
+        """
         self.ssh = ssh_client
 
     def search_directories(self, query: str) -> list[str]:
+        """
+        Search for directories on the remote server using a query.
+
+        Args:
+            query (str): The search term for directory names.
+
+        Returns:
+            list[str]: A list of matching directory paths.
+
+        Raises:
+            RuntimeError: If the SSH client is not connected.
+        """
         if not self.ssh:
             raise RuntimeError("SSH client is not connected.")
         
@@ -15,7 +43,18 @@ class BackupManager:
         
         return [line.strip() for line in out.strip().split("\n") if line.strip()]
 
-    def create_and_download_backup(self, dirs_to_backup: list[str], backup_name: str, status_callback=None) -> tuple[bool, str]:
+    def create_and_download_backup(self, dirs_to_backup: list[str], backup_name: str, status_callback: Callable[[str], None] | None = None) -> tuple[bool, str]:
+        """
+        Create a compressed archive of specified directories and download it to the local machine.
+
+        Args:
+            dirs_to_backup (list[str]): List of remote directories to include in the backup.
+            backup_name (str): Name of the backup file to be created.
+            status_callback (Callable[[str], None] | None): Optional callback function for status updates.
+
+        Returns:
+            tuple[bool, str]: A tuple containing a success flag and a status message.
+        """
         if not self.ssh:
              return False, "SSH client is not connected."
 

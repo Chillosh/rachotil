@@ -1,9 +1,16 @@
+"""
+Overlay menu for navigating between different application screens.
+"""
+
 from textual.screen import ModalScreen
 from textual.widgets import OptionList, Input
 from textual.widgets.option_list import Option
 from textual.containers import Vertical
 
 class MenuScreen(ModalScreen[str]):
+    """
+    Modal UI Screen that presents a searchable list of available application modules.
+    """
     CSS_PATH = "../styles.tcss"
 
     ALL_OPTIONS = [
@@ -21,7 +28,7 @@ class MenuScreen(ModalScreen[str]):
         ("Settings", "settings")
     ]
 
-    def compose(self):
+    def compose(self) -> None:
         with Vertical(id="menu-container"):
             yield Input(placeholder="Search menu...", id="menu-search")
             yield OptionList(id="main_menu")
@@ -34,6 +41,9 @@ class MenuScreen(ModalScreen[str]):
             self.filter_menu(event.value)
 
     def filter_menu(self, query: str) -> None:
+        """
+        Filter the menu items based on the search query.
+        """
         menu = self.query_one("#main_menu", OptionList)
         menu.clear_options()
         for label, opt_id in self.ALL_OPTIONS:

@@ -1,3 +1,7 @@
+"""
+Screen for displaying real-time system statistics from the remote server.
+"""
+
 from datetime import datetime
 from textual import work
 from textual.screen import Screen
@@ -10,12 +14,15 @@ from ...backend.components.stats.stats_manager import StatsManager
 
 
 class StatsScreen(Screen):
-    def compose(self):
+    """
+    UI Screen that periodically refreshes and displays various system metrics.
+    """
+    def compose(self) -> None:
         yield Header()
         yield Log(id="output")
         yield Footer()
 
-    def on_mount(self):
+    def on_mount(self) -> None:
         config = get_ssh_config()
         self.ssh_connect = SSH(
             config["host"],
@@ -48,12 +55,18 @@ class StatsScreen(Screen):
             log.write_line(f"Error: {e}")
 
     @work(thread=True)
-    def run_stats_command(self, command, block_id):
+    def run_stats_command(self, command: str, block_id: str) -> None:
+        """
+        Execute a statistics command on the server in a background thread.
+        """
         if hasattr(self, "stats_mgr"):
             result = self.stats_mgr.fetch_stat(command)
             self.stats_data[block_id] = result
 
-    def refresh_screen(self):
+    def refresh_screen(self) -> None:
+        """
+        Update the log widget with the latest collected statistics data.
+        """
         log = self.query_one("#output", Log)
         pos = log.scroll_y
         log.clear()
@@ -69,6 +82,6 @@ class StatsScreen(Screen):
 
         log.scroll_y = pos
 
-    def on_unmount(self):
+    def on_unmount(self) -> None:
         if hasattr(self, "ssh_connect"):
             self.ssh_connect.close()

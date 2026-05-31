@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>rachotil.frontend.app &#8212; src  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for rachotil.frontend.app</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Main application class for Rachotil.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">textual.app</span><span class="w"> </span><span class="kn">import</span> <span class="n">App</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rachotil.frontend.screens.docker</span><span class="w"> </span><span class="kn">import</span> <span class="n">DockerScreen</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rachotil.frontend.screens.file_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileManagerScreen</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rachotil.frontend.screens.network_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">NetworkManagerScreen</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rachotil.frontend.screens.services</span><span class="w"> </span><span class="kn">import</span> <span class="n">ServicesScreen</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rachotil.frontend.screens.firewall</span><span class="w"> </span><span class="kn">import</span> <span class="n">FirewallScreen</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rachotil.frontend.screens.dashboard</span><span class="w"> </span><span class="kn">import</span> <span class="n">DashboardScreen</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rachotil.frontend.screens.snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">SnapshotScreen</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.components.menu</span><span class="w"> </span><span class="kn">import</span> <span class="n">MenuScreen</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.screens.management</span><span class="w"> </span><span class="kn">import</span> <span class="n">ManagementScreen</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.screens.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">SettingsScreen</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.screens.terminal</span><span class="w"> </span><span class="kn">import</span> <span class="n">TerminalScreen</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.screens.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">StatsScreen</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.screens.backup</span><span class="w"> </span><span class="kn">import</span> <span class="n">BackupScreen</span>
+
+
+<div class="viewcode-block" id="Rachotil">
+<a class="viewcode-back" href="../../../rachotil.frontend.html#rachotil.frontend.app.Rachotil">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Rachotil</span><span class="p">(</span><span class="n">App</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Main Textual Application for controlling remote Linux servers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">CSS_PATH</span> <span class="o">=</span> <span class="s2">&quot;styles.tcss&quot;</span>
+    <span class="n">BINDINGS</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;space&quot;</span><span class="p">,</span> <span class="s2">&quot;show_menu&quot;</span><span class="p">,</span> <span class="s2">&quot;Menu&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="s2">&quot;quit&quot;</span><span class="p">,</span> <span class="s2">&quot;Quit&quot;</span><span class="p">)</span>
+    <span class="p">]</span>
+
+<div class="viewcode-block" id="Rachotil.on_mount">
+<a class="viewcode-back" href="../../../rachotil.frontend.html#rachotil.frontend.app.Rachotil.on_mount">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_mount</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">push_screen</span><span class="p">(</span><span class="n">DashboardScreen</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="Rachotil.action_show_menu">
+<a class="viewcode-back" href="../../../rachotil.frontend.html#rachotil.frontend.app.Rachotil.action_show_menu">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">action_show_menu</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Display the main menu overlay.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">check_menu_result</span><span class="p">(</span><span class="n">choice</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;term&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">switch_screen</span><span class="p">(</span><span class="n">TerminalScreen</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;dashboard&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">switch_screen</span><span class="p">(</span><span class="n">DashboardScreen</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;stats&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">switch_screen</span><span class="p">(</span><span class="n">StatsScreen</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;file_manager&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">switch_screen</span><span class="p">(</span><span class="n">FileManagerScreen</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;management&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">switch_screen</span><span class="p">(</span><span class="n">ManagementScreen</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;backup&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">switch_screen</span><span class="p">(</span><span class="n">BackupScreen</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;settings&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">switch_screen</span><span class="p">(</span><span class="n">SettingsScreen</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;snapshot&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">switch_screen</span><span class="p">(</span><span class="n">SnapshotScreen</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;services&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">switch_screen</span><span class="p">(</span><span class="n">ServicesScreen</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;firewall&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">switch_screen</span><span class="p">(</span><span class="n">FirewallScreen</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;docker&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">switch_screen</span><span class="p">(</span><span class="n">DockerScreen</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;network&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">switch_screen</span><span class="p">(</span><span class="n">NetworkManagerScreen</span><span class="p">())</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">push_screen</span><span class="p">(</span><span class="n">MenuScreen</span><span class="p">(),</span> <span class="n">check_menu_result</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">src</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../rachotil.html">rachotil package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, Author.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

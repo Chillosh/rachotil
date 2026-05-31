@@ -1,13 +1,29 @@
+"""
+Module for managing the configuration of system statistics blocks.
+"""
+
 import json
 from pathlib import Path
 from typing import Any
 
 def _storage_dir() -> Path:
+    """
+    Get the directory path for storing configuration files.
+
+    Returns:
+        Path: The storage directory path.
+    """
     path = Path(__file__).resolve().parents[2] / "storage"
     path.mkdir(parents=True, exist_ok=True)
     return path
 
 def get_available_defaults() -> list[dict[str, Any]]:
+    """
+    Load the default statistics blocks from storage.
+
+    Returns:
+        list[dict[str, Any]]: A list of default block configurations.
+    """
     path = _storage_dir() / "default_blocks.json"
     if not path.exists():
         return []
@@ -17,14 +33,35 @@ def get_available_defaults() -> list[dict[str, Any]]:
         return []
 
 def _config_path() -> Path:
+    """
+    Get the path to the stats configuration file.
+
+    Returns:
+        Path: The path to stats_config.json.
+    """
     return _storage_dir() / "stats_config.json"
 
 
 def _default_config() -> dict[str, Any]:
+    """
+    Create a default configuration dictionary.
+
+    Returns:
+        dict[str, Any]: The default configuration.
+    """
     return {"version": 1, "blocks": get_available_defaults()}
 
 
 def _validate_block(block: Any) -> bool:
+    """
+    Validate a single statistics block configuration.
+
+    Args:
+        block (Any): The block configuration to validate.
+
+    Returns:
+        bool: True if valid, False otherwise.
+    """
     if not isinstance(block, dict):
         return False
 
@@ -46,6 +83,15 @@ def _validate_block(block: Any) -> bool:
 
 
 def _validate_config(data: Any) -> bool:
+    """
+    Validate the entire statistics configuration dictionary.
+
+    Args:
+        data (Any): The configuration data to validate.
+
+    Returns:
+        bool: True if valid, False otherwise.
+    """
     if not isinstance(data, dict):
         return False
     if not isinstance(data.get("blocks"), list):
@@ -63,6 +109,12 @@ def _validate_config(data: Any) -> bool:
 
 
 def load_stats_config() -> dict[str, Any]:
+    """
+    Load the statistics configuration from file, falling back to defaults if necessary.
+
+    Returns:
+        dict[str, Any]: The loaded configuration.
+    """
     path = _config_path()
     if not path.exists():
         default = _default_config()
@@ -84,6 +136,18 @@ def load_stats_config() -> dict[str, Any]:
 
 
 def save_stats_config(config: dict[str, Any]) -> Path:
+    """
+    Save a statistics configuration dictionary to file.
+
+    Args:
+        config (dict[str, Any]): The configuration to save.
+
+    Returns:
+        Path: The path to the saved file.
+
+    Raises:
+        ValueError: If the configuration is invalid.
+    """
     if not _validate_config(config):
         raise ValueError("Invalid stats config")
 
@@ -93,5 +157,11 @@ def save_stats_config(config: dict[str, Any]) -> Path:
 
 
 def get_enabled_stats_blocks() -> list[dict[str, Any]]:
+    """
+    Retrieve only the statistics blocks that are currently enabled.
+
+    Returns:
+        list[dict[str, Any]]: A list of enabled block configurations.
+    """
     config = load_stats_config()
     return [block for block in config["blocks"] if block.get("enabled")]

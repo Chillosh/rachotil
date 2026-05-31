@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>rachotil.frontend.screens.firewall &#8212; src  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for rachotil.frontend.screens.firewall</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Screen for managing the UFW firewall on the remote server.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">textual.screen</span><span class="w"> </span><span class="kn">import</span> <span class="n">Screen</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">textual.widgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">Header</span><span class="p">,</span> <span class="n">Footer</span><span class="p">,</span> <span class="n">Static</span><span class="p">,</span> <span class="n">Button</span><span class="p">,</span> <span class="n">Input</span><span class="p">,</span> <span class="n">DataTable</span><span class="p">,</span> <span class="n">Log</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">textual.containers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Vertical</span><span class="p">,</span> <span class="n">Horizontal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">textual</span><span class="w"> </span><span class="kn">import</span> <span class="n">work</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">...backend.components.ssh.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_ssh_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">...backend.components.ssh.ssh</span><span class="w"> </span><span class="kn">import</span> <span class="n">SSH</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">...backend.components.firewall.firewall_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">FirewallManager</span>
+
+<div class="viewcode-block" id="FirewallScreen">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.firewall.FirewallScreen">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FirewallScreen</span><span class="p">(</span><span class="n">Screen</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    UI Screen for managing firewall rules and status.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">CSS_PATH</span> <span class="o">=</span> <span class="s2">&quot;../styles.tcss&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ssh</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">firewall_mgr</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="FirewallScreen.compose">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.firewall.FirewallScreen.compose">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compose</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">Header</span><span class="p">()</span>
+        <span class="k">yield</span> <span class="n">Footer</span><span class="p">()</span>
+        
+        <span class="k">with</span> <span class="n">Vertical</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;firewall-main&quot;</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">Static</span><span class="p">(</span><span class="s2">&quot;UFW Firewall Manager&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;firewall-title&quot;</span><span class="p">)</span>
+            
+            <span class="k">with</span> <span class="n">Horizontal</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;firewall-controls&quot;</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Enable UFW&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;btn-enable-ufw&quot;</span><span class="p">,</span> <span class="n">variant</span><span class="o">=</span><span class="s2">&quot;success&quot;</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Disable UFW&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;btn-disable-ufw&quot;</span><span class="p">,</span> <span class="n">variant</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Refresh&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;btn-refresh-ufw&quot;</span><span class="p">,</span> <span class="n">variant</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">)</span>
+                
+            <span class="k">yield</span> <span class="n">DataTable</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;firewall-table&quot;</span><span class="p">,</span> <span class="n">cursor_type</span><span class="o">=</span><span class="s2">&quot;row&quot;</span><span class="p">)</span>
+            
+            <span class="k">with</span> <span class="n">Horizontal</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;firewall-add-rule&quot;</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">Input</span><span class="p">(</span><span class="n">placeholder</span><span class="o">=</span><span class="s2">&quot;Port (e.g. 80)&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;fw-port&quot;</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="n">Input</span><span class="p">(</span><span class="n">placeholder</span><span class="o">=</span><span class="s2">&quot;Protocol (tcp/udp)&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;fw-proto&quot;</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Allow Port&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;btn-add-rule&quot;</span><span class="p">,</span> <span class="n">variant</span><span class="o">=</span><span class="s2">&quot;primary&quot;</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Delete Selected&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;btn-delete-rule&quot;</span><span class="p">,</span> <span class="n">variant</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">)</span>
+                
+            <span class="k">yield</span> <span class="n">Log</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;firewall-log&quot;</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="s2">&quot;status-display&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FirewallScreen.on_mount">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.firewall.FirewallScreen.on_mount">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_mount</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#firewall-table&quot;</span><span class="p">,</span> <span class="n">DataTable</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_columns</span><span class="p">(</span><span class="s2">&quot;ID&quot;</span><span class="p">,</span> <span class="s2">&quot;To&quot;</span><span class="p">,</span> <span class="s2">&quot;Action&quot;</span><span class="p">,</span> <span class="s2">&quot;From&quot;</span><span class="p">)</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">get_ssh_config</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ssh</span> <span class="o">=</span> <span class="n">SSH</span><span class="p">(</span>
+                <span class="n">host</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">],</span>
+                <span class="n">user</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">],</span>
+                <span class="n">password</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;password&quot;</span><span class="p">],</span>
+                <span class="n">sudo_password</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sudo_password&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">firewall_mgr</span> <span class="o">=</span> <span class="n">FirewallManager</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssh</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="s2">&quot;Connected successfully.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">refresh_ufw</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Connection failed: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FirewallScreen.write_log">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.firewall.FirewallScreen.write_log">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">log_widget</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#firewall-log&quot;</span><span class="p">,</span> <span class="n">Log</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">call_from_thread</span><span class="p">(</span><span class="n">log_widget</span><span class="o">.</span><span class="n">write_line</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="FirewallScreen.on_button_pressed">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.firewall.FirewallScreen.on_button_pressed">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_button_pressed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Button</span><span class="o">.</span><span class="n">Pressed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">btn_id</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="o">.</span><span class="n">id</span>
+        <span class="k">if</span> <span class="n">btn_id</span> <span class="o">==</span> <span class="s2">&quot;btn-refresh-ufw&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">refresh_ufw</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">btn_id</span> <span class="o">==</span> <span class="s2">&quot;btn-enable-ufw&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toggle_ufw</span><span class="p">(</span><span class="s2">&quot;enable&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">btn_id</span> <span class="o">==</span> <span class="s2">&quot;btn-disable-ufw&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toggle_ufw</span><span class="p">(</span><span class="s2">&quot;disable&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">btn_id</span> <span class="o">==</span> <span class="s2">&quot;btn-add-rule&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_rule</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">btn_id</span> <span class="o">==</span> <span class="s2">&quot;btn-delete-rule&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">delete_rule</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="FirewallScreen.toggle_ufw">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.firewall.FirewallScreen.toggle_ufw">[docs]</a>
+    <span class="nd">@work</span><span class="p">(</span><span class="n">thread</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">toggle_ufw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Enable or disable UFW on the server.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">firewall_mgr</span><span class="p">:</span>
+            <span class="k">return</span>
+            
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Executing UFW </span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+        <span class="n">success</span><span class="p">,</span> <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">firewall_mgr</span><span class="o">.</span><span class="n">toggle_ufw</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">refresh_ufw</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="FirewallScreen.refresh_ufw">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.firewall.FirewallScreen.refresh_ufw">[docs]</a>
+    <span class="nd">@work</span><span class="p">(</span><span class="n">thread</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">refresh_ufw</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fetch current UFW status and rules.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">firewall_mgr</span><span class="p">:</span>
+            <span class="k">return</span>
+            
+        <span class="n">success</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">rules</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">firewall_mgr</span><span class="o">.</span><span class="n">get_status_and_rules</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">call_from_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_update_table</span><span class="p">,</span> <span class="n">rules</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_update_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#firewall-table&quot;</span><span class="p">,</span> <span class="n">DataTable</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="o">*</span><span class="n">row</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+<div class="viewcode-block" id="FirewallScreen.add_rule">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.firewall.FirewallScreen.add_rule">[docs]</a>
+    <span class="nd">@work</span><span class="p">(</span><span class="n">thread</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_rule</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a new firewall rule to allow specific ports.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">firewall_mgr</span><span class="p">:</span>
+            <span class="k">return</span>
+            
+        <span class="n">port_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#fw-port&quot;</span><span class="p">,</span> <span class="n">Input</span><span class="p">)</span>
+        <span class="n">proto_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#fw-proto&quot;</span><span class="p">,</span> <span class="n">Input</span><span class="p">)</span>
+        
+        <span class="n">port</span> <span class="o">=</span> <span class="n">port_input</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">proto</span> <span class="o">=</span> <span class="n">proto_input</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Adding rule for port </span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+        <span class="n">success</span><span class="p">,</span> <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">firewall_mgr</span><span class="o">.</span><span class="n">add_rule</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">proto</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+            
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">call_from_thread</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="nb">setattr</span><span class="p">(</span><span class="n">port_input</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">call_from_thread</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="nb">setattr</span><span class="p">(</span><span class="n">proto_input</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refresh_ufw</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="FirewallScreen.delete_rule">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.firewall.FirewallScreen.delete_rule">[docs]</a>
+    <span class="nd">@work</span><span class="p">(</span><span class="n">thread</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_rule</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete the selected firewall rule.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">firewall_mgr</span><span class="p">:</span>
+            <span class="k">return</span>
+            
+        <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#firewall-table&quot;</span><span class="p">,</span> <span class="n">DataTable</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">row_key</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">coordinate_to_cell_key</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">cursor_coordinate</span><span class="p">)</span>
+            <span class="n">rule_id</span> <span class="o">=</span> <span class="n">row_key</span><span class="o">.</span><span class="n">row_key</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="s2">&quot;Error: No rule selected.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+            
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deleting rule ID </span><span class="si">{</span><span class="n">rule_id</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+        <span class="n">success</span><span class="p">,</span> <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">firewall_mgr</span><span class="o">.</span><span class="n">delete_rule</span><span class="p">(</span><span class="n">rule_id</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">refresh_ufw</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">src</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../rachotil.html">rachotil package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, Author.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

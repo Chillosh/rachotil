@@ -1,3 +1,7 @@
+"""
+Screen for browsing and managing files on the remote server via SFTP.
+"""
+
 from textual.screen import Screen
 from textual.widgets import Header, Footer, Static, Button, DataTable, Log
 from textual.containers import Vertical, Horizontal
@@ -9,6 +13,9 @@ from ...backend.components.ssh.ssh import SSH
 from ...backend.components.file_manager.sftp_manager import SFTPManager
 
 class FileManagerScreen(Screen):
+    """
+    UI Screen that provides a file explorer interface for the remote filesystem.
+    """
     CSS_PATH = "../styles.tcss"
 
     def __init__(self):
@@ -17,7 +24,7 @@ class FileManagerScreen(Screen):
         self.sftp_mgr = None
         self.current_path = "/"
 
-    def compose(self):
+    def compose(self) -> None:
         yield Header()
         yield Footer()
         
@@ -86,6 +93,9 @@ class FileManagerScreen(Screen):
 
     @work(thread=True)
     def load_directory(self) -> None:
+        """
+        Fetch directory contents and update the file table.
+        """
         if not self.sftp_mgr:
             return
             
@@ -97,7 +107,7 @@ class FileManagerScreen(Screen):
         if success:
             self.app.call_from_thread(self._update_table, result)
         else:
-            self.write_log(result)
+            self.write_log(str(result))
 
     def _update_table(self, data: list) -> None:
         table = self.query_one("#fm-table", DataTable)
@@ -122,6 +132,9 @@ class FileManagerScreen(Screen):
 
     @work(thread=True)
     def download_file(self, remote_path: str, filename: str) -> None:
+        """
+        Download a specific file from the server.
+        """
         if not self.sftp_mgr:
             return
             

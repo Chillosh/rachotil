@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>rachotil.frontend.screens package &#8212; src  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="rachotil.frontend.components package" href="rachotil.frontend.components.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="rachotil-frontend-screens-package">
+<h1>rachotil.frontend.screens package<a class="headerlink" href="#rachotil-frontend-screens-package" title="Link to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-rachotil.frontend.screens.backup">
+<span id="rachotil-frontend-screens-backup-module"></span><h2>rachotil.frontend.screens.backup module<a class="headerlink" href="#module-rachotil.frontend.screens.backup" title="Link to this heading">¶</a></h2>
+<p>Screen for managing and creating remote server backups.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.backup.BackupScreen">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">rachotil.frontend.screens.backup.</span></span><span class="sig-name descname"><span class="pre">BackupScreen</span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/backup.html#BackupScreen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.backup.BackupScreen" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Screen</span></code></p>
+<p>UI Screen for selecting directories, searching for additional paths, and performing backups.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.backup.BackupScreen.CSS_PATH">
+<span class="sig-name descname"><span class="pre">CSS_PATH</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'../styles.tcss'</span></span><a class="headerlink" href="#rachotil.frontend.screens.backup.BackupScreen.CSS_PATH" title="Link to this definition">¶</a></dt>
+<dd><p>File paths to load CSS from.</p>
+<dl class="simple">
+<dt>Note:</dt><dd><p>This CSS applies to the whole app.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.backup.BackupScreen.DEFAULT_DIRS">
+<span class="sig-name descname"><span class="pre">DEFAULT_DIRS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'/etc':</span> <span class="pre">'System</span> <span class="pre">configuration',</span> <span class="pre">'/home':</span> <span class="pre">'User</span> <span class="pre">home</span> <span class="pre">directories',</span> <span class="pre">'/opt':</span> <span class="pre">'Optional</span> <span class="pre">software',</span> <span class="pre">'/root':</span> <span class="pre">'Root</span> <span class="pre">home</span> <span class="pre">directory',</span> <span class="pre">'/srv':</span> <span class="pre">'Server</span> <span class="pre">data',</span> <span class="pre">'/var/www':</span> <span class="pre">'Web</span> <span class="pre">content'}</span></span><a class="headerlink" href="#rachotil.frontend.screens.backup.BackupScreen.DEFAULT_DIRS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.backup.BackupScreen.can_focus">
+<span class="sig-name descname"><span class="pre">can_focus</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#rachotil.frontend.screens.backup.BackupScreen.can_focus" title="Link to this definition">¶</a></dt>
+<dd><p>Widget may receive focus.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.backup.BackupScreen.can_focus_children">
+<span class="sig-name descname"><span class="pre">can_focus_children</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#rachotil.frontend.screens.backup.BackupScreen.can_focus_children" title="Link to this definition">¶</a></dt>
+<dd><p>Widget’s children may receive focus.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.backup.BackupScreen.compose">
+<span class="sig-name descname"><span class="pre">compose</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/backup.html#BackupScreen.compose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.backup.BackupScreen.compose" title="Link to this definition">¶</a></dt>
+<dd><p>Called by Textual to create child widgets.</p>
+<p>This method is called when a widget is mounted or by setting <cite>recompose=True</cite> when
+calling [<cite>refresh()</cite>][textual.widget.Widget.refresh].</p>
+<p>Note that you don’t typically need to explicitly call this method.</p>
+<dl>
+<dt>Example:</dt><dd><p><a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>python
+def compose(self) -&gt; ComposeResult:</p>
+<blockquote>
+<div><p>yield Header()
+yield Label(“Press the button below:”)
+yield Button()
+yield Footer()</p>
+</div></blockquote>
+<p><a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.backup.BackupScreen.execute_backup">
+<span class="sig-name descname"><span class="pre">execute_backup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/backup.html#BackupScreen.execute_backup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.backup.BackupScreen.execute_backup" title="Link to this definition">¶</a></dt>
+<dd><p>Create and download the backup archive.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.backup.BackupScreen.on_button_pressed">
+<span class="sig-name descname"><span class="pre">on_button_pressed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Pressed</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/backup.html#BackupScreen.on_button_pressed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.backup.BackupScreen.on_button_pressed" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.backup.BackupScreen.on_checkbox_changed">
+<span class="sig-name descname"><span class="pre">on_checkbox_changed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Changed</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/backup.html#BackupScreen.on_checkbox_changed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.backup.BackupScreen.on_checkbox_changed" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.backup.BackupScreen.on_input_changed">
+<span class="sig-name descname"><span class="pre">on_input_changed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Changed</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/backup.html#BackupScreen.on_input_changed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.backup.BackupScreen.on_input_changed" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.backup.BackupScreen.on_mount">
+<span class="sig-name descname"><span class="pre">on_mount</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/backup.html#BackupScreen.on_mount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.backup.BackupScreen.on_mount" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.backup.BackupScreen.on_option_list_option_selected">
+<span class="sig-name descname"><span class="pre">on_option_list_option_selected</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">OptionSelected</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/backup.html#BackupScreen.on_option_list_option_selected"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.backup.BackupScreen.on_option_list_option_selected" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.backup.BackupScreen.search_directories">
+<span class="sig-name descname"><span class="pre">search_directories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/backup.html#BackupScreen.search_directories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.backup.BackupScreen.search_directories" title="Link to this definition">¶</a></dt>
+<dd><p>Search for remote directories based on query.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.backup.BackupScreen.write_log">
+<span class="sig-name descname"><span class="pre">write_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/backup.html#BackupScreen.write_log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.backup.BackupScreen.write_log" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-rachotil.frontend.screens.dashboard">
+<span id="rachotil-frontend-screens-dashboard-module"></span><h2>rachotil.frontend.screens.dashboard module<a class="headerlink" href="#module-rachotil.frontend.screens.dashboard" title="Link to this heading">¶</a></h2>
+<p>Dashboard screen for displaying overview system information.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.dashboard.DashboardScreen">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">rachotil.frontend.screens.dashboard.</span></span><span class="sig-name descname"><span class="pre">DashboardScreen</span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/dashboard.html#DashboardScreen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.dashboard.DashboardScreen" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Screen</span></code></p>
+<p>UI Screen that shows basic system metrics and information.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.dashboard.DashboardScreen.CSS_PATH">
+<span class="sig-name descname"><span class="pre">CSS_PATH</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'../styles.tcss'</span></span><a class="headerlink" href="#rachotil.frontend.screens.dashboard.DashboardScreen.CSS_PATH" title="Link to this definition">¶</a></dt>
+<dd><p>File paths to load CSS from.</p>
+<dl class="simple">
+<dt>Note:</dt><dd><p>This CSS applies to the whole app.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.dashboard.DashboardScreen.can_focus">
+<span class="sig-name descname"><span class="pre">can_focus</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#rachotil.frontend.screens.dashboard.DashboardScreen.can_focus" title="Link to this definition">¶</a></dt>
+<dd><p>Widget may receive focus.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.dashboard.DashboardScreen.can_focus_children">
+<span class="sig-name descname"><span class="pre">can_focus_children</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#rachotil.frontend.screens.dashboard.DashboardScreen.can_focus_children" title="Link to this definition">¶</a></dt>
+<dd><p>Widget’s children may receive focus.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.dashboard.DashboardScreen.compose">
+<span class="sig-name descname"><span class="pre">compose</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/dashboard.html#DashboardScreen.compose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.dashboard.DashboardScreen.compose" title="Link to this definition">¶</a></dt>
+<dd><p>Called by Textual to create child widgets.</p>
+<p>This method is called when a widget is mounted or by setting <cite>recompose=True</cite> when
+calling [<cite>refresh()</cite>][textual.widget.Widget.refresh].</p>
+<p>Note that you don’t typically need to explicitly call this method.</p>
+<dl>
+<dt>Example:</dt><dd><p><a href="#id9"><span class="problematic" id="id10">``</span></a><a href="#id11"><span class="problematic" id="id12">`</span></a>python
+def compose(self) -&gt; ComposeResult:</p>
+<blockquote>
+<div><p>yield Header()
+yield Label(“Press the button below:”)
+yield Button()
+yield Footer()</p>
+</div></blockquote>
+<p><a href="#id13"><span class="problematic" id="id14">``</span></a><a href="#id15"><span class="problematic" id="id16">`</span></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.dashboard.DashboardScreen.on_mount">
+<span class="sig-name descname"><span class="pre">on_mount</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/dashboard.html#DashboardScreen.on_mount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.dashboard.DashboardScreen.on_mount" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.dashboard.DashboardScreen.update_sys_info">
+<span class="sig-name descname"><span class="pre">update_sys_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/dashboard.html#DashboardScreen.update_sys_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.dashboard.DashboardScreen.update_sys_info" title="Link to this definition">¶</a></dt>
+<dd><p>Periodically fetch and upgrade system information in the UI.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-rachotil.frontend.screens.docker">
+<span id="rachotil-frontend-screens-docker-module"></span><h2>rachotil.frontend.screens.docker module<a class="headerlink" href="#module-rachotil.frontend.screens.docker" title="Link to this heading">¶</a></h2>
+<p>Screen for managing Docker containers on the remote server.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.docker.DockerScreen">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">rachotil.frontend.screens.docker.</span></span><span class="sig-name descname"><span class="pre">DockerScreen</span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/docker.html#DockerScreen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.docker.DockerScreen" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Screen</span></code></p>
+<p>UI Screen for listing and managing Docker containers.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.docker.DockerScreen.CSS_PATH">
+<span class="sig-name descname"><span class="pre">CSS_PATH</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'../styles.tcss'</span></span><a class="headerlink" href="#rachotil.frontend.screens.docker.DockerScreen.CSS_PATH" title="Link to this definition">¶</a></dt>
+<dd><p>File paths to load CSS from.</p>
+<dl class="simple">
+<dt>Note:</dt><dd><p>This CSS applies to the whole app.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.docker.DockerScreen.can_focus">
+<span class="sig-name descname"><span class="pre">can_focus</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#rachotil.frontend.screens.docker.DockerScreen.can_focus" title="Link to this definition">¶</a></dt>
+<dd><p>Widget may receive focus.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.docker.DockerScreen.can_focus_children">
+<span class="sig-name descname"><span class="pre">can_focus_children</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#rachotil.frontend.screens.docker.DockerScreen.can_focus_children" title="Link to this definition">¶</a></dt>
+<dd><p>Widget’s children may receive focus.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.docker.DockerScreen.check_docker_and_refresh">
+<span class="sig-name descname"><span class="pre">check_docker_and_refresh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/docker.html#DockerScreen.check_docker_and_refresh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.docker.DockerScreen.check_docker_and_refresh" title="Link to this definition">¶</a></dt>
+<dd><p>Verify Docker installation and trigger initial container refresh.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.docker.DockerScreen.compose">
+<span class="sig-name descname"><span class="pre">compose</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/docker.html#DockerScreen.compose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.docker.DockerScreen.compose" title="Link to this definition">¶</a></dt>
+<dd><p>Called by Textual to create child widgets.</p>
+<p>This method is called when a widget is mounted or by setting <cite>recompose=True</cite> when
+calling [<cite>refresh()</cite>][textual.widget.Widget.refresh].</p>
+<p>Note that you don’t typically need to explicitly call this method.</p>
+<dl>
+<dt>Example:</dt><dd><p><a href="#id17"><span class="problematic" id="id18">``</span></a><a href="#id19"><span class="problematic" id="id20">`</span></a>python
+def compose(self) -&gt; ComposeResult:</p>
+<blockquote>
+<div><p>yield Header()
+yield Label(“Press the button below:”)
+yield Button()
+yield Footer()</p>
+</div></blockquote>
+<p><a href="#id21"><span class="problematic" id="id22">``</span></a><a href="#id23"><span class="problematic" id="id24">`</span></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.docker.DockerScreen.fetch_container_logs">
+<span class="sig-name descname"><span class="pre">fetch_container_logs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/docker.html#DockerScreen.fetch_container_logs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.docker.DockerScreen.fetch_container_logs" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve and display recent logs for the selected container.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.docker.DockerScreen.manage_container">
+<span class="sig-name descname"><span class="pre">manage_container</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">btn_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/docker.html#DockerScreen.manage_container"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.docker.DockerScreen.manage_container" title="Link to this definition">¶</a></dt>
+<dd><p>Execute container lifecycle operations (start/stop/restart).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.docker.DockerScreen.on_button_pressed">
+<span class="sig-name descname"><span class="pre">on_button_pressed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Pressed</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/docker.html#DockerScreen.on_button_pressed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.docker.DockerScreen.on_button_pressed" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.docker.DockerScreen.on_mount">
+<span class="sig-name descname"><span class="pre">on_mount</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/docker.html#DockerScreen.on_mount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.docker.DockerScreen.on_mount" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.docker.DockerScreen.refresh_containers">
+<span class="sig-name descname"><span class="pre">refresh_containers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/docker.html#DockerScreen.refresh_containers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.docker.DockerScreen.refresh_containers" title="Link to this definition">¶</a></dt>
+<dd><p>Fetch container data from the server and update the DataTable.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.docker.DockerScreen.write_status">
+<span class="sig-name descname"><span class="pre">write_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/docker.html#DockerScreen.write_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.docker.DockerScreen.write_status" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-rachotil.frontend.screens.file_manager">
+<span id="rachotil-frontend-screens-file-manager-module"></span><h2>rachotil.frontend.screens.file_manager module<a class="headerlink" href="#module-rachotil.frontend.screens.file_manager" title="Link to this heading">¶</a></h2>
+<p>Screen for browsing and managing files on the remote server via SFTP.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.file_manager.FileManagerScreen">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">rachotil.frontend.screens.file_manager.</span></span><span class="sig-name descname"><span class="pre">FileManagerScreen</span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/file_manager.html#FileManagerScreen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.file_manager.FileManagerScreen" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Screen</span></code></p>
+<p>UI Screen that provides a file explorer interface for the remote filesystem.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.file_manager.FileManagerScreen.CSS_PATH">
+<span class="sig-name descname"><span class="pre">CSS_PATH</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'../styles.tcss'</span></span><a class="headerlink" href="#rachotil.frontend.screens.file_manager.FileManagerScreen.CSS_PATH" title="Link to this definition">¶</a></dt>
+<dd><p>File paths to load CSS from.</p>
+<dl class="simple">
+<dt>Note:</dt><dd><p>This CSS applies to the whole app.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.file_manager.FileManagerScreen.can_focus">
+<span class="sig-name descname"><span class="pre">can_focus</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#rachotil.frontend.screens.file_manager.FileManagerScreen.can_focus" title="Link to this definition">¶</a></dt>
+<dd><p>Widget may receive focus.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.file_manager.FileManagerScreen.can_focus_children">
+<span class="sig-name descname"><span class="pre">can_focus_children</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#rachotil.frontend.screens.file_manager.FileManagerScreen.can_focus_children" title="Link to this definition">¶</a></dt>
+<dd><p>Widget’s children may receive focus.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.file_manager.FileManagerScreen.compose">
+<span class="sig-name descname"><span class="pre">compose</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/file_manager.html#FileManagerScreen.compose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.file_manager.FileManagerScreen.compose" title="Link to this definition">¶</a></dt>
+<dd><p>Called by Textual to create child widgets.</p>
+<p>This method is called when a widget is mounted or by setting <cite>recompose=True</cite> when
+calling [<cite>refresh()</cite>][textual.widget.Widget.refresh].</p>
+<p>Note that you don’t typically need to explicitly call this method.</p>
+<dl>
+<dt>Example:</dt><dd><p><a href="#id25"><span class="problematic" id="id26">``</span></a><a href="#id27"><span class="problematic" id="id28">`</span></a>python
+def compose(self) -&gt; ComposeResult:</p>
+<blockquote>
+<div><p>yield Header()
+yield Label(“Press the button below:”)
+yield Button()
+yield Footer()</p>
+</div></blockquote>
+<p><a href="#id29"><span class="problematic" id="id30">``</span></a><a href="#id31"><span class="problematic" id="id32">`</span></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.file_manager.FileManagerScreen.download_file">
+<span class="sig-name descname"><span class="pre">download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remote_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/file_manager.html#FileManagerScreen.download_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.file_manager.FileManagerScreen.download_file" title="Link to this definition">¶</a></dt>
+<dd><p>Download a specific file from the server.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.file_manager.FileManagerScreen.load_directory">
+<span class="sig-name descname"><span class="pre">load_directory</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/file_manager.html#FileManagerScreen.load_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.file_manager.FileManagerScreen.load_directory" title="Link to this definition">¶</a></dt>
+<dd><p>Fetch directory contents and update the file table.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.file_manager.FileManagerScreen.navigate_up">
+<span class="sig-name descname"><span class="pre">navigate_up</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/file_manager.html#FileManagerScreen.navigate_up"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.file_manager.FileManagerScreen.navigate_up" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.file_manager.FileManagerScreen.on_button_pressed">
+<span class="sig-name descname"><span class="pre">on_button_pressed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Pressed</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/file_manager.html#FileManagerScreen.on_button_pressed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.file_manager.FileManagerScreen.on_button_pressed" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.file_manager.FileManagerScreen.on_data_table_row_selected">
+<span class="sig-name descname"><span class="pre">on_data_table_row_selected</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RowSelected</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/file_manager.html#FileManagerScreen.on_data_table_row_selected"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.file_manager.FileManagerScreen.on_data_table_row_selected" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.file_manager.FileManagerScreen.on_mount">
+<span class="sig-name descname"><span class="pre">on_mount</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/file_manager.html#FileManagerScreen.on_mount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.file_manager.FileManagerScreen.on_mount" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.file_manager.FileManagerScreen.on_unmount">
+<span class="sig-name descname"><span class="pre">on_unmount</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/file_manager.html#FileManagerScreen.on_unmount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.file_manager.FileManagerScreen.on_unmount" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.file_manager.FileManagerScreen.write_log">
+<span class="sig-name descname"><span class="pre">write_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/file_manager.html#FileManagerScreen.write_log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.file_manager.FileManagerScreen.write_log" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-rachotil.frontend.screens.firewall">
+<span id="rachotil-frontend-screens-firewall-module"></span><h2>rachotil.frontend.screens.firewall module<a class="headerlink" href="#module-rachotil.frontend.screens.firewall" title="Link to this heading">¶</a></h2>
+<p>Screen for managing the UFW firewall on the remote server.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.firewall.FirewallScreen">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">rachotil.frontend.screens.firewall.</span></span><span class="sig-name descname"><span class="pre">FirewallScreen</span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/firewall.html#FirewallScreen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.firewall.FirewallScreen" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Screen</span></code></p>
+<p>UI Screen for managing firewall rules and status.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.firewall.FirewallScreen.CSS_PATH">
+<span class="sig-name descname"><span class="pre">CSS_PATH</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'../styles.tcss'</span></span><a class="headerlink" href="#rachotil.frontend.screens.firewall.FirewallScreen.CSS_PATH" title="Link to this definition">¶</a></dt>
+<dd><p>File paths to load CSS from.</p>
+<dl class="simple">
+<dt>Note:</dt><dd><p>This CSS applies to the whole app.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.firewall.FirewallScreen.add_rule">
+<span class="sig-name descname"><span class="pre">add_rule</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/firewall.html#FirewallScreen.add_rule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.firewall.FirewallScreen.add_rule" title="Link to this definition">¶</a></dt>
+<dd><p>Add a new firewall rule to allow specific ports.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.firewall.FirewallScreen.can_focus">
+<span class="sig-name descname"><span class="pre">can_focus</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#rachotil.frontend.screens.firewall.FirewallScreen.can_focus" title="Link to this definition">¶</a></dt>
+<dd><p>Widget may receive focus.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.firewall.FirewallScreen.can_focus_children">
+<span class="sig-name descname"><span class="pre">can_focus_children</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#rachotil.frontend.screens.firewall.FirewallScreen.can_focus_children" title="Link to this definition">¶</a></dt>
+<dd><p>Widget’s children may receive focus.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.firewall.FirewallScreen.compose">
+<span class="sig-name descname"><span class="pre">compose</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/firewall.html#FirewallScreen.compose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.firewall.FirewallScreen.compose" title="Link to this definition">¶</a></dt>
+<dd><p>Called by Textual to create child widgets.</p>
+<p>This method is called when a widget is mounted or by setting <cite>recompose=True</cite> when
+calling [<cite>refresh()</cite>][textual.widget.Widget.refresh].</p>
+<p>Note that you don’t typically need to explicitly call this method.</p>
+<dl>
+<dt>Example:</dt><dd><p><a href="#id33"><span class="problematic" id="id34">``</span></a><a href="#id35"><span class="problematic" id="id36">`</span></a>python
+def compose(self) -&gt; ComposeResult:</p>
+<blockquote>
+<div><p>yield Header()
+yield Label(“Press the button below:”)
+yield Button()
+yield Footer()</p>
+</div></blockquote>
+<p><a href="#id37"><span class="problematic" id="id38">``</span></a><a href="#id39"><span class="problematic" id="id40">`</span></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.firewall.FirewallScreen.delete_rule">
+<span class="sig-name descname"><span class="pre">delete_rule</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/firewall.html#FirewallScreen.delete_rule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.firewall.FirewallScreen.delete_rule" title="Link to this definition">¶</a></dt>
+<dd><p>Delete the selected firewall rule.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.firewall.FirewallScreen.on_button_pressed">
+<span class="sig-name descname"><span class="pre">on_button_pressed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Pressed</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/firewall.html#FirewallScreen.on_button_pressed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.firewall.FirewallScreen.on_button_pressed" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.firewall.FirewallScreen.on_mount">
+<span class="sig-name descname"><span class="pre">on_mount</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/firewall.html#FirewallScreen.on_mount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.firewall.FirewallScreen.on_mount" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.firewall.FirewallScreen.refresh_ufw">
+<span class="sig-name descname"><span class="pre">refresh_ufw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/firewall.html#FirewallScreen.refresh_ufw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.firewall.FirewallScreen.refresh_ufw" title="Link to this definition">¶</a></dt>
+<dd><p>Fetch current UFW status and rules.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.firewall.FirewallScreen.toggle_ufw">
+<span class="sig-name descname"><span class="pre">toggle_ufw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/firewall.html#FirewallScreen.toggle_ufw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.firewall.FirewallScreen.toggle_ufw" title="Link to this definition">¶</a></dt>
+<dd><p>Enable or disable UFW on the server.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.firewall.FirewallScreen.write_log">
+<span class="sig-name descname"><span class="pre">write_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/firewall.html#FirewallScreen.write_log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.firewall.FirewallScreen.write_log" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-rachotil.frontend.screens.management">
+<span id="rachotil-frontend-screens-management-module"></span><h2>rachotil.frontend.screens.management module<a class="headerlink" href="#module-rachotil.frontend.screens.management" title="Link to this heading">¶</a></h2>
+<p>Screen for general system management tasks like services, logs, processes, and packages.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.management.ManagementScreen">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">rachotil.frontend.screens.management.</span></span><span class="sig-name descname"><span class="pre">ManagementScreen</span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/management.html#ManagementScreen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.management.ManagementScreen" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Screen</span></code></p>
+<p>UI Screen that allows executing various management actions on the remote server.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.management.ManagementScreen.CSS_PATH">
+<span class="sig-name descname"><span class="pre">CSS_PATH</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'../styles.tcss'</span></span><a class="headerlink" href="#rachotil.frontend.screens.management.ManagementScreen.CSS_PATH" title="Link to this definition">¶</a></dt>
+<dd><p>File paths to load CSS from.</p>
+<dl class="simple">
+<dt>Note:</dt><dd><p>This CSS applies to the whole app.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.management.ManagementScreen.action_primary">
+<span class="sig-name descname"><span class="pre">action_primary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/management.html#ManagementScreen.action_primary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.management.ManagementScreen.action_primary" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.management.ManagementScreen.action_quaternary">
+<span class="sig-name descname"><span class="pre">action_quaternary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/management.html#ManagementScreen.action_quaternary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.management.ManagementScreen.action_quaternary" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.management.ManagementScreen.action_secondary">
+<span class="sig-name descname"><span class="pre">action_secondary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/management.html#ManagementScreen.action_secondary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.management.ManagementScreen.action_secondary" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.management.ManagementScreen.action_tertiary">
+<span class="sig-name descname"><span class="pre">action_tertiary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/management.html#ManagementScreen.action_tertiary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.management.ManagementScreen.action_tertiary" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.management.ManagementScreen.can_focus">
+<span class="sig-name descname"><span class="pre">can_focus</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#rachotil.frontend.screens.management.ManagementScreen.can_focus" title="Link to this definition">¶</a></dt>
+<dd><p>Widget may receive focus.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.management.ManagementScreen.can_focus_children">
+<span class="sig-name descname"><span class="pre">can_focus_children</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#rachotil.frontend.screens.management.ManagementScreen.can_focus_children" title="Link to this definition">¶</a></dt>
+<dd><p>Widget’s children may receive focus.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.management.ManagementScreen.compose">
+<span class="sig-name descname"><span class="pre">compose</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/management.html#ManagementScreen.compose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.management.ManagementScreen.compose" title="Link to this definition">¶</a></dt>
+<dd><p>Called by Textual to create child widgets.</p>
+<p>This method is called when a widget is mounted or by setting <cite>recompose=True</cite> when
+calling [<cite>refresh()</cite>][textual.widget.Widget.refresh].</p>
+<p>Note that you don’t typically need to explicitly call this method.</p>
+<dl>
+<dt>Example:</dt><dd><p><a href="#id41"><span class="problematic" id="id42">``</span></a><a href="#id43"><span class="problematic" id="id44">`</span></a>python
+def compose(self) -&gt; ComposeResult:</p>
+<blockquote>
+<div><p>yield Header()
+yield Label(“Press the button below:”)
+yield Button()
+yield Footer()</p>
+</div></blockquote>
+<p><a href="#id45"><span class="problematic" id="id46">``</span></a><a href="#id47"><span class="problematic" id="id48">`</span></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.management.ManagementScreen.on_mount">
+<span class="sig-name descname"><span class="pre">on_mount</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/management.html#ManagementScreen.on_mount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.management.ManagementScreen.on_mount" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.management.ManagementScreen.on_unmount">
+<span class="sig-name descname"><span class="pre">on_unmount</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/management.html#ManagementScreen.on_unmount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.management.ManagementScreen.on_unmount" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.management.ManagementScreen.run_custom">
+<span class="sig-name descname"><span class="pre">run_custom</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/management.html#ManagementScreen.run_custom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.management.ManagementScreen.run_custom" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.management.ManagementScreen.run_custom_sudo">
+<span class="sig-name descname"><span class="pre">run_custom_sudo</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/management.html#ManagementScreen.run_custom_sudo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.management.ManagementScreen.run_custom_sudo" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.management.ManagementScreen.switch_journal">
+<span class="sig-name descname"><span class="pre">switch_journal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/management.html#ManagementScreen.switch_journal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.management.ManagementScreen.switch_journal" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.management.ManagementScreen.switch_packages">
+<span class="sig-name descname"><span class="pre">switch_packages</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/management.html#ManagementScreen.switch_packages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.management.ManagementScreen.switch_packages" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.management.ManagementScreen.switch_processes">
+<span class="sig-name descname"><span class="pre">switch_processes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/management.html#ManagementScreen.switch_processes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.management.ManagementScreen.switch_processes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.management.ManagementScreen.switch_services">
+<span class="sig-name descname"><span class="pre">switch_services</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/management.html#ManagementScreen.switch_services"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.management.ManagementScreen.switch_services" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-rachotil.frontend.screens.network_manager">
+<span id="rachotil-frontend-screens-network-manager-module"></span><h2>rachotil.frontend.screens.network_manager module<a class="headerlink" href="#module-rachotil.frontend.screens.network_manager" title="Link to this heading">¶</a></h2>
+<p>Screen for managing and scanning network services on the remote server.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.network_manager.NetworkManagerScreen">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">rachotil.frontend.screens.network_manager.</span></span><span class="sig-name descname"><span class="pre">NetworkManagerScreen</span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/network_manager.html#NetworkManagerScreen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.network_manager.NetworkManagerScreen" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Screen</span></code></p>
+<p>UI Screen for scanning and viewing details of network services.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.network_manager.NetworkManagerScreen.CSS_PATH">
+<span class="sig-name descname"><span class="pre">CSS_PATH</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'../styles.tcss'</span></span><a class="headerlink" href="#rachotil.frontend.screens.network_manager.NetworkManagerScreen.CSS_PATH" title="Link to this definition">¶</a></dt>
+<dd><p>File paths to load CSS from.</p>
+<dl class="simple">
+<dt>Note:</dt><dd><p>This CSS applies to the whole app.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.network_manager.NetworkManagerScreen.can_focus">
+<span class="sig-name descname"><span class="pre">can_focus</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#rachotil.frontend.screens.network_manager.NetworkManagerScreen.can_focus" title="Link to this definition">¶</a></dt>
+<dd><p>Widget may receive focus.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.network_manager.NetworkManagerScreen.can_focus_children">
+<span class="sig-name descname"><span class="pre">can_focus_children</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#rachotil.frontend.screens.network_manager.NetworkManagerScreen.can_focus_children" title="Link to this definition">¶</a></dt>
+<dd><p>Widget’s children may receive focus.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.network_manager.NetworkManagerScreen.compose">
+<span class="sig-name descname"><span class="pre">compose</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/network_manager.html#NetworkManagerScreen.compose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.network_manager.NetworkManagerScreen.compose" title="Link to this definition">¶</a></dt>
+<dd><p>Called by Textual to create child widgets.</p>
+<p>This method is called when a widget is mounted or by setting <cite>recompose=True</cite> when
+calling [<cite>refresh()</cite>][textual.widget.Widget.refresh].</p>
+<p>Note that you don’t typically need to explicitly call this method.</p>
+<dl>
+<dt>Example:</dt><dd><p><a href="#id49"><span class="problematic" id="id50">``</span></a><a href="#id51"><span class="problematic" id="id52">`</span></a>python
+def compose(self) -&gt; ComposeResult:</p>
+<blockquote>
+<div><p>yield Header()
+yield Label(“Press the button below:”)
+yield Button()
+yield Footer()</p>
+</div></blockquote>
+<p><a href="#id53"><span class="problematic" id="id54">``</span></a><a href="#id55"><span class="problematic" id="id56">`</span></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.network_manager.NetworkManagerScreen.on_button_pressed">
+<span class="sig-name descname"><span class="pre">on_button_pressed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Pressed</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/network_manager.html#NetworkManagerScreen.on_button_pressed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.network_manager.NetworkManagerScreen.on_button_pressed" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.network_manager.NetworkManagerScreen.on_mount">
+<span class="sig-name descname"><span class="pre">on_mount</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/network_manager.html#NetworkManagerScreen.on_mount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.network_manager.NetworkManagerScreen.on_mount" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.network_manager.NetworkManagerScreen.scan_network_services">
+<span class="sig-name descname"><span class="pre">scan_network_services</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/network_manager.html#NetworkManagerScreen.scan_network_services"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.network_manager.NetworkManagerScreen.scan_network_services" title="Link to this definition">¶</a></dt>
+<dd><p>Scan the remote server for known network services.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.network_manager.NetworkManagerScreen.view_detailed_status">
+<span class="sig-name descname"><span class="pre">view_detailed_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/network_manager.html#NetworkManagerScreen.view_detailed_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.network_manager.NetworkManagerScreen.view_detailed_status" title="Link to this definition">¶</a></dt>
+<dd><p>Fetch and display detailed status information for the selected service.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.network_manager.NetworkManagerScreen.write_log">
+<span class="sig-name descname"><span class="pre">write_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/network_manager.html#NetworkManagerScreen.write_log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.network_manager.NetworkManagerScreen.write_log" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-rachotil.frontend.screens.services">
+<span id="rachotil-frontend-screens-services-module"></span><h2>rachotil.frontend.screens.services module<a class="headerlink" href="#module-rachotil.frontend.screens.services" title="Link to this heading">¶</a></h2>
+<p>Screen for managing system services via systemd on the remote server.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.services.ServicesScreen">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">rachotil.frontend.screens.services.</span></span><span class="sig-name descname"><span class="pre">ServicesScreen</span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/services.html#ServicesScreen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.services.ServicesScreen" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Screen</span></code></p>
+<p>UI Screen that allows starting, stopping, and restarting system services.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.services.ServicesScreen.CSS_PATH">
+<span class="sig-name descname"><span class="pre">CSS_PATH</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'../styles.tcss'</span></span><a class="headerlink" href="#rachotil.frontend.screens.services.ServicesScreen.CSS_PATH" title="Link to this definition">¶</a></dt>
+<dd><p>File paths to load CSS from.</p>
+<dl class="simple">
+<dt>Note:</dt><dd><p>This CSS applies to the whole app.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.services.ServicesScreen.can_focus">
+<span class="sig-name descname"><span class="pre">can_focus</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#rachotil.frontend.screens.services.ServicesScreen.can_focus" title="Link to this definition">¶</a></dt>
+<dd><p>Widget may receive focus.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.services.ServicesScreen.can_focus_children">
+<span class="sig-name descname"><span class="pre">can_focus_children</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#rachotil.frontend.screens.services.ServicesScreen.can_focus_children" title="Link to this definition">¶</a></dt>
+<dd><p>Widget’s children may receive focus.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.services.ServicesScreen.compose">
+<span class="sig-name descname"><span class="pre">compose</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/services.html#ServicesScreen.compose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.services.ServicesScreen.compose" title="Link to this definition">¶</a></dt>
+<dd><p>Called by Textual to create child widgets.</p>
+<p>This method is called when a widget is mounted or by setting <cite>recompose=True</cite> when
+calling [<cite>refresh()</cite>][textual.widget.Widget.refresh].</p>
+<p>Note that you don’t typically need to explicitly call this method.</p>
+<dl>
+<dt>Example:</dt><dd><p><a href="#id57"><span class="problematic" id="id58">``</span></a><a href="#id59"><span class="problematic" id="id60">`</span></a>python
+def compose(self) -&gt; ComposeResult:</p>
+<blockquote>
+<div><p>yield Header()
+yield Label(“Press the button below:”)
+yield Button()
+yield Footer()</p>
+</div></blockquote>
+<p><a href="#id61"><span class="problematic" id="id62">``</span></a><a href="#id63"><span class="problematic" id="id64">`</span></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.services.ServicesScreen.manage_service">
+<span class="sig-name descname"><span class="pre">manage_service</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">btn_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/services.html#ServicesScreen.manage_service"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.services.ServicesScreen.manage_service" title="Link to this definition">¶</a></dt>
+<dd><p>Execute start/stop/restart actions on a selected service.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.services.ServicesScreen.on_button_pressed">
+<span class="sig-name descname"><span class="pre">on_button_pressed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Pressed</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/services.html#ServicesScreen.on_button_pressed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.services.ServicesScreen.on_button_pressed" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.services.ServicesScreen.on_mount">
+<span class="sig-name descname"><span class="pre">on_mount</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/services.html#ServicesScreen.on_mount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.services.ServicesScreen.on_mount" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.services.ServicesScreen.refresh_services">
+<span class="sig-name descname"><span class="pre">refresh_services</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/services.html#ServicesScreen.refresh_services"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.services.ServicesScreen.refresh_services" title="Link to this definition">¶</a></dt>
+<dd><p>Scan remote system for active service units.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.services.ServicesScreen.write_log">
+<span class="sig-name descname"><span class="pre">write_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/services.html#ServicesScreen.write_log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.services.ServicesScreen.write_log" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-rachotil.frontend.screens.settings">
+<span id="rachotil-frontend-screens-settings-module"></span><h2>rachotil.frontend.screens.settings module<a class="headerlink" href="#module-rachotil.frontend.screens.settings" title="Link to this heading">¶</a></h2>
+<p>Screen for configuring application settings, including UI themes and remote server credentials.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.settings.SSHSettingsModal">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">rachotil.frontend.screens.settings.</span></span><span class="sig-name descname"><span class="pre">SSHSettingsModal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rachotil/frontend/screens/settings.html#SSHSettingsModal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.settings.SSHSettingsModal" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModalScreen</span></code></p>
+<p>Modal dialog for editing SSH connection credentials.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.settings.SSHSettingsModal.can_focus">
+<span class="sig-name descname"><span class="pre">can_focus</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#rachotil.frontend.screens.settings.SSHSettingsModal.can_focus" title="Link to this definition">¶</a></dt>
+<dd><p>Widget may receive focus.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.settings.SSHSettingsModal.can_focus_children">
+<span class="sig-name descname"><span class="pre">can_focus_children</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#rachotil.frontend.screens.settings.SSHSettingsModal.can_focus_children" title="Link to this definition">¶</a></dt>
+<dd><p>Widget’s children may receive focus.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.settings.SSHSettingsModal.cancel_settings">
+<span class="sig-name descname"><span class="pre">cancel_settings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/settings.html#SSHSettingsModal.cancel_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.settings.SSHSettingsModal.cancel_settings" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.settings.SSHSettingsModal.compose">
+<span class="sig-name descname"><span class="pre">compose</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/settings.html#SSHSettingsModal.compose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.settings.SSHSettingsModal.compose" title="Link to this definition">¶</a></dt>
+<dd><p>Called by Textual to create child widgets.</p>
+<p>This method is called when a widget is mounted or by setting <cite>recompose=True</cite> when
+calling [<cite>refresh()</cite>][textual.widget.Widget.refresh].</p>
+<p>Note that you don’t typically need to explicitly call this method.</p>
+<dl>
+<dt>Example:</dt><dd><p><a href="#id65"><span class="problematic" id="id66">``</span></a><a href="#id67"><span class="problematic" id="id68">`</span></a>python
+def compose(self) -&gt; ComposeResult:</p>
+<blockquote>
+<div><p>yield Header()
+yield Label(“Press the button below:”)
+yield Button()
+yield Footer()</p>
+</div></blockquote>
+<p><a href="#id69"><span class="problematic" id="id70">``</span></a><a href="#id71"><span class="problematic" id="id72">`</span></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.settings.SSHSettingsModal.save_settings">
+<span class="sig-name descname"><span class="pre">save_settings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/settings.html#SSHSettingsModal.save_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.settings.SSHSettingsModal.save_settings" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.settings.SettingsScreen">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">rachotil.frontend.screens.settings.</span></span><span class="sig-name descname"><span class="pre">SettingsScreen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rachotil/frontend/screens/settings.html#SettingsScreen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.settings.SettingsScreen" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Screen</span></code></p>
+<p>UI Screen that provides access to various application configurations.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.settings.SettingsScreen.CSS_PATH">
+<span class="sig-name descname"><span class="pre">CSS_PATH</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'../styles.tcss'</span></span><a class="headerlink" href="#rachotil.frontend.screens.settings.SettingsScreen.CSS_PATH" title="Link to this definition">¶</a></dt>
+<dd><p>File paths to load CSS from.</p>
+<dl class="simple">
+<dt>Note:</dt><dd><p>This CSS applies to the whole app.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.settings.SettingsScreen.action_open_main_menu">
+<span class="sig-name descname"><span class="pre">action_open_main_menu</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/settings.html#SettingsScreen.action_open_main_menu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.settings.SettingsScreen.action_open_main_menu" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.settings.SettingsScreen.action_quit">
+<span class="sig-name descname"><span class="pre">action_quit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/settings.html#SettingsScreen.action_quit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.settings.SettingsScreen.action_quit" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.settings.SettingsScreen.can_focus">
+<span class="sig-name descname"><span class="pre">can_focus</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#rachotil.frontend.screens.settings.SettingsScreen.can_focus" title="Link to this definition">¶</a></dt>
+<dd><p>Widget may receive focus.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.settings.SettingsScreen.can_focus_children">
+<span class="sig-name descname"><span class="pre">can_focus_children</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#rachotil.frontend.screens.settings.SettingsScreen.can_focus_children" title="Link to this definition">¶</a></dt>
+<dd><p>Widget’s children may receive focus.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.settings.SettingsScreen.compose">
+<span class="sig-name descname"><span class="pre">compose</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/settings.html#SettingsScreen.compose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.settings.SettingsScreen.compose" title="Link to this definition">¶</a></dt>
+<dd><p>Called by Textual to create child widgets.</p>
+<p>This method is called when a widget is mounted or by setting <cite>recompose=True</cite> when
+calling [<cite>refresh()</cite>][textual.widget.Widget.refresh].</p>
+<p>Note that you don’t typically need to explicitly call this method.</p>
+<dl>
+<dt>Example:</dt><dd><p><a href="#id73"><span class="problematic" id="id74">``</span></a><a href="#id75"><span class="problematic" id="id76">`</span></a>python
+def compose(self) -&gt; ComposeResult:</p>
+<blockquote>
+<div><p>yield Header()
+yield Label(“Press the button below:”)
+yield Button()
+yield Footer()</p>
+</div></blockquote>
+<p><a href="#id77"><span class="problematic" id="id78">``</span></a><a href="#id79"><span class="problematic" id="id80">`</span></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.settings.SettingsScreen.on_radio_set_changed">
+<span class="sig-name descname"><span class="pre">on_radio_set_changed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Changed</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/settings.html#SettingsScreen.on_radio_set_changed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.settings.SettingsScreen.on_radio_set_changed" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.settings.SettingsScreen.show_ssh_menu">
+<span class="sig-name descname"><span class="pre">show_ssh_menu</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/settings.html#SettingsScreen.show_ssh_menu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.settings.SettingsScreen.show_ssh_menu" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.settings.SettingsScreen.show_stats_menu">
+<span class="sig-name descname"><span class="pre">show_stats_menu</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/settings.html#SettingsScreen.show_stats_menu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.settings.SettingsScreen.show_stats_menu" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.settings.StatsSettingsModal">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">rachotil.frontend.screens.settings.</span></span><span class="sig-name descname"><span class="pre">StatsSettingsModal</span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/settings.html#StatsSettingsModal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.settings.StatsSettingsModal" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModalScreen</span></code></p>
+<p>Modal dialog for configuring which statistics blocks are displayed.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.settings.StatsSettingsModal.add_custom_block">
+<span class="sig-name descname"><span class="pre">add_custom_block</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/settings.html#StatsSettingsModal.add_custom_block"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.settings.StatsSettingsModal.add_custom_block" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.settings.StatsSettingsModal.can_focus">
+<span class="sig-name descname"><span class="pre">can_focus</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#rachotil.frontend.screens.settings.StatsSettingsModal.can_focus" title="Link to this definition">¶</a></dt>
+<dd><p>Widget may receive focus.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.settings.StatsSettingsModal.can_focus_children">
+<span class="sig-name descname"><span class="pre">can_focus_children</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#rachotil.frontend.screens.settings.StatsSettingsModal.can_focus_children" title="Link to this definition">¶</a></dt>
+<dd><p>Widget’s children may receive focus.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.settings.StatsSettingsModal.compose">
+<span class="sig-name descname"><span class="pre">compose</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/settings.html#StatsSettingsModal.compose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.settings.StatsSettingsModal.compose" title="Link to this definition">¶</a></dt>
+<dd><p>Called by Textual to create child widgets.</p>
+<p>This method is called when a widget is mounted or by setting <cite>recompose=True</cite> when
+calling [<cite>refresh()</cite>][textual.widget.Widget.refresh].</p>
+<p>Note that you don’t typically need to explicitly call this method.</p>
+<dl>
+<dt>Example:</dt><dd><p><a href="#id81"><span class="problematic" id="id82">``</span></a><a href="#id83"><span class="problematic" id="id84">`</span></a>python
+def compose(self) -&gt; ComposeResult:</p>
+<blockquote>
+<div><p>yield Header()
+yield Label(“Press the button below:”)
+yield Button()
+yield Footer()</p>
+</div></blockquote>
+<p><a href="#id85"><span class="problematic" id="id86">``</span></a><a href="#id87"><span class="problematic" id="id88">`</span></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.settings.StatsSettingsModal.delete_custom_blocks">
+<span class="sig-name descname"><span class="pre">delete_custom_blocks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/settings.html#StatsSettingsModal.delete_custom_blocks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.settings.StatsSettingsModal.delete_custom_blocks" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.settings.StatsSettingsModal.on_mount">
+<span class="sig-name descname"><span class="pre">on_mount</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/settings.html#StatsSettingsModal.on_mount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.settings.StatsSettingsModal.on_mount" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.settings.StatsSettingsModal.return_to_settings">
+<span class="sig-name descname"><span class="pre">return_to_settings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/settings.html#StatsSettingsModal.return_to_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.settings.StatsSettingsModal.return_to_settings" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.settings.StatsSettingsModal.save_stats_settings">
+<span class="sig-name descname"><span class="pre">save_stats_settings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/settings.html#StatsSettingsModal.save_stats_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.settings.StatsSettingsModal.save_stats_settings" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-rachotil.frontend.screens.snapshot">
+<span id="rachotil-frontend-screens-snapshot-module"></span><h2>rachotil.frontend.screens.snapshot module<a class="headerlink" href="#module-rachotil.frontend.screens.snapshot" title="Link to this heading">¶</a></h2>
+<p>Screen for managing system snapshots using Timeshift on the remote server.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.snapshot.SnapshotScreen">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">rachotil.frontend.screens.snapshot.</span></span><span class="sig-name descname"><span class="pre">SnapshotScreen</span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/snapshot.html#SnapshotScreen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.snapshot.SnapshotScreen" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Screen</span></code></p>
+<p>UI Screen for creating, removing and restoring system snapshots.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.snapshot.SnapshotScreen.CSS_PATH">
+<span class="sig-name descname"><span class="pre">CSS_PATH</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'../styles.tcss'</span></span><a class="headerlink" href="#rachotil.frontend.screens.snapshot.SnapshotScreen.CSS_PATH" title="Link to this definition">¶</a></dt>
+<dd><p>File paths to load CSS from.</p>
+<dl class="simple">
+<dt>Note:</dt><dd><p>This CSS applies to the whole app.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.snapshot.SnapshotScreen.can_focus">
+<span class="sig-name descname"><span class="pre">can_focus</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#rachotil.frontend.screens.snapshot.SnapshotScreen.can_focus" title="Link to this definition">¶</a></dt>
+<dd><p>Widget may receive focus.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.snapshot.SnapshotScreen.can_focus_children">
+<span class="sig-name descname"><span class="pre">can_focus_children</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#rachotil.frontend.screens.snapshot.SnapshotScreen.can_focus_children" title="Link to this definition">¶</a></dt>
+<dd><p>Widget’s children may receive focus.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.snapshot.SnapshotScreen.compose">
+<span class="sig-name descname"><span class="pre">compose</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/snapshot.html#SnapshotScreen.compose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.snapshot.SnapshotScreen.compose" title="Link to this definition">¶</a></dt>
+<dd><p>Called by Textual to create child widgets.</p>
+<p>This method is called when a widget is mounted or by setting <cite>recompose=True</cite> when
+calling [<cite>refresh()</cite>][textual.widget.Widget.refresh].</p>
+<p>Note that you don’t typically need to explicitly call this method.</p>
+<dl>
+<dt>Example:</dt><dd><p><a href="#id89"><span class="problematic" id="id90">``</span></a><a href="#id91"><span class="problematic" id="id92">`</span></a>python
+def compose(self) -&gt; ComposeResult:</p>
+<blockquote>
+<div><p>yield Header()
+yield Label(“Press the button below:”)
+yield Button()
+yield Footer()</p>
+</div></blockquote>
+<p><a href="#id93"><span class="problematic" id="id94">``</span></a><a href="#id95"><span class="problematic" id="id96">`</span></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.snapshot.SnapshotScreen.create_snapshot">
+<span class="sig-name descname"><span class="pre">create_snapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/snapshot.html#SnapshotScreen.create_snapshot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.snapshot.SnapshotScreen.create_snapshot" title="Link to this definition">¶</a></dt>
+<dd><p>Create a new system snapshot with the given description.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.snapshot.SnapshotScreen.delete_selected_snapshot">
+<span class="sig-name descname"><span class="pre">delete_selected_snapshot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/snapshot.html#SnapshotScreen.delete_selected_snapshot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.snapshot.SnapshotScreen.delete_selected_snapshot" title="Link to this definition">¶</a></dt>
+<dd><p>Delete the snapshot currently selected in the table.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.snapshot.SnapshotScreen.on_button_pressed">
+<span class="sig-name descname"><span class="pre">on_button_pressed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Pressed</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/snapshot.html#SnapshotScreen.on_button_pressed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.snapshot.SnapshotScreen.on_button_pressed" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.snapshot.SnapshotScreen.on_mount">
+<span class="sig-name descname"><span class="pre">on_mount</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/snapshot.html#SnapshotScreen.on_mount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.snapshot.SnapshotScreen.on_mount" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.snapshot.SnapshotScreen.refresh_snapshots">
+<span class="sig-name descname"><span class="pre">refresh_snapshots</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/snapshot.html#SnapshotScreen.refresh_snapshots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.snapshot.SnapshotScreen.refresh_snapshots" title="Link to this definition">¶</a></dt>
+<dd><p>Fetch the list of system snapshots from the server.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.snapshot.SnapshotScreen.restore_selected_snapshot">
+<span class="sig-name descname"><span class="pre">restore_selected_snapshot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/snapshot.html#SnapshotScreen.restore_selected_snapshot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.snapshot.SnapshotScreen.restore_selected_snapshot" title="Link to this definition">¶</a></dt>
+<dd><p>Restore the system to the selected snapshot.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.snapshot.SnapshotScreen.write_log">
+<span class="sig-name descname"><span class="pre">write_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/snapshot.html#SnapshotScreen.write_log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.snapshot.SnapshotScreen.write_log" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-rachotil.frontend.screens.stats">
+<span id="rachotil-frontend-screens-stats-module"></span><h2>rachotil.frontend.screens.stats module<a class="headerlink" href="#module-rachotil.frontend.screens.stats" title="Link to this heading">¶</a></h2>
+<p>Screen for displaying real-time system statistics from the remote server.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.stats.StatsScreen">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">rachotil.frontend.screens.stats.</span></span><span class="sig-name descname"><span class="pre">StatsScreen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rachotil/frontend/screens/stats.html#StatsScreen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.stats.StatsScreen" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Screen</span></code></p>
+<p>UI Screen that periodically refreshes and displays various system metrics.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.stats.StatsScreen.can_focus">
+<span class="sig-name descname"><span class="pre">can_focus</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#rachotil.frontend.screens.stats.StatsScreen.can_focus" title="Link to this definition">¶</a></dt>
+<dd><p>Widget may receive focus.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.stats.StatsScreen.can_focus_children">
+<span class="sig-name descname"><span class="pre">can_focus_children</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#rachotil.frontend.screens.stats.StatsScreen.can_focus_children" title="Link to this definition">¶</a></dt>
+<dd><p>Widget’s children may receive focus.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.stats.StatsScreen.compose">
+<span class="sig-name descname"><span class="pre">compose</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/stats.html#StatsScreen.compose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.stats.StatsScreen.compose" title="Link to this definition">¶</a></dt>
+<dd><p>Called by Textual to create child widgets.</p>
+<p>This method is called when a widget is mounted or by setting <cite>recompose=True</cite> when
+calling [<cite>refresh()</cite>][textual.widget.Widget.refresh].</p>
+<p>Note that you don’t typically need to explicitly call this method.</p>
+<dl>
+<dt>Example:</dt><dd><p><a href="#id97"><span class="problematic" id="id98">``</span></a><a href="#id99"><span class="problematic" id="id100">`</span></a>python
+def compose(self) -&gt; ComposeResult:</p>
+<blockquote>
+<div><p>yield Header()
+yield Label(“Press the button below:”)
+yield Button()
+yield Footer()</p>
+</div></blockquote>
+<p><a href="#id101"><span class="problematic" id="id102">``</span></a><a href="#id103"><span class="problematic" id="id104">`</span></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.stats.StatsScreen.on_mount">
+<span class="sig-name descname"><span class="pre">on_mount</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/stats.html#StatsScreen.on_mount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.stats.StatsScreen.on_mount" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.stats.StatsScreen.on_unmount">
+<span class="sig-name descname"><span class="pre">on_unmount</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/stats.html#StatsScreen.on_unmount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.stats.StatsScreen.on_unmount" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.stats.StatsScreen.refresh_screen">
+<span class="sig-name descname"><span class="pre">refresh_screen</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/stats.html#StatsScreen.refresh_screen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.stats.StatsScreen.refresh_screen" title="Link to this definition">¶</a></dt>
+<dd><p>Update the log widget with the latest collected statistics data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.stats.StatsScreen.run_stats_command">
+<span class="sig-name descname"><span class="pre">run_stats_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/stats.html#StatsScreen.run_stats_command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.stats.StatsScreen.run_stats_command" title="Link to this definition">¶</a></dt>
+<dd><p>Execute a statistics command on the server in a background thread.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-rachotil.frontend.screens.terminal">
+<span id="rachotil-frontend-screens-terminal-module"></span><h2>rachotil.frontend.screens.terminal module<a class="headerlink" href="#module-rachotil.frontend.screens.terminal" title="Link to this heading">¶</a></h2>
+<p>Screen for providing an interactive terminal shell via SSH.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.terminal.TerminalScreen">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">rachotil.frontend.screens.terminal.</span></span><span class="sig-name descname"><span class="pre">TerminalScreen</span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/terminal.html#TerminalScreen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.terminal.TerminalScreen" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Screen</span></code></p>
+<p>UI Screen that acts as a terminal emulator connected to the remote host.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.terminal.TerminalScreen.CSS_PATH">
+<span class="sig-name descname"><span class="pre">CSS_PATH</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'../styles.tcss'</span></span><a class="headerlink" href="#rachotil.frontend.screens.terminal.TerminalScreen.CSS_PATH" title="Link to this definition">¶</a></dt>
+<dd><p>File paths to load CSS from.</p>
+<dl class="simple">
+<dt>Note:</dt><dd><p>This CSS applies to the whole app.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.terminal.TerminalScreen.can_focus">
+<span class="sig-name descname"><span class="pre">can_focus</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#rachotil.frontend.screens.terminal.TerminalScreen.can_focus" title="Link to this definition">¶</a></dt>
+<dd><p>Widget may receive focus.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.terminal.TerminalScreen.can_focus_children">
+<span class="sig-name descname"><span class="pre">can_focus_children</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#rachotil.frontend.screens.terminal.TerminalScreen.can_focus_children" title="Link to this definition">¶</a></dt>
+<dd><p>Widget’s children may receive focus.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.terminal.TerminalScreen.compose">
+<span class="sig-name descname"><span class="pre">compose</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/terminal.html#TerminalScreen.compose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.terminal.TerminalScreen.compose" title="Link to this definition">¶</a></dt>
+<dd><p>Called by Textual to create child widgets.</p>
+<p>This method is called when a widget is mounted or by setting <cite>recompose=True</cite> when
+calling [<cite>refresh()</cite>][textual.widget.Widget.refresh].</p>
+<p>Note that you don’t typically need to explicitly call this method.</p>
+<dl>
+<dt>Example:</dt><dd><p><a href="#id105"><span class="problematic" id="id106">``</span></a><a href="#id107"><span class="problematic" id="id108">`</span></a>python
+def compose(self) -&gt; ComposeResult:</p>
+<blockquote>
+<div><p>yield Header()
+yield Label(“Press the button below:”)
+yield Button()
+yield Footer()</p>
+</div></blockquote>
+<p><a href="#id109"><span class="problematic" id="id110">``</span></a><a href="#id111"><span class="problematic" id="id112">`</span></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.terminal.TerminalScreen.on_input_submitted">
+<span class="sig-name descname"><span class="pre">on_input_submitted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Submitted</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/terminal.html#TerminalScreen.on_input_submitted"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.terminal.TerminalScreen.on_input_submitted" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.terminal.TerminalScreen.on_mount">
+<span class="sig-name descname"><span class="pre">on_mount</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/terminal.html#TerminalScreen.on_mount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.terminal.TerminalScreen.on_mount" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.terminal.TerminalScreen.on_unmount">
+<span class="sig-name descname"><span class="pre">on_unmount</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/terminal.html#TerminalScreen.on_unmount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.terminal.TerminalScreen.on_unmount" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rachotil.frontend.screens.terminal.TerminalScreen.poll_shell_output">
+<span class="sig-name descname"><span class="pre">poll_shell_output</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/rachotil/frontend/screens/terminal.html#TerminalScreen.poll_shell_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rachotil.frontend.screens.terminal.TerminalScreen.poll_shell_output" title="Link to this definition">¶</a></dt>
+<dd><p>Periodically read and display output from the interactive SSH shell.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-rachotil.frontend.screens">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-rachotil.frontend.screens" title="Link to this heading">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">src</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="rachotil.html">rachotil package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="rachotil.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="rachotil.backend.html">rachotil.backend package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="rachotil.frontend.html">rachotil.frontend package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="rachotil.frontend.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rachotil.frontend.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rachotil.frontend.html#module-rachotil.frontend.app">rachotil.frontend.app module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rachotil.frontend.html#module-rachotil.frontend">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="rachotil.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rachotil.html#module-rachotil.main">rachotil.main module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rachotil.html#module-rachotil">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="rachotil.html">rachotil package</a><ul>
+  <li><a href="rachotil.frontend.html">rachotil.frontend package</a><ul>
+      <li>Previous: <a href="rachotil.frontend.components.html" title="previous chapter">rachotil.frontend.components package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, Author.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/rachotil.frontend.screens.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,3 +1,7 @@
+"""
+Dashboard screen for displaying overview system information.
+"""
+
 from textual.screen import Screen
 from textual.widgets import Header, Footer, Static
 from textual.containers import Horizontal, Vertical
@@ -8,6 +12,9 @@ from ...backend.components.ssh.ssh import SSH
 from ...backend.components.dashboard.dashboard_manager import DashboardManager
 
 class DashboardScreen(Screen):
+    """
+    UI Screen that shows basic system metrics and information.
+    """
     CSS_PATH = "../styles.tcss"
 
     def __init__(self):
@@ -15,7 +22,7 @@ class DashboardScreen(Screen):
         self.ssh = None
         self.dashboard_mgr = None
 
-    def compose(self):
+    def compose(self) -> None:
         yield Header()
         yield Footer()
         
@@ -52,7 +59,10 @@ class DashboardScreen(Screen):
             self.query_one("#dashboard-info", Static).update(f"Connection failed: {str(e)}")
 
     @work(thread=True)
-    def update_sys_info(self):
+    def update_sys_info(self) -> None:
+        """
+        Periodically fetch and upgrade system information in the UI.
+        """
         if not self.dashboard_mgr:
             return
             

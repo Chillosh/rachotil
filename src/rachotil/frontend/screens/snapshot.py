@@ -1,3 +1,7 @@
+"""
+Screen for managing system snapshots using Timeshift on the remote server.
+"""
+
 from textual.screen import Screen
 from textual.widgets import Header, Footer, Static, Button, Input, Log, DataTable
 from textual.containers import Container, Vertical, Horizontal
@@ -8,6 +12,9 @@ from ...backend.components.ssh.ssh import SSH
 from ...backend.components.snapshot.snapshot_manager import SnapshotManager
 
 class SnapshotScreen(Screen):
+    """
+    UI Screen for creating, removing and restoring system snapshots.
+    """
     CSS_PATH = "../styles.tcss"
 
     def __init__(self):
@@ -15,7 +22,7 @@ class SnapshotScreen(Screen):
         self.ssh = None
         self.snap_mgr = None
 
-    def compose(self):
+    def compose(self) -> None:
         yield Header()
         yield Footer()
 
@@ -77,6 +84,9 @@ class SnapshotScreen(Screen):
 
     @work(thread=True)
     def refresh_snapshots(self) -> None:
+        """
+        Fetch the list of system snapshots from the server.
+        """
         if not self.snap_mgr:
             return
 
@@ -98,6 +108,9 @@ class SnapshotScreen(Screen):
 
     @work(thread=True)
     def create_snapshot(self, description: str) -> None:
+        """
+        Create a new system snapshot with the given description.
+        """
         if not self.snap_mgr:
             return
 
@@ -117,6 +130,9 @@ class SnapshotScreen(Screen):
 
     @work(thread=True)
     def delete_selected_snapshot(self) -> None:
+        """
+        Delete the snapshot currently selected in the table.
+        """
         if not self.snap_mgr:
             return
             
@@ -138,6 +154,9 @@ class SnapshotScreen(Screen):
 
     @work(thread=True)
     def restore_selected_snapshot(self) -> None:
+        """
+        Restore the system to the selected snapshot.
+        """
         if not self.snap_mgr:
             return
             

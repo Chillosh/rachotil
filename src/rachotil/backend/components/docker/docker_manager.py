@@ -1,11 +1,31 @@
+"""
+Module for managing Docker containers on the remote server.
+"""
+
 import os
 from ...components.ssh.ssh import SSH
 
 class DockerManager:
+    """
+    Manager class for Docker operations including container listing, logs, and lifecycle management.
+    """
+
     def __init__(self, ssh_client: SSH):
+        """
+        Initialize the DockerManager.
+
+        Args:
+            ssh_client (SSH): Connected SSH client instance.
+        """
         self.ssh = ssh_client
 
     def check_docker_installed(self) -> tuple[bool, str]:
+        """
+        Verify if Docker is installed on the remote server.
+
+        Returns:
+            tuple[bool, str]: A tuple containing a success flag and the Docker version or an error message.
+        """
         if not self.ssh:
             return False, "SSH client is not connected."
             
@@ -15,7 +35,13 @@ class DockerManager:
             
         return True, out.strip()
 
-    def get_containers(self) -> tuple[bool, list | str]:
+    def get_containers(self) -> tuple[bool, list[tuple[str, str, str, str]] | str]:
+        """
+        Retrieve a list of all Docker containers on the server.
+
+        Returns:
+            tuple[bool, list[tuple[str, str, str, str]] | str]: A success flag and either a list of container tuples (name, state, status, image) or an error message.
+        """
         if not self.ssh:
              return False, "SSH client is not connected."
              
@@ -43,6 +69,16 @@ class DockerManager:
              return False, f"Failed to fetch containers: {str(e)}"
 
     def manage_container(self, action: str, container_name: str) -> tuple[bool, str]:
+        """
+        Perform a lifecycle action (start, stop, restart) on a specific container.
+
+        Args:
+            action (str): The action to perform ("start", "stop", or "restart").
+            container_name (str): The name of the container.
+
+        Returns:
+            tuple[bool, str]: A tuple containing a success flag and the output or an error message.
+        """
         if not self.ssh:
              return False, "SSH client is not connected."
              
@@ -56,6 +92,16 @@ class DockerManager:
              return False, f"Error: {str(e)}"
 
     def get_container_logs(self, container_name: str, lines: int = 50) -> tuple[bool, str]:
+         """
+         Fetch recent logs for a specific container.
+
+         Args:
+             container_name (str): The name of the container.
+             lines (int): Number of log lines to retrieve. Defaults to 50.
+
+         Returns:
+             tuple[bool, str]: A tuple containing a success flag and the log output or error message.
+         """
          if not self.ssh:
              return False, "SSH client is not connected."
              

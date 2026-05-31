@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>rachotil.frontend.screens.settings &#8212; src  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for rachotil.frontend.screens.settings</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Screen for configuring application settings, including UI themes and remote server credentials.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">textual</span><span class="w"> </span><span class="kn">import</span> <span class="n">on</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">textual.containers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Horizontal</span><span class="p">,</span> <span class="n">Vertical</span><span class="p">,</span> <span class="n">Container</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">textual.screen</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModalScreen</span><span class="p">,</span> <span class="n">Screen</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">textual.widgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">Button</span><span class="p">,</span> <span class="n">Footer</span><span class="p">,</span> <span class="n">Header</span><span class="p">,</span> <span class="n">Input</span><span class="p">,</span> <span class="n">SelectionList</span><span class="p">,</span> <span class="n">Static</span><span class="p">,</span> <span class="n">RadioSet</span><span class="p">,</span> <span class="n">RadioButton</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">...backend.components.ssh.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_ssh_config</span><span class="p">,</span> <span class="n">save_ssh_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">...backend.components.stats.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_stats_config</span><span class="p">,</span> <span class="n">save_stats_config</span>
+
+<div class="viewcode-block" id="SettingsScreen">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.settings.SettingsScreen">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SettingsScreen</span><span class="p">(</span><span class="n">Screen</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    UI Screen that provides access to various application configurations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">CSS_PATH</span> <span class="o">=</span> <span class="s2">&quot;../styles.tcss&quot;</span>
+    
+<div class="viewcode-block" id="SettingsScreen.compose">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.settings.SettingsScreen.compose">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compose</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">Header</span><span class="p">()</span>
+        <span class="k">yield</span> <span class="n">Footer</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">Vertical</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;settings-main&quot;</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">Static</span><span class="p">(</span><span class="s2">&quot;Control Panel &amp; Settings&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;settings-title&quot;</span><span class="p">)</span>
+            
+            <span class="k">with</span> <span class="n">Container</span><span class="p">(</span><span class="n">classes</span><span class="o">=</span><span class="s2">&quot;settings-card&quot;</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">Static</span><span class="p">(</span><span class="s2">&quot;Interface Customization&quot;</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="s2">&quot;card-label&quot;</span><span class="p">)</span>
+                <span class="k">with</span> <span class="n">RadioSet</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;theme-panel&quot;</span><span class="p">):</span>
+                    <span class="k">yield</span> <span class="n">RadioButton</span><span class="p">(</span><span class="s2">&quot;Default Dark Theme&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;theme-dark&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="k">yield</span> <span class="n">RadioButton</span><span class="p">(</span><span class="s2">&quot;Light Matrix Theme&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;theme-light&quot;</span><span class="p">)</span>
+                    <span class="k">yield</span> <span class="n">RadioButton</span><span class="p">(</span><span class="s2">&quot;Cyberpunk Terminal&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;theme-cyber&quot;</span><span class="p">)</span>
+                    <span class="k">yield</span> <span class="n">RadioButton</span><span class="p">(</span><span class="s2">&quot;Solarized Code&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;theme-solarized&quot;</span><span class="p">)</span>
+                    <span class="k">yield</span> <span class="n">RadioButton</span><span class="p">(</span><span class="s2">&quot;Retro DOS&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;theme-retro&quot;</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="n">Container</span><span class="p">(</span><span class="n">classes</span><span class="o">=</span><span class="s2">&quot;settings-card&quot;</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">Static</span><span class="p">(</span><span class="s2">&quot;System Configurations&quot;</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="s2">&quot;card-label&quot;</span><span class="p">)</span>
+                <span class="k">with</span> <span class="n">Horizontal</span><span class="p">(</span><span class="n">classes</span><span class="o">=</span><span class="s2">&quot;card-buttons&quot;</span><span class="p">):</span>
+                    <span class="k">yield</span> <span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Stats Configuration&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;stats&quot;</span><span class="p">,</span> <span class="n">variant</span><span class="o">=</span><span class="s2">&quot;primary&quot;</span><span class="p">)</span>
+                    <span class="k">yield</span> <span class="n">Button</span><span class="p">(</span><span class="s2">&quot;SSH Connection Settings&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;ssh&quot;</span><span class="p">,</span> <span class="n">variant</span><span class="o">=</span><span class="s2">&quot;primary&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SettingsScreen.action_open_main_menu">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.settings.SettingsScreen.action_open_main_menu">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">action_open_main_menu</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">action_show_menu</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="SettingsScreen.action_quit">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.settings.SettingsScreen.action_quit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">action_quit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">action_quit</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="SettingsScreen.on_radio_set_changed">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.settings.SettingsScreen.on_radio_set_changed">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_radio_set_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">RadioSet</span><span class="o">.</span><span class="n">Changed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">selected_id</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">radio_set</span><span class="o">.</span><span class="n">pressed_button</span><span class="o">.</span><span class="n">id</span>
+        <span class="n">all_classes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;light-layout&quot;</span><span class="p">,</span> <span class="s2">&quot;cyber-layout&quot;</span><span class="p">,</span> <span class="s2">&quot;solarized-layout&quot;</span><span class="p">,</span> <span class="s2">&quot;retro-layout&quot;</span><span class="p">]</span>
+        
+        <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="n">all_classes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">remove_class</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">selected_id</span> <span class="o">==</span> <span class="s2">&quot;theme-light&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">add_class</span><span class="p">(</span><span class="s2">&quot;light-layout&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">selected_id</span> <span class="o">==</span> <span class="s2">&quot;theme-cyber&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">add_class</span><span class="p">(</span><span class="s2">&quot;cyber-layout&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">selected_id</span> <span class="o">==</span> <span class="s2">&quot;theme-solarized&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">add_class</span><span class="p">(</span><span class="s2">&quot;solarized-layout&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">selected_id</span> <span class="o">==</span> <span class="s2">&quot;theme-retro&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">add_class</span><span class="p">(</span><span class="s2">&quot;retro-layout&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SettingsScreen.show_stats_menu">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.settings.SettingsScreen.show_stats_menu">[docs]</a>
+    <span class="nd">@on</span><span class="p">(</span><span class="n">Button</span><span class="o">.</span><span class="n">Pressed</span><span class="p">,</span> <span class="s2">&quot;#stats&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show_stats_menu</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">push_screen</span><span class="p">(</span><span class="n">StatsSettingsModal</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="SettingsScreen.show_ssh_menu">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.settings.SettingsScreen.show_ssh_menu">[docs]</a>
+    <span class="nd">@on</span><span class="p">(</span><span class="n">Button</span><span class="o">.</span><span class="n">Pressed</span><span class="p">,</span> <span class="s2">&quot;#ssh&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show_ssh_menu</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">push_screen</span><span class="p">(</span><span class="n">SSHSettingsModal</span><span class="p">())</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="StatsSettingsModal">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.settings.StatsSettingsModal">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">StatsSettingsModal</span><span class="p">(</span><span class="n">ModalScreen</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Modal dialog for configuring which statistics blocks are displayed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">load_stats_config</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;blocks&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="StatsSettingsModal.compose">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.settings.StatsSettingsModal.compose">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compose</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">Static</span><span class="p">(</span><span class="s2">&quot;Enable/disable stat blocks&quot;</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="n">SelectionList</span><span class="p">(</span>
+            <span class="o">*</span><span class="p">((</span><span class="n">block</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">],</span> <span class="n">block</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">),</span>
+            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;stats_options&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">yield</span> <span class="n">Static</span><span class="p">(</span><span class="s2">&quot;Add custom stat block&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">Vertical</span><span class="p">():</span>
+            <span class="k">yield</span> <span class="n">Input</span><span class="p">(</span><span class="n">placeholder</span><span class="o">=</span><span class="s2">&quot;Label (example: Docker)&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;custom_label&quot;</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">Input</span><span class="p">(</span><span class="n">placeholder</span><span class="o">=</span><span class="s2">&quot;Command (example: docker ps)&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;custom_command&quot;</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">Input</span><span class="p">(</span><span class="n">placeholder</span><span class="o">=</span><span class="s2">&quot;Interval in seconds (example: 5)&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;custom_interval&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">Horizontal</span><span class="p">():</span>
+            <span class="k">yield</span> <span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Add Custom&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;add_custom&quot;</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Delete Selected Custom&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;delete_custom&quot;</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Save&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;save&quot;</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Cancel&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;cancel&quot;</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="n">Static</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;stats_message&quot;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_rebuild_stats_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selected_values</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">selection_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#stats_options&quot;</span><span class="p">,</span> <span class="n">SelectionList</span><span class="p">)</span>
+        <span class="n">selection_list</span><span class="o">.</span><span class="n">clear_options</span><span class="p">()</span>
+        <span class="n">selection_list</span><span class="o">.</span><span class="n">add_options</span><span class="p">(</span>
+            <span class="p">[(</span><span class="n">block</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">],</span> <span class="n">block</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">selected_values</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">selected_values</span> <span class="o">=</span> <span class="p">{</span><span class="n">block</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span> <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;enabled&quot;</span><span class="p">)}</span>
+
+        <span class="n">valid_values</span> <span class="o">=</span> <span class="p">{</span><span class="n">block</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">selected_values</span> <span class="o">&amp;</span> <span class="n">valid_values</span><span class="p">:</span>
+            <span class="n">selection_list</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+<div class="viewcode-block" id="StatsSettingsModal.on_mount">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.settings.StatsSettingsModal.on_mount">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_mount</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rebuild_stats_options</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="StatsSettingsModal.add_custom_block">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.settings.StatsSettingsModal.add_custom_block">[docs]</a>
+    <span class="nd">@on</span><span class="p">(</span><span class="n">Button</span><span class="o">.</span><span class="n">Pressed</span><span class="p">,</span> <span class="s2">&quot;#add_custom&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_custom_block</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#custom_label&quot;</span><span class="p">,</span> <span class="n">Input</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#custom_command&quot;</span><span class="p">,</span> <span class="n">Input</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">interval_raw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#custom_interval&quot;</span><span class="p">,</span> <span class="n">Input</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#stats_message&quot;</span><span class="p">,</span> <span class="n">Static</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">label</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">command</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">interval_raw</span><span class="p">:</span>
+            <span class="n">message</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Please fill label, command and interval.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">interval</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">interval_raw</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">interval</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">message</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Interval must be a positive number.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">slug</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[^a-z0-9]+&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;custom&quot;</span>
+        <span class="n">block_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;custom_</span><span class="si">{</span><span class="n">slug</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">existing</span> <span class="o">=</span> <span class="p">{</span><span class="n">block</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">}</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">while</span> <span class="n">block_id</span> <span class="ow">in</span> <span class="n">existing</span><span class="p">:</span>
+            <span class="n">block_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;custom_</span><span class="si">{</span><span class="n">slug</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">suffix</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">block_id</span><span class="p">,</span>
+                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">label</span><span class="p">,</span>
+                <span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="n">command</span><span class="p">,</span>
+                <span class="s2">&quot;interval_seconds&quot;</span><span class="p">:</span> <span class="n">interval</span><span class="p">,</span>
+                <span class="s2">&quot;enabled&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s2">&quot;built_in&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="n">selected_values</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#stats_options&quot;</span><span class="p">,</span> <span class="n">SelectionList</span><span class="p">)</span><span class="o">.</span><span class="n">selected</span><span class="p">)</span>
+        <span class="n">selected_values</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">block_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rebuild_stats_options</span><span class="p">(</span><span class="n">selected_values</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#custom_label&quot;</span><span class="p">,</span> <span class="n">Input</span><span class="p">)</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#custom_command&quot;</span><span class="p">,</span> <span class="n">Input</span><span class="p">)</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#custom_interval&quot;</span><span class="p">,</span> <span class="n">Input</span><span class="p">)</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">message</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Custom block added. Save to persist changes.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="StatsSettingsModal.delete_custom_blocks">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.settings.StatsSettingsModal.delete_custom_blocks">[docs]</a>
+    <span class="nd">@on</span><span class="p">(</span><span class="n">Button</span><span class="o">.</span><span class="n">Pressed</span><span class="p">,</span> <span class="s2">&quot;#delete_custom&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_custom_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">selection_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#stats_options&quot;</span><span class="p">,</span> <span class="n">SelectionList</span><span class="p">)</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#stats_message&quot;</span><span class="p">,</span> <span class="n">Static</span><span class="p">)</span>
+        <span class="n">selected_ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">selection_list</span><span class="o">.</span><span class="n">selected</span><span class="p">)</span>
+
+        <span class="n">custom_ids</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">block</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;built_in&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">block</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">selected_ids</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">custom_ids</span><span class="p">:</span>
+            <span class="n">message</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Select one or more custom blocks to delete.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span> <span class="o">=</span> <span class="p">[</span><span class="n">block</span> <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span> <span class="k">if</span> <span class="n">block</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">custom_ids</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rebuild_stats_options</span><span class="p">(</span><span class="n">selected_ids</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">custom_ids</span><span class="p">))</span>
+
+        <span class="n">message</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deleted </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">custom_ids</span><span class="p">)</span><span class="si">}</span><span class="s2"> custom block(s). Save to persist changes.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="StatsSettingsModal.save_stats_settings">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.settings.StatsSettingsModal.save_stats_settings">[docs]</a>
+    <span class="nd">@on</span><span class="p">(</span><span class="n">Button</span><span class="o">.</span><span class="n">Pressed</span><span class="p">,</span> <span class="s2">&quot;#save&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_stats_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">selected_ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#stats_options&quot;</span><span class="p">,</span> <span class="n">SelectionList</span><span class="p">)</span><span class="o">.</span><span class="n">selected</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">:</span>
+            <span class="n">block</span><span class="p">[</span><span class="s2">&quot;enabled&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">block</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">selected_ids</span>
+
+        <span class="n">save_stats_config</span><span class="p">({</span><span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;blocks&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">pop_screen</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="StatsSettingsModal.return_to_settings">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.settings.StatsSettingsModal.return_to_settings">[docs]</a>
+    <span class="nd">@on</span><span class="p">(</span><span class="n">Button</span><span class="o">.</span><span class="n">Pressed</span><span class="p">,</span> <span class="s2">&quot;#cancel&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">return_to_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">pop_screen</span><span class="p">()</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SSHSettingsModal">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.settings.SSHSettingsModal">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SSHSettingsModal</span><span class="p">(</span><span class="n">ModalScreen</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Modal dialog for editing SSH connection credentials.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SSHSettingsModal.compose">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.settings.SSHSettingsModal.compose">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compose</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">get_ssh_config</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">Vertical</span><span class="p">():</span>
+            <span class="k">yield</span> <span class="n">Static</span><span class="p">(</span><span class="s2">&quot;SSH Host&quot;</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">Input</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">],</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;ssh_host&quot;</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">Static</span><span class="p">(</span><span class="s2">&quot;SSH User&quot;</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">Input</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">],</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;ssh_user&quot;</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">Static</span><span class="p">(</span><span class="s2">&quot;SSH Password&quot;</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">Input</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;password&quot;</span><span class="p">],</span> <span class="n">password</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;ssh_password&quot;</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">Static</span><span class="p">(</span><span class="s2">&quot;SUDO Password (optional, defaults to SSH password)&quot;</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">Input</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sudo_password&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="n">password</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;ssh_sudo_password&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">Horizontal</span><span class="p">():</span>
+            <span class="k">yield</span> <span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Save&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;save_ssh&quot;</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Cancel&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;cancel_ssh&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SSHSettingsModal.save_settings">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.settings.SSHSettingsModal.save_settings">[docs]</a>
+    <span class="nd">@on</span><span class="p">(</span><span class="n">Button</span><span class="o">.</span><span class="n">Pressed</span><span class="p">,</span> <span class="s2">&quot;#save_ssh&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">host</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#ssh_host&quot;</span><span class="p">,</span> <span class="n">Input</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#ssh_user&quot;</span><span class="p">,</span> <span class="n">Input</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">password</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#ssh_password&quot;</span><span class="p">,</span> <span class="n">Input</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">sudo_password</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_one</span><span class="p">(</span><span class="s2">&quot;#ssh_sudo_password&quot;</span><span class="p">,</span> <span class="n">Input</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">save_ssh_config</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span> <span class="n">sudo_password</span><span class="o">=</span><span class="n">sudo_password</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">pop_screen</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="SSHSettingsModal.cancel_settings">
+<a class="viewcode-back" href="../../../../rachotil.frontend.screens.html#rachotil.frontend.screens.settings.SSHSettingsModal.cancel_settings">[docs]</a>
+    <span class="nd">@on</span><span class="p">(</span><span class="n">Button</span><span class="o">.</span><span class="n">Pressed</span><span class="p">,</span> <span class="s2">&quot;#cancel_ssh&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cancel_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">pop_screen</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">src</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../rachotil.html">rachotil package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, Author.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

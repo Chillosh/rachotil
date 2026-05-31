@@ -1,3 +1,7 @@
+"""
+Screen for general system management tasks like services, logs, processes, and packages.
+"""
+
 from textual import on, work
 from textual.containers import Horizontal, Vertical
 from textual.screen import Screen
@@ -8,6 +12,9 @@ from ...backend.components.ssh.ssh import SSH
 from ...backend.components.management.management_manager import ManagementManager
 
 class ManagementScreen(Screen):
+    """
+    UI Screen that allows executing various management actions on the remote server.
+    """
     CSS_PATH = "../styles.tcss"
 
     def __init__(self):
@@ -17,7 +24,7 @@ class ManagementScreen(Screen):
         self.mgmt_mgr = None
         self.sections = {}
 
-    def compose(self):
+    def compose(self) -> None:
         yield Header()
         yield Static("Management", id="mgmt_title")
         with Horizontal(id="mgmt_sections"):
@@ -41,7 +48,7 @@ class ManagementScreen(Screen):
         yield Log(id="mgmt_log")
         yield Footer()
 
-    def on_mount(self):
+    def on_mount(self) -> None:
         config = get_ssh_config()
         self.ssh_conn = SSH(
             config["host"],
@@ -61,7 +68,7 @@ class ManagementScreen(Screen):
         except Exception as exc:
             log.write_line(f"Connection error: {exc}")
 
-    def _apply_section_config(self):
+    def _apply_section_config(self) -> None:
         if not self.sections:
             return
             
@@ -79,42 +86,42 @@ class ManagementScreen(Screen):
             button.label = section["actions"][action_key]["label"]
 
     @on(Button.Pressed, "#section_services")
-    def switch_services(self):
+    def switch_services(self) -> None:
         self.current_section = "services"
         self._apply_section_config()
 
     @on(Button.Pressed, "#section_journal")
-    def switch_journal(self):
+    def switch_journal(self) -> None:
         self.current_section = "journal"
         self._apply_section_config()
 
     @on(Button.Pressed, "#section_processes")
-    def switch_processes(self):
+    def switch_processes(self) -> None:
         self.current_section = "processes"
         self._apply_section_config()
 
     @on(Button.Pressed, "#section_packages")
-    def switch_packages(self):
+    def switch_packages(self) -> None:
         self.current_section = "packages"
         self._apply_section_config()
 
     @on(Button.Pressed, "#act_primary")
-    def action_primary(self):
+    def action_primary(self) -> None:
         self._run_action("primary")
 
     @on(Button.Pressed, "#act_secondary")
-    def action_secondary(self):
+    def action_secondary(self) -> None:
         self._run_action("secondary")
 
     @on(Button.Pressed, "#act_tertiary")
-    def action_tertiary(self):
+    def action_tertiary(self) -> None:
         self._run_action("tertiary")
 
     @on(Button.Pressed, "#act_quaternary")
-    def action_quaternary(self):
+    def action_quaternary(self) -> None:
         self._run_action("quaternary")
 
-    def _run_action(self, action_key: str):
+    def _run_action(self, action_key: str) -> None:
         if not self.mgmt_mgr:
             self._log_line("Manager not connected.")
             return
@@ -138,31 +145,37 @@ class ManagementScreen(Screen):
         self._execute_remote_action(action, target, extra)
 
     @work(thread=True)
-    def _execute_remote_action(self, action_config: dict, target: str, extra: str):
+    def _execute_remote_action(self, action_config: dict, target: str, extra: str) -> None:
+        """
+        Execute a predefined action on the remote server in a background thread.
+        """
         success, command, out, err, use_sudo = self.mgmt_mgr.execute_action(action_config, target, extra)
         self.app.call_from_thread(self._show_command_output, command, out, err, use_sudo)
 
     @on(Button.Pressed, "#custom_run")
-    def run_custom(self):
+    def run_custom(self) -> None:
         custom = self.query_one("#mgmt_custom", Input).value.strip()
         if custom:
             self._execute_custom_remote(custom, False)
 
     @on(Button.Pressed, "#custom_run_sudo")
-    def run_custom_sudo(self):
+    def run_custom_sudo(self) -> None:
         custom = self.query_one("#mgmt_custom", Input).value.strip()
         if custom:
             self._execute_custom_remote(custom, True)
 
     @work(thread=True)
-    def _execute_custom_remote(self, command: str, use_sudo: bool):
+    def _execute_custom_remote(self, command: str, use_sudo: bool) -> None:
+        """
+        Execute a custom command on the remote server in a background thread.
+        """
         if not self.mgmt_mgr:
             return
             
         success, out, err = self.mgmt_mgr.execute_custom(command, use_sudo)
         self.app.call_from_thread(self._show_command_output, command, out, err, use_sudo)
 
-    def _show_command_output(self, command: str, out: str, err: str, use_sudo: bool):
+    def _show_command_output(self, command: str, out: str, err: str, use_sudo: bool) -> None:
         prefix = "[sudo]" if use_sudo else "[cmd]"
         self._log_line(f"\n{prefix} {command}")
         if out.strip():
@@ -172,9 +185,9 @@ class ManagementScreen(Screen):
             for line in err.strip().splitlines():
                 self._log_line(f"ERR: {line}")
 
-    def _log_line(self, line: str):
+    def _log_line(self, line: str) -> None:
         self.query_one("#mgmt_log", Log).write_line(line)
 
-    def on_unmount(self):
+    def on_unmount(self) -> None:
         if self.ssh_conn is not None:
             self.ssh_conn.close()

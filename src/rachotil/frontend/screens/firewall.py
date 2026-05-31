@@ -1,3 +1,7 @@
+"""
+Screen for managing the UFW firewall on the remote server.
+"""
+
 from textual.screen import Screen
 from textual.widgets import Header, Footer, Static, Button, Input, DataTable, Log
 from textual.containers import Vertical, Horizontal
@@ -8,6 +12,9 @@ from ...backend.components.ssh.ssh import SSH
 from ...backend.components.firewall.firewall_manager import FirewallManager
 
 class FirewallScreen(Screen):
+    """
+    UI Screen for managing firewall rules and status.
+    """
     CSS_PATH = "../styles.tcss"
 
     def __init__(self):
@@ -15,7 +22,7 @@ class FirewallScreen(Screen):
         self.ssh = None
         self.firewall_mgr = None
 
-    def compose(self):
+    def compose(self) -> None:
         yield Header()
         yield Footer()
         
@@ -78,6 +85,9 @@ class FirewallScreen(Screen):
 
     @work(thread=True)
     def toggle_ufw(self, action: str) -> None:
+        """
+        Enable or disable UFW on the server.
+        """
         if not self.firewall_mgr:
             return
             
@@ -90,6 +100,9 @@ class FirewallScreen(Screen):
 
     @work(thread=True)
     def refresh_ufw(self) -> None:
+        """
+        Fetch current UFW status and rules.
+        """
         if not self.firewall_mgr:
             return
             
@@ -107,6 +120,9 @@ class FirewallScreen(Screen):
 
     @work(thread=True)
     def add_rule(self) -> None:
+        """
+        Add a new firewall rule to allow specific ports.
+        """
         if not self.firewall_mgr:
             return
             
@@ -130,6 +146,9 @@ class FirewallScreen(Screen):
 
     @work(thread=True)
     def delete_rule(self) -> None:
+        """
+        Delete the selected firewall rule.
+        """
         if not self.firewall_mgr:
             return
             

@@ -1,3 +1,7 @@
+"""
+Screen for configuring application settings, including UI themes and remote server credentials.
+"""
+
 import re
 from textual import on
 from textual.containers import Horizontal, Vertical, Container
@@ -8,9 +12,12 @@ from ...backend.components.ssh.config import get_ssh_config, save_ssh_config
 from ...backend.components.stats.config import load_stats_config, save_stats_config
 
 class SettingsScreen(Screen):
+    """
+    UI Screen that provides access to various application configurations.
+    """
     CSS_PATH = "../styles.tcss"
     
-    def compose(self):
+    def compose(self) -> None:
         yield Header()
         yield Footer()
         with Vertical(id="settings-main"):
@@ -54,21 +61,24 @@ class SettingsScreen(Screen):
             self.app.add_class("retro-layout")
 
     @on(Button.Pressed, "#stats")
-    def show_stats_menu(self):
+    def show_stats_menu(self) -> None:
         self.app.push_screen(StatsSettingsModal())
 
     @on(Button.Pressed, "#ssh")
-    def show_ssh_menu(self):
+    def show_ssh_menu(self) -> None:
         self.app.push_screen(SSHSettingsModal())
 
 
 class StatsSettingsModal(ModalScreen):
+    """
+    Modal dialog for configuring which statistics blocks are displayed.
+    """
     def __init__(self):
         super().__init__()
         self.config = load_stats_config()
         self.blocks = self.config["blocks"]
 
-    def compose(self):
+    def compose(self) -> None:
         yield Static("Enable/disable stat blocks")
         yield SelectionList(
             *((block["label"], block["id"]) for block in self.blocks),
@@ -100,11 +110,11 @@ class StatsSettingsModal(ModalScreen):
         for value in selected_values & valid_values:
             selection_list.select(value)
 
-    def on_mount(self):
+    def on_mount(self) -> None:
         self._rebuild_stats_options()
 
     @on(Button.Pressed, "#add_custom")
-    def add_custom_block(self):
+    def add_custom_block(self) -> None:
         label = self.query_one("#custom_label", Input).value.strip()
         command = self.query_one("#custom_command", Input).value.strip()
         interval_raw = self.query_one("#custom_interval", Input).value.strip()
@@ -151,7 +161,7 @@ class StatsSettingsModal(ModalScreen):
         message.update("Custom block added. Save to persist changes.")
 
     @on(Button.Pressed, "#delete_custom")
-    def delete_custom_blocks(self):
+    def delete_custom_blocks(self) -> None:
         selection_list = self.query_one("#stats_options", SelectionList)
         message = self.query_one("#stats_message", Static)
         selected_ids = set(selection_list.selected)
@@ -171,7 +181,7 @@ class StatsSettingsModal(ModalScreen):
         message.update(f"Deleted {len(custom_ids)} custom block(s). Save to persist changes.")
 
     @on(Button.Pressed, "#save")
-    def save_stats_settings(self):
+    def save_stats_settings(self) -> None:
         selected_ids = set(self.query_one("#stats_options", SelectionList).selected)
 
         for block in self.blocks:
@@ -181,12 +191,15 @@ class StatsSettingsModal(ModalScreen):
         self.app.pop_screen()
 
     @on(Button.Pressed, "#cancel")
-    def return_to_settings(self):
+    def return_to_settings(self) -> None:
         self.app.pop_screen()
 
 
 class SSHSettingsModal(ModalScreen):
-    def compose(self):
+    """
+    Modal dialog for editing SSH connection credentials.
+    """
+    def compose(self) -> None:
         config = get_ssh_config()
         with Vertical():
             yield Static("SSH Host")
@@ -202,7 +215,7 @@ class SSHSettingsModal(ModalScreen):
             yield Button("Cancel", id="cancel_ssh")
 
     @on(Button.Pressed, "#save_ssh")
-    def save_settings(self):
+    def save_settings(self) -> None:
         host = self.query_one("#ssh_host", Input).value.strip()
         user = self.query_one("#ssh_user", Input).value.strip()
         password = self.query_one("#ssh_password", Input).value
@@ -211,5 +224,5 @@ class SSHSettingsModal(ModalScreen):
         self.app.pop_screen()
 
     @on(Button.Pressed, "#cancel_ssh")
-    def cancel_settings(self):
+    def cancel_settings(self) -> None:
         self.app.pop_screen()

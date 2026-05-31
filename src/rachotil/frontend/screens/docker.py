@@ -1,3 +1,7 @@
+"""
+Screen for managing Docker containers on the remote server.
+"""
+
 from textual.screen import Screen
 from textual.widgets import Header, Footer, Static, Button, DataTable, Log
 from textual.containers import Vertical, Horizontal, Container
@@ -8,6 +12,9 @@ from ...backend.components.ssh.ssh import SSH
 from ...backend.components.docker.docker_manager import DockerManager
 
 class DockerScreen(Screen):
+    """
+    UI Screen for listing and managing Docker containers.
+    """
     CSS_PATH = "../styles.tcss"
 
     def __init__(self):
@@ -15,7 +22,7 @@ class DockerScreen(Screen):
         self.ssh = None
         self.docker_mgr = None
 
-    def compose(self):
+    def compose(self) -> None:
         yield Header()
         yield Footer()
         
@@ -75,6 +82,9 @@ class DockerScreen(Screen):
 
     @work(thread=True)
     def check_docker_and_refresh(self) -> None:
+        """
+        Verify Docker installation and trigger initial container refresh.
+        """
         if not self.docker_mgr:
             return
             
@@ -89,6 +99,9 @@ class DockerScreen(Screen):
 
     @work(thread=True)
     def refresh_containers(self) -> None:
+        """
+        Fetch container data from the server and update the DataTable.
+        """
         if not self.docker_mgr:
             return
             
@@ -98,7 +111,7 @@ class DockerScreen(Screen):
              self.app.call_from_thread(self._update_table, results)
              self.write_status(f"Refreshed. Found {len(results)} containers.")
         else:
-             self.write_status(results)
+             self.write_status(str(results))
 
     def _update_table(self, data: list) -> None:
         table = self.query_one("#docker-table", DataTable)
@@ -108,6 +121,9 @@ class DockerScreen(Screen):
 
     @work(thread=True)
     def manage_container(self, btn_id: str) -> None:
+        """
+        Execute container lifecycle operations (start/stop/restart).
+        """
         if not self.docker_mgr:
              return
 
@@ -139,6 +155,9 @@ class DockerScreen(Screen):
 
     @work(thread=True)
     def fetch_container_logs(self) -> None:
+        """
+        Retrieve and display recent logs for the selected container.
+        """
         if not self.docker_mgr:
              return
 

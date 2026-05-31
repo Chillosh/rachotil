@@ -1,15 +1,41 @@
+"""
+Module for scanning and managing network services on the remote server.
+"""
+
 import json
 from pathlib import Path
 from ...components.ssh.ssh import SSH
 
 class NetworkManager:
+    """
+    Manager class for identifying and checking the status of pre-defined network services.
+    """
+
     def __init__(self, ssh_client: SSH):
+        """
+        Initialize the NetworkManager.
+
+        Args:
+            ssh_client (SSH): Connected SSH client instance.
+        """
         self.ssh = ssh_client
 
     def _storage_path(self) -> Path:
+        """
+        Get the path to the network services configuration file.
+
+        Returns:
+            Path: The resolved Path object for the configuration file.
+        """
         return Path(__file__).resolve().parents[2] / "storage" / "network_services.json"
 
-    def load_software(self) -> list:
+    def load_software(self) -> list[dict]:
+        """
+        Load network software definitions from storage.
+
+        Returns:
+            list[dict]: A list of dictionaries defining services to scan.
+        """
         path = self._storage_path()
         if not path.exists():
             return []
@@ -19,7 +45,13 @@ class NetworkManager:
         except (json.JSONDecodeError, OSError):
             return []
 
-    def scan_services(self) -> tuple[bool, list | str]:
+    def scan_services(self) -> tuple[bool, list[tuple[str, str, str, str, str]] | str]:
+        """
+        Scan the remote server for the status of configured network services.
+
+        Returns:
+            tuple[bool, list[tuple[str, str, str, str, str]] | str]: A success flag and either a list of service status tuples or an error message.
+        """
         if not self.ssh:
             return False, "SSH client is not connected."
 
@@ -61,6 +93,15 @@ class NetworkManager:
         return True, results
 
     def get_service_details(self, soft_id: str) -> tuple[bool, dict | str]:
+        """
+        Fetch detailed status and logs for a specific service.
+
+        Args:
+            soft_id (str): The unique identifier of the service.
+
+        Returns:
+            tuple[bool, dict | str]: A success flag and either a dictionary with details or an error message.
+        """
         if not self.ssh:
             return False, "SSH client is not connected."
             

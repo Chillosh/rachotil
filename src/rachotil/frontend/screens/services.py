@@ -1,3 +1,7 @@
+"""
+Screen for managing system services via systemd on the remote server.
+"""
+
 from textual.screen import Screen
 from textual.widgets import Header, Footer, Static, Button, DataTable, Log
 from textual.containers import Vertical, Horizontal
@@ -8,6 +12,9 @@ from ...backend.components.ssh.ssh import SSH
 from ...backend.components.services.services_manager import ServicesManager
 
 class ServicesScreen(Screen):
+    """
+    UI Screen that allows starting, stopping, and restarting system services.
+    """
     CSS_PATH = "../styles.tcss"
 
     def __init__(self):
@@ -15,7 +22,7 @@ class ServicesScreen(Screen):
         self.ssh = None
         self.services_mgr = None
 
-    def compose(self):
+    def compose(self) -> None:
         yield Header()
         yield Footer()
         
@@ -65,6 +72,9 @@ class ServicesScreen(Screen):
 
     @work(thread=True)
     def refresh_services(self) -> None:
+        """
+        Scan remote system for active service units.
+        """
         if not self.services_mgr:
             return
             
@@ -86,6 +96,9 @@ class ServicesScreen(Screen):
 
     @work(thread=True)
     def manage_service(self, btn_id: str) -> None:
+        """
+        Execute start/stop/restart actions on a selected service.
+        """
         if not self.services_mgr:
              return
 

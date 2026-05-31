@@ -1,10 +1,33 @@
+"""
+Module for managing the UFW firewall on the remote server.
+"""
+
 from ...components.ssh.ssh import SSH
 
 class FirewallManager:
+    """
+    Manager class for UFW firewall operations including rule management and status toggling.
+    """
+
     def __init__(self, ssh_client: SSH):
+        """
+        Initialize the FirewallManager.
+
+        Args:
+            ssh_client (SSH): Connected SSH client instance.
+        """
         self.ssh = ssh_client
 
     def toggle_ufw(self, action: str) -> tuple[bool, str]:
+        """
+        Enable or disable the UFW firewall.
+
+        Args:
+            action (str): Either "enable" or "disable".
+
+        Returns:
+            tuple[bool, str]: A success flag and the output message.
+        """
         if not self.ssh:
             return False, "SSH client is not connected."
         
@@ -14,7 +37,13 @@ class FirewallManager:
         out, err = self.ssh.run_sudo_command(f"ufw --force {action}")
         return True, out.strip() or err.strip()
 
-    def get_status_and_rules(self) -> tuple[bool, str, list]:
+    def get_status_and_rules(self) -> tuple[bool, str, list[tuple[str, str, str, str]]]:
+        """
+        Fetch the current status of UFW and parse active rules.
+
+        Returns:
+            tuple[bool, str, list[tuple[str, str, str, str]]]: A success flag, status message, and a list of parsed rules.
+        """
         if not self.ssh:
             return False, "SSH client is not connected.", []
             
@@ -43,6 +72,16 @@ class FirewallManager:
         return True, "UFW is ACTIVE. Rules loaded.", results
 
     def add_rule(self, port: str, proto: str) -> tuple[bool, str]:
+        """
+        Add a new allowance rule to the firewall.
+
+        Args:
+            port (str): The port or service name.
+            proto (str): The protocol ("tcp", "udp", or None).
+
+        Returns:
+            tuple[bool, str]: A success flag and the output message.
+        """
         if not self.ssh:
             return False, "SSH client is not connected."
             
@@ -57,6 +96,15 @@ class FirewallManager:
         return True, out.strip() or err.strip()
 
     def delete_rule(self, rule_id: str) -> tuple[bool, str]:
+        """
+        Delete a firewall rule by its numerical ID.
+
+        Args:
+            rule_id (str): The ID of the rule to delete.
+
+        Returns:
+            tuple[bool, str]: A success flag and the output message.
+        """
         if not self.ssh:
             return False, "SSH client is not connected."
             
