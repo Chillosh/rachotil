@@ -7,7 +7,7 @@ You can use it for:
 - SSH terminal access
 - live server stats with custom blocks
 - settings and `.env` management in app
-- management actions for systemd, journalctl, processes, and APT
+- management actions for systemd, journalctl, processes, and APT and other services tracking
 - docker managment
 - file managing
 - firewall settings
@@ -34,6 +34,30 @@ You can use it for:
   - processes: top CPU, top RAM, find, kill
   - packages: `apt-get update/upgrade/install/remove`
   - custom command and custom sudo command
+- **Backup and snapshot screen**
+  - Selected files can be downloaded to PC
+  - Stored in tar.gz
+  - list of files availables
+  - Snapshots are stored on server
+  - Return, Create, Delete state of machine
+- **Docker screen**
+  - create, delete, edit containers
+  - interactive managment
+- **file manager screen**
+  - browsing
+  - copying, deleting, creating files
+  - remotly management
+- **Firewall screen**
+  - UFW interact
+  - basic control for port forwarding etc.
+- **Network screen**
+  - scan for network apps installed on server
+  - see state of network apps
+- **Services screen**
+  - lists all running services on server
+  - restart, end, start
+
+
 
 ---
 
@@ -89,35 +113,18 @@ I haven't actually tested it on Linux and macOS, but it should work fine
 
 ---
 
-## Remote server prerequisites (important)
+## Remote server requirements (important)
+Currently works only on Debian based servers (mainly because of APT)
 
-Rachotil connects to a remote machine over SSH, so SSH must be installed and enabled on that machine.
-
-### Ubuntu / Debian server
-
-```bash
-sudo apt update
-sudo apt install -y openssh-server
-sudo systemctl enable --now ssh
-sudo systemctl status ssh --no-pager
+### Setup on server-side
+```git clone https://github.com/Chillosh/rachotil.git
+cd rachotil
+./install.sh
 ```
+Follow the setup as guided in install.sh and then you should be able to to connect through client
 
-### SSH config (when root login is needed)
 
-Edit `/etc/ssh/sshd_config` and check these options:
 
-```text
-PermitRootLogin yes
-PasswordAuthentication yes
-```
-
-Then restart SSH:
-
-```bash
-sudo systemctl restart ssh
-```
-
-Friendly reminder: Yes I am retarded and I know PermitRootLogin is not secure, but it's just for a homelab server in a safe network, so yeah I should fix It in the future.
 
 ---
 
@@ -144,13 +151,22 @@ Notes:
 
 - `space` -> open main menu
 - `q` -> quit app
+- `tab` -> focus other menus
 
 Menu sections:
 
-1. `Stats`
-2. `SSH`
-3. `Management`
-4. `Settings`
+1. `Dashboard` 
+2. `Stats Monitoring`
+3. `SSH Terminal`
+4. `File Explorer`
+5. `Management Tools`
+6. `Backup Manager`
+7. `Snapshot Manager`
+8. `Service Manager`
+9. `Firewall Manager`
+10. `Docker Dashboard`
+11. `Network Services`
+6. `Settings`
 
 ---
 
@@ -169,18 +185,15 @@ Menu sections:
 
 ---
 
-## Project roadmap (weekly, until June)
-
-This is something I want to do, because of my procrastination, however I started it really late. So It this will came in the future.
-
----
-
 ## Project structure
 
-- `src/rachotil/ui/` - Textual screens, components, styles
-- `src/rachotil/ssh/` - SSH connection and `.env` config logic
-- `src/rachotil/stats/` - stats config loading and validation
-- `stats_config.json` - stats blocks configuration
+- Backend - logic
+-   Components - store each component, that is then utilized in screens
+-   Storage - store json files
+- Frontend - textual ui for screens
+-   Components - components then utilized in screens (e.g. manu.py)
+-   Screens - displayed each component
+-   App.py - screen switcher
 
 ---
 
