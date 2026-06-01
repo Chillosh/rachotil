@@ -117,7 +117,8 @@ I haven't actually tested it on Linux and macOS, but it should work fine
 Currently works only on Debian based servers (mainly because of APT)
 
 ### Setup on server-side
-```git clone https://github.com/Chillosh/rachotil.git
+```
+git clone https://github.com/Chillosh/rachotil.git
 cd rachotil
 ./install.sh
 ```
