@@ -34,6 +34,8 @@ class DashboardManager:
         echo "Uptime: $(uptime -p)"
         echo "RAM: $(free -m | awk '/Mem:/ {print $3" MB / "$2" MB"}')"
         echo "Disk (/): $(df -h / | awk 'NR==2 {print $3" / "$2" ("$5")"}')"
+        echo "Local IP: $(hostname -I | awk '{print $1}')"
+        echo "Public IP: $(curl -s ifconfig.me)"
         """
         
         try:

@@ -1,9 +1,5 @@
-"""
-Screen for browsing and managing files on the remote server via SFTP.
-"""
-
 from textual.screen import Screen
-from textual.widgets import Header, Footer, Static, Button, DataTable, Log
+from textual.widgets import Header, Footer, Static, Button, DataTable, Log, Input
 from textual.containers import Vertical, Horizontal
 from textual import work
 import os
@@ -13,9 +9,6 @@ from ...backend.components.ssh.ssh import SSH
 from ...backend.components.file_manager.sftp_manager import SFTPManager
 
 class FileManagerScreen(Screen):
-    """
-    UI Screen that provides a file explorer interface for the remote filesystem.
-    """
     CSS_PATH = "../styles.tcss"
 
     def __init__(self):
@@ -36,6 +29,13 @@ class FileManagerScreen(Screen):
                 yield Static("/", id="fm-current-path")
                 yield Button("Up (..)", id="btn-up-dir", variant="warning")
                 yield Button("Refresh", id="btn-refresh-dir", variant="default")
+
+            with Horizontal(id="fm-actions"):
+                yield Input(placeholder="New name / Copy dest", id="fm-input")
+                yield Button("Create File", id="btn-create-file", variant="success")
+                yield Button("Create Folder", id="btn-create-dir", variant="success")
+                yield Button("Copy Selected", id="btn-copy-item", variant="primary")
+                yield Button("Delete Selected", id="btn-delete-item", variant="error")
 
             yield DataTable(id="fm-table", cursor_type="row")
             yield Log(id="fm-log", classes="status-display")
@@ -82,6 +82,14 @@ class FileManagerScreen(Screen):
             self.load_directory()
         elif btn_id == "btn-up-dir":
             self.navigate_up()
+        elif btn_id == "btn-create-file":
+            self.create_file()
+        elif btn_id == "btn-create-dir":
+            self.create_directory()
+        elif btn_id == "btn-copy-item":
+            self.copy_item()
+        elif btn_id == "btn-delete-item":
+            self.delete_item()
 
     def navigate_up(self) -> None:
         if self.current_path != "/":
@@ -93,9 +101,6 @@ class FileManagerScreen(Screen):
 
     @work(thread=True)
     def load_directory(self) -> None:
-        """
-        Fetch directory contents and update the file table.
-        """
         if not self.sftp_mgr:
             return
             
@@ -132,16 +137,90 @@ class FileManagerScreen(Screen):
 
     @work(thread=True)
     def download_file(self, remote_path: str, filename: str) -> None:
-        """
-        Download a specific file from the server.
-        """
         if not self.sftp_mgr:
             return
             
         self.write_log(f"Starting download: {filename}...")
-        
         success, message = self.sftp_mgr.download_file(remote_path, filename)
         self.write_log(message)
+
+    @work(thread=True)
+    def create_file(self) -> None:
+        if not self.sftp_mgr:
+            return
+        filename = self.query_one("#fm-input", Input).value.strip()
+        if not filename:
+            self.write_log("Provide a file name.")
+            return
+        success, msg = self.sftp_mgr.create_file(self.current_path, filename)
+        self.write_log(msg)
+        if success:
+            self.app.call_from_thread(lambda: setattr(self.query_one("#fm-input", Input), "value", ""))
+            self.load_directory()
+
+    @work(thread=True)
+    def delete_item(self) -> None:
+        if not self.sftp_mgr:
+            return
+        table = self.query_one("#fm-table", DataTable)
+        try:
+            row_key = table.coordinate_to_cell_key(table.cursor_coordinate).row_key.value
+            _, item_name = row_key.split("|", 1)
+        except Exception:
+            self.write_log("Select an item to delete.")
+            return
+        
+        target_path = f"{self.current_path}/{item_name}"
+        if self.current_path == "/":
+            target_path = f"/{item_name}"
+            
+        success, msg = self.sftp_mgr.delete_item(target_path)
+        self.write_log(msg)
+        if success:
+            self.load_directory()
+
+    @work(thread=True)
+    def create_directory(self) -> None:
+        if not self.sftp_mgr:
+            return
+        dirname = self.query_one("#fm-input", Input).value.strip()
+        if not dirname:
+            self.write_log("Provide a folder name.")
+            return
+        success, msg = self.sftp_mgr.create_directory(self.current_path, dirname)
+        self.write_log(msg)
+        if success:
+            self.app.call_from_thread(lambda: setattr(self.query_one("#fm-input", Input), "value", ""))
+            self.load_directory()
+
+    @work(thread=True)
+    def copy_item(self) -> None:
+        if not self.sftp_mgr:
+            return
+        table = self.query_one("#fm-table", DataTable)
+        try:
+            row_key = table.coordinate_to_cell_key(table.cursor_coordinate).row_key.value
+            _, item_name = row_key.split("|", 1)
+        except Exception:
+            self.write_log("Select an item to copy.")
+            return
+
+        dest = self.query_one("#fm-input", Input).value.strip()
+        if not dest:
+            self.write_log("Provide a destination path or new name.")
+            return
+
+        target_path = f"{self.current_path}/{item_name}"
+        if self.current_path == "/":
+            target_path = f"/{item_name}"
+            
+        dest_path = f"{self.current_path}/{dest}" if not dest.startswith("/") else dest
+
+        success, msg = self.sftp_mgr.copy_item(target_path, dest_path)
+        self.write_log(msg)
+        if success:
+            self.app.call_from_thread(lambda: setattr(self.query_one("#fm-input", Input), "value", ""))
+            self.load_directory()
 
     def on_unmount(self) -> None:
         if self.sftp_mgr:
