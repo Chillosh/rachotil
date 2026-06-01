@@ -5,7 +5,6 @@ Main application class for Rachotil.
 from textual.app import App
 from rachotil.frontend.screens.docker import DockerScreen
 from rachotil.frontend.screens.file_manager import FileManagerScreen
-from rachotil.frontend.screens.network_manager import NetworkManagerScreen
 from rachotil.frontend.screens.services import ServicesScreen
 from rachotil.frontend.screens.firewall import FirewallScreen
 from rachotil.frontend.screens.dashboard import DashboardScreen
@@ -16,6 +15,7 @@ from .screens.settings import SettingsScreen
 from .screens.terminal import TerminalScreen
 from .screens.stats import StatsScreen
 from .screens.backup import BackupScreen
+from rachotil.frontend.screens.pihole import PiholeScreen
 from rachotil.backend.components.keybinds.keybinds_manager import load_keybinds
 
 
@@ -61,7 +61,7 @@ class Rachotil(App):
                 self.switch_screen(FirewallScreen())
             elif choice == "docker":
                 self.switch_screen(DockerScreen())
-            elif choice == "network":
-                self.switch_screen(NetworkManagerScreen())
+            elif choice == "pihole":
+                self.switch_screen(PiholeScreen())
 
         self.push_screen(MenuScreen(), check_menu_result)

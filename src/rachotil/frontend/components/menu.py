@@ -24,7 +24,7 @@ class MenuScreen(ModalScreen[str]):
         ("Service Manager", "services"),
         ("Firewall Manager", "firewall"),
         ("Docker Dashboard", "docker"),
-        ("Network Services", "network"),
+        ("Pi-hole", "pihole"),
         ("Settings", "settings")
     ]
 
