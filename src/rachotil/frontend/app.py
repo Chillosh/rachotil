@@ -16,6 +16,7 @@ from .screens.settings import SettingsScreen
 from .screens.terminal import TerminalScreen
 from .screens.stats import StatsScreen
 from .screens.backup import BackupScreen
+from rachotil.backend.components.keybinds.keybinds_manager import load_keybinds
 
 
 class Rachotil(App):
@@ -23,13 +24,15 @@ class Rachotil(App):
     Main Textual Application for controlling remote Linux servers.
     """
     CSS_PATH = "styles.tcss"
-    BINDINGS = [
-        ("space", "show_menu", "Menu"),
-        ("q", "quit", "Quit")
-    ]
 
     def on_mount(self) -> None:
+        self.apply_keybinds()
         self.push_screen(DashboardScreen())
+
+    def apply_keybinds(self) -> None:
+        config = load_keybinds()
+        self.bind(config.get("menu", "space"), "show_menu", description="Menu")
+        self.bind(config.get("quit", "q"), "quit", description="Quit")
 
     def action_show_menu(self) -> None:
         """

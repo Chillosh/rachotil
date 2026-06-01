@@ -10,6 +10,7 @@ from textual.widgets import Button, Footer, Header, Input, SelectionList, Static
 
 from ...backend.components.ssh.config import get_ssh_config, save_ssh_config
 from ...backend.components.stats.config import load_stats_config, save_stats_config
+from ...backend.components.keybinds.keybinds_manager import load_keybinds, save_keybinds
 
 class SettingsScreen(Screen):
     """
@@ -31,12 +32,13 @@ class SettingsScreen(Screen):
                     yield RadioButton("Cyberpunk Terminal", id="theme-cyber")
                     yield RadioButton("Solarized Code", id="theme-solarized")
                     yield RadioButton("Retro DOS", id="theme-retro")
-
+            
             with Container(classes="settings-card"):
                 yield Static("System Configurations", classes="card-label")
                 with Horizontal(classes="card-buttons"):
                     yield Button("Stats Configuration", id="stats", variant="primary")
                     yield Button("SSH Connection Settings", id="ssh", variant="primary")
+                    yield Button("Keybinds Settings", id="keybinds", variant="primary")
 
     def action_open_main_menu(self) -> None:
         self.app.action_show_menu()
@@ -67,6 +69,10 @@ class SettingsScreen(Screen):
     @on(Button.Pressed, "#ssh")
     def show_ssh_menu(self) -> None:
         self.app.push_screen(SSHSettingsModal())
+    
+    @on(Button.Pressed, "#keybinds")
+    def show_keybinds_menu(self) -> None:
+        self.app.push_screen(KeybindsSettingsModal())
 
 
 class StatsSettingsModal(ModalScreen):
@@ -224,5 +230,36 @@ class SSHSettingsModal(ModalScreen):
         self.app.pop_screen()
 
     @on(Button.Pressed, "#cancel_ssh")
+    def cancel_settings(self) -> None:
+        self.app.pop_screen()
+
+class KeybindsSettingsModal(ModalScreen):
+    def compose(self) -> None:
+        config = load_keybinds()
+        with Vertical():
+            yield Static("Keybind Configurations")
+            yield Static("Main Menu Key (e.g. space, m, ctrl+m)")
+            yield Input(value=config.get("menu", "space"), id="kb_menu")
+            
+            yield Static("Quit App Key (e.g. q, escape, ctrl+q)")
+            yield Input(value=config.get("quit", "q"), id="kb_quit")
+            
+        with Horizontal():
+            yield Button("Save", id="save_kb", variant="success")
+            yield Button("Cancel", id="cancel_kb", variant="error")
+
+    @on(Button.Pressed, "#save_kb")
+    def save_settings(self) -> None:
+        menu_key = self.query_one("#kb_menu", Input).value.strip()
+        quit_key = self.query_one("#kb_quit", Input).value.strip()
+        
+        save_keybinds({"menu": menu_key, "quit": quit_key})
+        
+        if hasattr(self.app, "apply_keybinds"):
+            self.app.apply_keybinds()
+            
+        self.app.pop_screen()
+
+    @on(Button.Pressed, "#cancel_kb")
     def cancel_settings(self) -> None:
         self.app.pop_screen()
