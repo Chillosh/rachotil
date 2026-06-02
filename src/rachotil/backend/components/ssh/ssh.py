@@ -90,6 +90,23 @@ class SSH:
         stdout.channel.recv_exit_status()
         return out, err
 
+    def run_sudo_command_stream(self, command: str):
+        """
+        Execute a sudo command and yield the output line by line in real-time.
+        Requires get_pty=True to prevent APT from hanging on background daemon triggers.
+        """
+        if not self.client:
+            raise Exception("SSH client is not connected.")
+
+        stdin, stdout, stderr = self.client.exec_command(f"sudo -S -p '' {command}", get_pty=True)
+
+        if self.sudo_password:
+            stdin.write(self.sudo_password + "\n")
+            stdin.flush()
+
+        for line in iter(stdout.readline, ""):
+            yield line.strip()
+    
     def open_shell(self) -> paramiko.Channel:
         """
         Open an interactive shell channel.

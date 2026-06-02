@@ -18,11 +18,10 @@ class MenuScreen(ModalScreen[str]):
         ("Stats Monitoring", "stats"),
         ("SSH Terminal", "term"),
         ("File Manager", "file_manager"),
-        ("Management Tools", "management"),
+        ("Package Manager", "packages"),
         ("Backup Manager", "backup"),
         ("Snapshot Manager", "snapshot"),
         ("Service Manager", "services"),
-        ("Firewall Manager", "firewall"),
         ("Docker Dashboard", "docker"),
         ("Pi-hole", "pihole"),
         ("Settings", "settings")

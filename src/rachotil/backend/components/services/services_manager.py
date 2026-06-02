@@ -51,6 +51,27 @@ class ServicesManager:
         except Exception as e:
              return False, f"Scan failed: {str(e)}"
 
+    def get_service_logs(self, svc_name: str, lines: int = 50) -> tuple[bool, str]:
+        """
+        Fetch recent journalctl logs for a specific systemd service.
+
+        Args:
+            svc_name (str): The name of the service.
+            lines (int): Number of log lines to retrieve.
+
+        Returns:
+            tuple[bool, str]: Success flag and the log output or error message.
+        """
+        if not self.ssh:
+             return False, "SSH client is not connected."
+             
+        try:
+             cmd = f"journalctl -u {svc_name} -n {lines} --no-pager"
+             out, err = self.ssh.run_sudo_command(cmd)
+             return True, out.strip() or err.strip() or "No logs found."
+        except Exception as e:
+             return False, f"Error fetching logs: {str(e)}"
+    
     def manage_service(self, action: str, svc_name: str) -> tuple[bool, str]:
         """
         Perform a lifecycle action (start, stop, restart) on a specific systemd service.

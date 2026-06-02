@@ -6,11 +6,10 @@ from textual.app import App
 from rachotil.frontend.screens.docker import DockerScreen
 from rachotil.frontend.screens.file_manager import FileManagerScreen
 from rachotil.frontend.screens.services import ServicesScreen
-from rachotil.frontend.screens.firewall import FirewallScreen
 from rachotil.frontend.screens.dashboard import DashboardScreen
 from rachotil.frontend.screens.snapshot import SnapshotScreen
 from .components.menu import MenuScreen
-from .screens.management import ManagementScreen
+from .screens.packages import PackagesScreen
 from .screens.settings import SettingsScreen
 from .screens.terminal import TerminalScreen
 from .screens.stats import StatsScreen
@@ -47,8 +46,8 @@ class Rachotil(App):
                 self.switch_screen(StatsScreen())
             elif choice == "file_manager":
                 self.switch_screen(FileManagerScreen())
-            elif choice == "management":
-                self.switch_screen(ManagementScreen())
+            elif choice == "packages":
+                self.switch_screen(PackagesScreen())
             elif choice == "backup":
                 self.switch_screen(BackupScreen())
             elif choice == "settings":
@@ -57,8 +56,6 @@ class Rachotil(App):
                 self.switch_screen(SnapshotScreen())
             elif choice == "services":
                 self.switch_screen(ServicesScreen())
-            elif choice == "firewall":
-                self.switch_screen(FirewallScreen())
             elif choice == "docker":
                 self.switch_screen(DockerScreen())
             elif choice == "pihole":

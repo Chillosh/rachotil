@@ -34,6 +34,7 @@ class ServicesScreen(Screen):
                 yield Button("Start", id="btn-start-svc", variant="success")
                 yield Button("Stop", id="btn-stop-svc", variant="error")
                 yield Button("Restart", id="btn-restart-svc", variant="warning")
+                yield Button("View Logs", id="btn-logs-svc", variant="primary")
                 
             yield DataTable(id="services-table", cursor_type="row")
             yield Log(id="services-log", classes="status-display")
@@ -67,6 +68,8 @@ class ServicesScreen(Screen):
         btn_id = event.button.id
         if btn_id == "btn-refresh-svc":
             self.refresh_services()
+        elif btn_id == "btn-logs-svc":
+            self.view_logs() # NOVÁ AKCE
         else:
             self.manage_service(btn_id)
 
@@ -128,3 +131,29 @@ class ServicesScreen(Screen):
              self.refresh_services()
         else:
              self.write_log(message)
+
+    @work(thread=True)
+    def view_logs(self) -> None:
+        """
+        Fetch and display logs for the currently selected service.
+        """
+        if not self.services_mgr:
+             return
+
+        table = self.query_one("#services-table", DataTable)
+        try:
+            row_key = table.coordinate_to_cell_key(table.cursor_coordinate)
+            svc_name = row_key.row_key.value
+        except Exception:
+            self.write_log("Error: No service selected.")
+            return
+
+        self.write_log(f"Fetching logs for {svc_name}...")
+        success, message = self.services_mgr.get_service_logs(svc_name)
+        
+        if success:
+            self.write_log(f"--- LOGS: {svc_name} ---")
+            self.write_log(message)
+            self.write_log("-----------------------")
+        else:
+            self.write_log(message)
