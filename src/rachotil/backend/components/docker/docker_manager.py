@@ -3,6 +3,8 @@ Module for managing Docker containers on the remote server.
 """
 
 import os
+import re
+from typing import Iterator
 from ...components.ssh.ssh import SSH
 
 class DockerManager:
@@ -18,13 +20,11 @@ class DockerManager:
             ssh_client (SSH): Connected SSH client instance.
         """
         self.ssh = ssh_client
+        self._ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
 
     def check_docker_installed(self) -> tuple[bool, str]:
         """
         Verify if Docker is installed on the remote server.
-
-        Returns:
-            tuple[bool, str]: A tuple containing a success flag and the Docker version or an error message.
         """
         if not self.ssh:
             return False, "SSH client is not connected."
@@ -38,9 +38,6 @@ class DockerManager:
     def get_containers(self) -> tuple[bool, list[tuple[str, str, str, str]] | str]:
         """
         Retrieve a list of all Docker containers on the server.
-
-        Returns:
-            tuple[bool, list[tuple[str, str, str, str]] | str]: A success flag and either a list of container tuples (name, state, status, image) or an error message.
         """
         if not self.ssh:
              return False, "SSH client is not connected."
@@ -71,13 +68,6 @@ class DockerManager:
     def manage_container(self, action: str, container_name: str) -> tuple[bool, str]:
         """
         Perform a lifecycle action (start, stop, restart) on a specific container.
-
-        Args:
-            action (str): The action to perform ("start", "stop", or "restart").
-            container_name (str): The name of the container.
-
-        Returns:
-            tuple[bool, str]: A tuple containing a success flag and the output or an error message.
         """
         if not self.ssh:
              return False, "SSH client is not connected."
@@ -94,13 +84,6 @@ class DockerManager:
     def get_container_logs(self, container_name: str, lines: int = 50) -> tuple[bool, str]:
          """
          Fetch recent logs for a specific container.
-
-         Args:
-             container_name (str): The name of the container.
-             lines (int): Number of log lines to retrieve. Defaults to 50.
-
-         Returns:
-             tuple[bool, str]: A tuple containing a success flag and the log output or error message.
          """
          if not self.ssh:
              return False, "SSH client is not connected."
@@ -113,3 +96,31 @@ class DockerManager:
              return True, log_output
          except Exception as e:
              return False, f"Failed to fetch logs: {str(e)}"
+    
+    def delete_container(self, container_id: str) -> tuple[bool, str]:
+        if not self.ssh:
+            return False, "SSH client is not connected."
+        try:
+            out, err = self.ssh.run_sudo_command(f"docker rm -f {container_id}")
+            return True, f"Container {container_id} deleted."
+        except Exception as e:
+            return False, str(e)
+
+    def deploy_compose_stream(self, yaml_content: str) -> Iterator[tuple[bool, str]]:
+        if not self.ssh:
+            yield False, "SSH client is not connected."
+            return
+
+        try:
+            safe_content = yaml_content.replace("'", "'\\''")
+            cmd_write = f"echo '{safe_content}' | sudo tee /tmp/rachotil_compose.yml > /dev/null"
+            self.ssh.run_sudo_command(cmd_write)
+            
+            cmd_up = "docker compose -f /tmp/rachotil_compose.yml up -d"
+            
+            for line in self.ssh.run_sudo_command_stream(cmd_up):
+                clean_line = self._ansi_escape.sub('', line).strip()
+                if clean_line:
+                    yield True, clean_line
+        except Exception as e:
+            yield False, f"Deploy failed: {str(e)}"

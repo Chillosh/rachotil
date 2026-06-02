@@ -3,10 +3,12 @@ Screen for configuring application settings, including UI themes and remote serv
 """
 
 import re
+import json
+from pathlib import Path
 from textual import on
 from textual.containers import Horizontal, Vertical, Container
 from textual.screen import ModalScreen, Screen
-from textual.widgets import Button, Footer, Header, Input, SelectionList, Static, RadioSet, RadioButton
+from textual.widgets import Button, Footer, Header, Input, SelectionList, Static, RadioSet, RadioButton, TextArea
 
 from ...backend.components.ssh.config import get_ssh_config, save_ssh_config
 from ...backend.components.stats.config import load_stats_config, save_stats_config
@@ -39,6 +41,7 @@ class SettingsScreen(Screen):
                     yield Button("Stats Configuration", id="stats", variant="primary")
                     yield Button("SSH Connection Settings", id="ssh", variant="primary")
                     yield Button("Keybinds Settings", id="keybinds", variant="primary")
+                    yield Button("Dashboard ASCII Art", id="ascii_art_btn", variant="primary")
 
     def action_open_main_menu(self) -> None:
         self.app.action_show_menu()
@@ -73,6 +76,10 @@ class SettingsScreen(Screen):
     @on(Button.Pressed, "#keybinds")
     def show_keybinds_menu(self) -> None:
         self.app.push_screen(KeybindsSettingsModal())
+    
+    @on(Button.Pressed, "#ascii_art_btn")
+    def show_ascii_modal(self) -> None:
+        self.app.push_screen(AsciiArtModal())
 
 
 class StatsSettingsModal(ModalScreen):
@@ -257,9 +264,41 @@ class KeybindsSettingsModal(ModalScreen):
         
         if hasattr(self.app, "apply_keybinds"):
             self.app.apply_keybinds()
+            self.app.screen.refresh_bindings()
             
         self.app.pop_screen()
 
     @on(Button.Pressed, "#cancel_kb")
     def cancel_settings(self) -> None:
+        self.app.pop_screen()
+
+class AsciiArtModal(ModalScreen):
+    def _storage_path(self) -> Path:
+        return Path(__file__).resolve().parents[2] / "backend" / "storage" / "dashboard_config.json"
+
+    def compose(self) -> None:
+        try:
+            config = json.loads(self._storage_path().read_text(encoding="utf-8"))
+            current_art = config.get("ascii_art", "")
+        except Exception:
+            current_art = ""
+
+        with Vertical():
+            yield Static("Edit Dashboard ASCII Art")
+            yield TextArea(text=current_art, id="ascii_input", language="markdown")
+            
+        with Horizontal():
+            yield Button("Save", id="save_ascii", variant="success")
+            yield Button("Cancel", id="cancel_ascii", variant="error")
+
+    @on(Button.Pressed, "#save_ascii")
+    def save_art(self) -> None:
+        new_art = self.query_one("#ascii_input", TextArea).text
+        path = self._storage_path()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({"ascii_art": new_art}, indent=4), encoding="utf-8")
+        self.app.pop_screen()
+
+    @on(Button.Pressed, "#cancel_ascii")
+    def cancel_art(self) -> None:
         self.app.pop_screen()

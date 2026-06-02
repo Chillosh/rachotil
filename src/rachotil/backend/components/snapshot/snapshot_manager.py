@@ -61,13 +61,20 @@ class SnapshotManager:
 
         parsed_data = []
         lines = out.split("\n")
+        
         for line in lines:
             parts = line.strip().split()
-            if len(parts) >= 3 and parts[0].isdigit() and parts[1] == '>':
+            if not parts or not parts[0].isdigit():
+                continue
+                
+            if len(parts) > 1 and parts[1] == '>':
+                parts.pop(1)
+                
+            if len(parts) >= 2:
                 s_id = parts[0]
-                s_date = parts[2]
-                s_tags = parts[3] if len(parts) > 3 else ""
-                s_desc = " ".join(parts[4:]) if len(parts) > 4 else ""
+                s_date = parts[1]
+                s_tags = parts[2] if len(parts) > 2 else ""
+                s_desc = " ".join(parts[3:]) if len(parts) > 3 else ""
                 parsed_data.append((s_id, s_date, s_tags, s_desc))
 
         return True, parsed_data
@@ -89,7 +96,7 @@ class SnapshotManager:
             config = self.load_config()
             description = config.get("default_description", "Manual backup")
 
-        cmd = f"timeshift --create --comments '{description}'"
+        cmd = f"timeshift --create --comments '{description}' --script --yes"
         out, err = self.ssh.run_sudo_command(cmd)
 
         if "E:" in out or "Error" in err:
@@ -110,7 +117,7 @@ class SnapshotManager:
         if not self.ssh:
             return False, "SSH client is not connected."
 
-        cmd = f"timeshift --delete --snapshot '{snap_name}'"
+        cmd = f"timeshift --delete --snapshot '{snap_name}' --yes"
         out, err = self.ssh.run_sudo_command(cmd)
         
         return True, f"Snapshot {snap_name} deleted."

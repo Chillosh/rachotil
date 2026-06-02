@@ -32,6 +32,7 @@ class Rachotil(App):
         config = load_keybinds()
         self.bind(config.get("menu", "space"), "show_menu", description="Menu")
         self.bind(config.get("quit", "q"), "quit", description="Quit")
+        self.refresh_bindings()
 
     def action_show_menu(self) -> None:
         """

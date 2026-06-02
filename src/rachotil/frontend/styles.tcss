@@ -468,3 +468,67 @@ Horizontal {
 #yaml_not_inst {
     color: #555555;
 }
+
+#docker-yaml-input {
+    height: 10;
+    margin-bottom: 1;
+}
+
+#docker-table {
+    height: 1fr;
+}
+
+#docker-main {
+    height: 100%;
+    overflow-y: auto;
+}
+
+#docker-yaml-input {
+    height: 8;
+    min-height: 8;
+    margin-bottom: 1;
+}
+
+#docker-table {
+    height: 10;
+    min-height: 10;
+    margin-bottom: 1;
+}
+
+#docker-log {
+    height: auto;
+    min-height: 6;
+}
+
+#docker-main {
+    height: 100%;
+    overflow-y: auto;
+}
+
+#docker-title {
+    margin-bottom: 1;
+}
+
+#docker-actions {
+    height: 3;
+}
+
+#docker-yaml-input {
+    height: 10;
+    margin-bottom: 1;
+}
+
+#btn-deploy-compose {
+    margin-bottom: 1;
+}
+
+#docker-table {
+    height: 1fr;
+    min-height: 8;
+    margin-bottom: 1;
+}
+
+#docker-log {
+    height: auto;
+    min-height: 6;
+}

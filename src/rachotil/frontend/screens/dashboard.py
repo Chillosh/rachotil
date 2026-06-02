@@ -2,6 +2,8 @@
 Dashboard screen for displaying overview system information.
 """
 
+import json
+from pathlib import Path
 from textual.screen import Screen
 from textual.widgets import Header, Footer, Static
 from textual.containers import Horizontal, Vertical
@@ -17,7 +19,7 @@ class DashboardScreen(Screen):
     """
     CSS_PATH = "../styles.tcss"
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.ssh = None
         self.dashboard_mgr = None
@@ -33,15 +35,18 @@ class DashboardScreen(Screen):
                 yield Static("Loading system info...", id="dashboard-info", classes="dashboard-box")
 
     def on_mount(self) -> None:
-        ascii_art = """
-         ____  _   _ 
-        |  _ \\| | | |
-        | |_) | | | |
-        |  _ <| |_| |
-        |_| \\_\\\\___/ 
-        
-        Ubuntu Server
-        """
+        config_path = Path(__file__).resolve().parents[2] / "backend" / "storage" / "dashboard_config.json"        
+        ascii_art = ""
+        if config_path.exists():
+            try:
+                data = json.loads(config_path.read_text(encoding="utf-8"))
+                ascii_art = data.get("ascii_art", "")
+            except Exception:
+                pass
+                
+        if not ascii_art:
+            ascii_art = "No ASCII art configured.\nPlease set it up in Settings."
+
         self.query_one("#dashboard-ascii", Static).update(ascii_art)
         
         try:
@@ -60,9 +65,6 @@ class DashboardScreen(Screen):
 
     @work(thread=True)
     def update_sys_info(self) -> None:
-        """
-        Periodically fetch and upgrade system information in the UI.
-        """
         if not self.dashboard_mgr:
             return
             

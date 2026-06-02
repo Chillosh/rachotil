@@ -2,11 +2,13 @@
 Screen for managing and creating remote server backups.
 """
 
+import os
+from datetime import datetime
 from textual.screen import Screen
 from textual.widgets import Header, Footer, Static, Button, Input, Label, Checkbox, OptionList, Log
 from textual.containers import Container, Vertical, Horizontal, ScrollableContainer
 from textual import work
-from datetime import datetime
+
 from ...backend.components.ssh.config import get_ssh_config
 from ...backend.components.ssh.ssh import SSH
 from ...backend.components.backup.backup_manager import BackupManager
@@ -26,7 +28,7 @@ class BackupScreen(Screen):
         "/srv": "Server data",
     }
     
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.ssh = None
         self.backup_mgr = None
@@ -61,10 +63,15 @@ class BackupScreen(Screen):
                     yield OptionList(id="custom-dirs-list")
             
             with Container(id="backup-options"):
-                yield Label("[bold cyan]3. Backup name:[/bold cyan]")
+                yield Label("[bold cyan]3. Backup Settings:[/bold cyan]")
                 yield Input(
                     value=f"backup-{datetime.now().strftime('%Y%m%d-%H%M%S')}.tar.gz",
-                    id="backup-name"
+                    id="backup-name",
+                    placeholder="Backup file name"
+                )
+                yield Input(
+                    placeholder="Local download destination (e.g. C:/backups). Leaves empty for Downloads folder.",
+                    id="backup-dest-input"
                 )
             
             with Horizontal(id="backup-buttons"):
@@ -114,9 +121,6 @@ class BackupScreen(Screen):
     
     @work(thread=True)
     def search_directories(self, query: str) -> None:
-        """
-        Search for remote directories based on query.
-        """
         if not self.backup_mgr:
             return
         try:
@@ -154,20 +158,23 @@ class BackupScreen(Screen):
     
     @work(thread=True)
     def execute_backup(self) -> None:
-        """
-        Create and download the backup archive.
-        """
         if not self.backup_mgr:
              self.write_log("Error: Connection to server not established.")
              return
 
         backup_name = self.query_one("#backup-name", Input).value.strip()
+        local_dest = self.query_one("#backup-dest-input", Input).value.strip()
+        
+        if not local_dest:
+            local_dest = os.path.join(os.path.expanduser("~"), "Downloads")
+
         all_dirs = list(self.selected_dirs) + list(self.additional_dirs)
         
         try:
             success, message = self.backup_mgr.create_and_download_backup(
                 dirs_to_backup=all_dirs, 
                 backup_name=backup_name,
+                local_dest=local_dest,
                 status_callback=self.write_log
             )
             
