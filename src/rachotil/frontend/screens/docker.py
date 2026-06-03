@@ -15,7 +15,7 @@ class DockerScreen(Screen):
     """
     Screen displaying a list of Docker containers with management actions and Compose deployment.
     """
-    CSS_PATH = "../styles.tcss"
+    CSS_PATH = ["../components/styles/global.tcss", "../components/styles/docker.tcss"]
 
     def __init__(self) -> None:
         super().__init__()

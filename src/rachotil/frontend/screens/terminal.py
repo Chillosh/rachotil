@@ -14,7 +14,7 @@ class TerminalScreen(Screen):
     """
     UI Screen that acts as a terminal emulator connected to the remote host.
     """
-    CSS_PATH = "../styles.tcss"
+    CSS_PATH = ["../components/styles/global.tcss"]
     
     def __init__(self):
         super().__init__()

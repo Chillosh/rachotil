@@ -6,7 +6,7 @@ def _storage_path() -> Path:
 
 def load_keybinds() -> dict:
     path = _storage_path()
-    default_config = {"menu": "space", "quit": "q"}
+    default_config = {"menu": "space", "quit": "q", "help": "h"}
     
     if not path.exists():
         return default_config

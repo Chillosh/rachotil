@@ -17,6 +17,8 @@ class StatsScreen(Screen):
     """
     UI Screen that periodically refreshes and displays various system metrics.
     """
+    CSS_PATH = ["../components/styles/global.tcss"]
+
     def compose(self) -> None:
         yield Header()
         yield Log(id="output")

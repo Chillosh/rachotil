@@ -15,7 +15,7 @@ class SnapshotScreen(Screen):
     """
     UI Screen for creating, removing and restoring system snapshots.
     """
-    CSS_PATH = "../styles.tcss"
+    CSS_PATH = ["../components/styles/global.tcss", "../components/styles/snapshot.tcss"]
 
     def __init__(self):
         super().__init__()

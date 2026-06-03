@@ -17,7 +17,7 @@ class BackupScreen(Screen):
     """
     UI Screen for selecting directories, searching for additional paths, and performing backups.
     """
-    CSS_PATH = "../styles.tcss"
+    CSS_PATH = ["../components/styles/global.tcss", "../components/styles/backup.tcss"]
     
     DEFAULT_DIRS = {
         "/etc": "System configuration",

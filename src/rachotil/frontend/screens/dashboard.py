@@ -17,7 +17,7 @@ class DashboardScreen(Screen):
     """
     UI Screen that shows basic system metrics and information.
     """
-    CSS_PATH = "../styles.tcss"
+    CSS_PATH = ["../components/styles/global.tcss", "../components/styles/dashboard.tcss"]
 
     def __init__(self) -> None:
         super().__init__()

@@ -1,0 +1,70 @@
+#backup-main {
+    height: 100%;
+    width: 100%;
+    padding: 1;
+    overflow-y: scroll;
+}
+
+#backup-title {
+    margin-bottom: 1;
+    text-style: bold;
+}
+
+#backup-dirs-container {
+    height: auto;
+    max-height: 10;
+    width: 100%;
+    border: solid blue;
+    padding: 1;
+    margin-bottom: 1;
+}
+
+.horizontal-container {
+    height: auto;
+    width: 100%;
+    margin-bottom: 1;
+}
+
+.column {
+    width: 1fr;
+    height: auto;
+    margin: 0 1;
+}
+
+#backup-additional, #backup-custom-selected {
+    border: solid green;
+    padding: 1;
+    height: auto;
+}
+
+#search-input {
+    margin-bottom: 1;
+}
+
+#search-results-list, #custom-dirs-list {
+    height: 6;
+    border: solid cyan;
+}
+
+#backup-options {
+    height: auto;
+    width: 100%;
+    border: solid yellow;
+    padding: 1;
+    margin-bottom: 1;
+}
+
+#backup-buttons {
+    width: auto;
+    height: auto;
+    margin-bottom: 1;
+}
+
+.status-display {
+    width: 100%;
+    height: 10;
+    border: solid magenta;
+    background: black;
+    color: lightgreen;
+    margin-top: 1;
+}

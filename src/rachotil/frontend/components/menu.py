@@ -11,7 +11,7 @@ class MenuScreen(ModalScreen[str]):
     """
     Modal UI Screen that presents a searchable list of available application modules.
     """
-    CSS_PATH = "../styles.tcss"
+    CSS_PATH = ["styles/global.tcss", "styles/dashboard.tcss"]
 
     ALL_OPTIONS = [
         ("System Dashboard", "dashboard"),

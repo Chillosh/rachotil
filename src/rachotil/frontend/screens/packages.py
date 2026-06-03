@@ -15,7 +15,7 @@ class PackagesScreen(Screen):
     """
     Screen providing an interface for searching, installing, and removing packages via APT.
     """
-    CSS_PATH = "../styles.tcss"
+    CSS_PATH = ["../components/styles/global.tcss"]
 
     def __init__(self) -> None:
         super().__init__()

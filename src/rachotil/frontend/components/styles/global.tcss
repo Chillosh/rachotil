@@ -1,0 +1,138 @@
+Screen {
+    background: #1a1a1a;
+}
+
+Log {
+    height: 1fr;
+    background: black;
+    color: lightgreen;
+}
+
+MenuScreen {
+    align: center middle;
+    background: black 50%;
+}
+
+StatsSettingsModal {
+    align: center middle;
+    background: black 40%;
+}
+
+OptionList {
+    width: 40;
+    height: auto;
+    border: double $accent;
+    background: $surface;
+}
+
+Horizontal {
+    width: auto;
+    height: 3;
+    align: center middle;
+    margin-top: 1;
+}
+
+#save {
+    background: green 60%;
+}
+
+#cancel {
+    background: red 60%;
+}
+
+#mgmt_title {
+    margin: 1 2;
+    text-style: bold;
+}
+
+#mgmt_sections {
+    height: auto;
+    margin: 0 1;
+}
+
+#mgmt_controls {
+    height: auto;
+    margin: 0 1;
+}
+
+.light-layout Screen {
+    background: #f0f0f0;
+    color: #1a1a1a;
+}
+
+.light-layout .settings-card {
+    border: solid #000000;
+    background: #ffffff;
+}
+
+.cyber-layout Screen {
+    background: #050505;
+    color: #00ff00;
+}
+
+.cyber-layout .settings-card {
+    border: double #ff00ff;
+    background: #111111;
+}
+
+.cyber-layout .card-label {
+    color: #00ffff;
+}
+
+.solarized-layout Screen {
+    background: #002b36;
+    color: #839496;
+}
+
+.solarized-layout .settings-card {
+    border: solid #2aa198;
+    background: #073642;
+}
+
+.solarized-layout .card-label {
+    color: #b58900;
+}
+
+.retro-layout Screen {
+    background: #0000aa;
+    color: #aaaaaa;
+}
+
+.retro-layout .settings-card {
+    border: solid #ffffff;
+    background: #0000aa;
+}
+
+.retro-layout .card-label {
+    color: #ffffff;
+    text-style: bold;
+}
+
+HelperScreen {
+    align: center middle;
+    background: black 60%;
+}
+
+.helper-modal {
+    width: 60;
+    height: auto;
+    padding: 2;
+    border: double cyan;
+    background: $surface;
+}
+
+#helper-title {
+    text-style: bold;
+    color: cyan;
+    margin-bottom: 1;
+    content-align: center middle;
+}
+
+#helper-content {
+    margin-bottom: 2;
+}
+
+#helper-actions {
+    align: right middle;
+    height: 3;
+}

@@ -9,7 +9,7 @@ from ...backend.components.ssh.ssh import SSH
 from ...backend.components.file_manager.sftp_manager import SFTPManager
 
 class FileManagerScreen(Screen):
-    CSS_PATH = "../styles.tcss"
+    CSS_PATH = ["../components/styles/global.tcss", "../components/styles/file_manager.tcss"]
 
     def __init__(self):
         super().__init__()

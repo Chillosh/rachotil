@@ -1,0 +1,79 @@
+#docker-main {
+    height: 100%;
+    width: 100%;
+    padding: 1;
+    overflow-y: auto;
+}
+
+#docker-title {
+    margin-bottom: 1;
+    text-style: bold;
+}
+
+#docker-controls {
+    height: auto;
+    width: 100%;
+    margin-bottom: 1;
+}
+
+#docker-controls Button {
+    margin-right: 1;
+}
+
+#docker-actions {
+    height: 3;
+}
+
+#docker-content {
+    height: 1fr;
+    width: 100%;
+    margin-bottom: 1;
+}
+
+#docker-table {
+    height: 1fr;
+    min-height: 8;
+    border: solid blue;
+    margin-bottom: 1;
+}
+
+#docker-log-container {
+    width: 100%;
+    height: auto;
+    min-height: 6;
+    border: solid cyan;
+    padding: 1;
+}
+
+#docker-log-title {
+    width: 100%;
+    text-style: bold;
+    color: $accent;
+    margin-bottom: 1;
+}
+
+#docker-log-view {
+    width: 100%;
+    height: 1fr;
+    background: black;
+    color: #aaaaaa;
+}
+
+#docker-log {
+    height: auto;
+    min-height: 6;
+}
+
+#docker-yaml-input {
+    height: 10;
+    min-height: 8;
+    margin-bottom: 1;
+}
+
+#btn-deploy-compose {
+    margin-bottom: 1;
+}
+
+#yaml_not_inst {
+    color: #555555;
+}

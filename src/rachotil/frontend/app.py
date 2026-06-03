@@ -15,6 +15,7 @@ from .screens.terminal import TerminalScreen
 from .screens.stats import StatsScreen
 from .screens.backup import BackupScreen
 from rachotil.frontend.screens.pihole import PiholeScreen
+from rachotil.frontend.screens.helper import HelperScreen
 from rachotil.backend.components.keybinds.keybinds_manager import load_keybinds
 
 
@@ -22,7 +23,7 @@ class Rachotil(App):
     """
     Main Textual Application for controlling remote Linux servers.
     """
-    CSS_PATH = "styles.tcss"
+    CSS_PATH = ["components/styles/global.tcss"]
 
     def on_mount(self) -> None:
         self.apply_keybinds()
@@ -32,6 +33,8 @@ class Rachotil(App):
         config = load_keybinds()
         self.bind(config.get("menu", "space"), "show_menu", description="Menu")
         self.bind(config.get("quit", "q"), "quit", description="Quit")
+        self.bind(config.get("help", "h"), "show_help", description="Help")
+        self.bind("h", "show_help", description="Help")
         self.refresh_bindings()
 
     def action_show_menu(self) -> None:
@@ -63,3 +66,9 @@ class Rachotil(App):
                 self.switch_screen(PiholeScreen())
 
         self.push_screen(MenuScreen(), check_menu_result)
+    
+    def action_show_help(self) -> None:
+        """
+        Push the global helper modal onto the screen stack.
+        """
+        self.push_screen(HelperScreen())

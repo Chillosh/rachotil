@@ -15,7 +15,7 @@ class ManagementScreen(Screen):
     """
     UI Screen that allows executing various management actions on the remote server.
     """
-    CSS_PATH = "../styles.tcss"
+    CSS_PATH = ["../components/styles/global.tcss"]
 
     def __init__(self):
         super().__init__()

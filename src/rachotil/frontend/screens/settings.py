@@ -18,7 +18,7 @@ class SettingsScreen(Screen):
     """
     UI Screen that provides access to various application configurations.
     """
-    CSS_PATH = "../styles.tcss"
+    CSS_PATH = ["../components/styles/global.tcss", "../components/styles/settings.tcss"]
     
     def compose(self) -> None:
         yield Header()
@@ -86,6 +86,8 @@ class StatsSettingsModal(ModalScreen):
     """
     Modal dialog for configuring which statistics blocks are displayed.
     """
+    CSS_PATH = ["../components/styles/global.tcss"]
+
     def __init__(self):
         super().__init__()
         self.config = load_stats_config()
@@ -212,6 +214,8 @@ class SSHSettingsModal(ModalScreen):
     """
     Modal dialog for editing SSH connection credentials.
     """
+    CSS_PATH = ["../components/styles/global.tcss"]
+
     def compose(self) -> None:
         config = get_ssh_config()
         with Vertical():
@@ -241,6 +245,7 @@ class SSHSettingsModal(ModalScreen):
         self.app.pop_screen()
 
 class KeybindsSettingsModal(ModalScreen):
+    CSS_PATH = ["../components/styles/global.tcss"]
     def compose(self) -> None:
         config = load_keybinds()
         with Vertical():
@@ -250,6 +255,9 @@ class KeybindsSettingsModal(ModalScreen):
             
             yield Static("Quit App Key (e.g. q, escape, ctrl+q)")
             yield Input(value=config.get("quit", "q"), id="kb_quit")
+
+            yield Static("Help Key (e.g. h, f1)")
+            yield Input(value=config.get("help", "h"), id="kb_help")
             
         with Horizontal():
             yield Button("Save", id="save_kb", variant="success")
@@ -259,8 +267,9 @@ class KeybindsSettingsModal(ModalScreen):
     def save_settings(self) -> None:
         menu_key = self.query_one("#kb_menu", Input).value.strip()
         quit_key = self.query_one("#kb_quit", Input).value.strip()
+        help_key = self.query_one("#kb_help", Input).value.strip()
         
-        save_keybinds({"menu": menu_key, "quit": quit_key})
+        save_keybinds({"menu": menu_key, "quit": quit_key, "help": help_key})
         
         if hasattr(self.app, "apply_keybinds"):
             self.app.apply_keybinds()
@@ -273,6 +282,7 @@ class KeybindsSettingsModal(ModalScreen):
         self.app.pop_screen()
 
 class AsciiArtModal(ModalScreen):
+    CSS_PATH = ["../components/styles/global.tcss"]
     def _storage_path(self) -> Path:
         return Path(__file__).resolve().parents[2] / "backend" / "storage" / "dashboard_config.json"
 
