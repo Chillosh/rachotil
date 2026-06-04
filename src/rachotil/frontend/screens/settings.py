@@ -5,7 +5,7 @@ Screen for configuring application settings, including UI themes and remote serv
 import re
 import json
 from pathlib import Path
-from textual import on
+from textual import on, work
 from textual.containers import Horizontal, Vertical, Container
 from textual.screen import ModalScreen, Screen
 from textual.widgets import Button, Footer, Header, Input, SelectionList, Static, RadioSet, RadioButton, TextArea
@@ -13,6 +13,9 @@ from textual.widgets import Button, Footer, Header, Input, SelectionList, Static
 from ...backend.components.ssh.config import get_ssh_config, save_ssh_config
 from ...backend.components.stats.config import load_stats_config, save_stats_config
 from ...backend.components.keybinds.keybinds_manager import load_keybinds, save_keybinds
+from ...backend.components.power.power_manager import PowerManager
+from ...backend.components.network.netplan_manager import NetplanManager
+from ...backend.components.ssh.ssh import SSH
 
 class SettingsScreen(Screen):
     """
@@ -42,6 +45,8 @@ class SettingsScreen(Screen):
                     yield Button("SSH Connection Settings", id="ssh", variant="primary")
                     yield Button("Keybinds Settings", id="keybinds", variant="primary")
                     yield Button("Dashboard ASCII Art", id="ascii_art_btn", variant="primary")
+                    yield Button("MAC Address (WOL)", id="wol_settings_btn", variant="warning")
+                    yield Button("Set Static IP", id="static_ip_btn", variant="error")
 
     def action_open_main_menu(self) -> None:
         self.app.action_show_menu()
@@ -80,6 +85,14 @@ class SettingsScreen(Screen):
     @on(Button.Pressed, "#ascii_art_btn")
     def show_ascii_modal(self) -> None:
         self.app.push_screen(AsciiArtModal())
+    
+    @on(Button.Pressed, "#wol_settings_btn")
+    def show_wol_modal(self) -> None:
+        self.app.push_screen(WolSettingsModal())
+
+    @on(Button.Pressed, "#static_ip_btn")
+    def show_static_ip_modal(self) -> None:
+        self.app.push_screen(StaticIpModal())
 
 
 class StatsSettingsModal(ModalScreen):
@@ -311,4 +324,70 @@ class AsciiArtModal(ModalScreen):
 
     @on(Button.Pressed, "#cancel_ascii")
     def cancel_art(self) -> None:
+        self.app.pop_screen()
+
+class WolSettingsModal(ModalScreen):
+    def compose(self) -> None:
+        pm = PowerManager()
+        current_mac = pm.get_saved_mac()
+        
+        with Vertical(classes="settings-modal"):
+            yield Static("Wake On LAN Setup")
+            yield Static("Enter target server MAC address (e.g. AA:BB:CC:DD:EE:FF)")
+            yield Input(value=current_mac, id="wol_mac_input")
+            
+            with Horizontal():
+                yield Button("Save", id="save_wol", variant="success")
+                yield Button("Cancel", id="cancel_wol", variant="error")
+
+    @on(Button.Pressed, "#save_wol")
+    def save(self) -> None:
+        mac = self.query_one("#wol_mac_input", Input).value.strip()
+        PowerManager().save_mac(mac)
+        self.app.pop_screen()
+
+    @on(Button.Pressed, "#cancel_wol")
+    def cancel(self) -> None:
+        self.app.pop_screen()
+
+class StaticIpModal(ModalScreen):
+    def compose(self) -> None:
+        with Vertical(classes="settings-modal", id="ip-modal-container"):
+            yield Static("[bold red]WARNING: Applying this will drop your connection![/bold red]")
+            yield Input(placeholder="Interface (e.g. eth0, enp3s0)", id="ip_interface")
+            yield Input(placeholder="IP Address with CIDR (e.g. 192.168.1.200/24)", id="ip_address")
+            yield Input(placeholder="Gateway (e.g. 192.168.1.1)", id="ip_gateway")
+            yield Input(placeholder="DNS (e.g. 1.1.1.1, 8.8.8.8)", value="1.1.1.1, 8.8.8.8", id="ip_dns")
+            
+            with Horizontal():
+                yield Button("APPLY NEW IP", id="save_ip", variant="error")
+                yield Button("Cancel", id="cancel_ip", variant="default")
+
+    @work(thread=True)
+    def apply_ip(self) -> None:
+        interface = self.query_one("#ip_interface", Input).value.strip()
+        ip = self.query_one("#ip_address", Input).value.strip()
+        gateway = self.query_one("#ip_gateway", Input).value.strip()
+        dns = self.query_one("#ip_dns", Input).value.strip()
+        
+        if not all([interface, ip, gateway, dns]):
+            return
+
+        try:
+            config = get_ssh_config()
+            ssh = SSH(config["host"], config["user"], config["password"], config.get("sudo_password"))
+            ssh.connect()
+            nm = NetplanManager(ssh)
+            nm.apply_static_ip(interface, ip, gateway, dns)
+        except:
+            pass
+            
+        self.app.call_from_thread(self.app.pop_screen)
+
+    @on(Button.Pressed, "#save_ip")
+    def save(self) -> None:
+        self.apply_ip()
+
+    @on(Button.Pressed, "#cancel_ip")
+    def cancel(self) -> None:
         self.app.pop_screen()

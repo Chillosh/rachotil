@@ -3,9 +3,13 @@ Overlay menu for navigating between different application screens.
 """
 
 from textual.screen import ModalScreen
-from textual.widgets import OptionList, Input
+from textual.widgets import OptionList, Input, Button, Static
 from textual.widgets.option_list import Option
-from textual.containers import Vertical
+from textual.containers import Vertical, Horizontal
+from textual import on, work
+from ...backend.components.power.power_manager import PowerManager
+from ...backend.components.ssh.config import get_ssh_config
+from ...backend.components.ssh.ssh import SSH
 
 class MenuScreen(ModalScreen[str]):
     """
@@ -30,6 +34,12 @@ class MenuScreen(ModalScreen[str]):
     def compose(self) -> None:
         with Vertical(id="menu-container"):
             yield Input(placeholder="Search menu...", id="menu-search")
+            
+            with Horizontal(id="menu-power-actions"):
+                yield Button("Wake up (WOL)", id="btn-wol", variant="success")
+                yield Button("Power Off", id="btn-poweroff", variant="error")
+                
+            yield Static("", id="menu-power-log")
             yield OptionList(id="main_menu")
 
     def on_mount(self) -> None:
@@ -54,3 +64,34 @@ class MenuScreen(ModalScreen[str]):
 
     def action_close(self) -> None:
         self.dismiss(None)
+
+    @on(Button.Pressed)
+    def handle_power_buttons(self, event: Button.Pressed) -> None:
+        if event.button.id == "btn-poweroff":
+            self.execute_poweroff()
+        elif event.button.id == "btn-wol":
+            self.execute_wol()
+
+    @work(thread=True)
+    def execute_poweroff(self) -> None:
+        self.app.call_from_thread(lambda: self.query_one("#menu-power-log", Static).update("Connecting to power off..."))
+        try:
+            config = get_ssh_config()
+            ssh = SSH(config["host"], config["user"], config["password"], config.get("sudo_password"))
+            ssh.connect()
+            pm = PowerManager(ssh)
+            success, msg = pm.power_off()
+            self.app.call_from_thread(lambda: self.query_one("#menu-power-log", Static).update(msg))
+        except Exception as e:
+            self.app.call_from_thread(lambda: self.query_one("#menu-power-log", Static).update(f"Error: {e}"))
+
+    def execute_wol(self) -> None:
+        pm = PowerManager()
+        mac = pm.get_saved_mac()
+        if not mac:
+            self.query_one("#menu-power-log", Static).update("Error: No MAC address saved. Go to Settings!")
+            return
+            
+        self.query_one("#menu-power-log", Static).update("Sending Magic Packet...")
+        success, msg = pm.wake_on_lan(mac)
+        self.query_one("#menu-power-log", Static).update(msg)

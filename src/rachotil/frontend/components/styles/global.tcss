@@ -136,3 +136,23 @@ HelperScreen {
     align: right middle;
     height: 3;
 }
+
+#menu-search {
+    margin-bottom: 1;
+}
+
+#menu-power-actions {
+    height: 3;
+    align: left middle;
+    margin-bottom: 1;
+}
+
+#btn-wol {
+    margin-right: 1;
+}
+
+#menu-power-log {
+    color: yellow;
+    margin-bottom: 1;
+    height: auto;
+}
