@@ -16,6 +16,7 @@ from .screens.stats import StatsScreen
 from .screens.backup import BackupScreen
 from rachotil.frontend.screens.pihole import PiholeScreen
 from rachotil.frontend.screens.helper import HelperScreen
+from rachotil.frontend.screens.storage import StorageScreen
 from rachotil.backend.components.keybinds.keybinds_manager import load_keybinds
 
 
@@ -64,7 +65,9 @@ class Rachotil(App):
                 self.switch_screen(DockerScreen())
             elif choice == "pihole":
                 self.switch_screen(PiholeScreen())
-
+            elif choice == "storage":
+                self.switch_screen(StorageScreen())
+                
         self.push_screen(MenuScreen(), check_menu_result)
     
     def action_show_help(self) -> None:

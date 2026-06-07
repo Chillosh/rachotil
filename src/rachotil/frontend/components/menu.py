@@ -22,6 +22,7 @@ class MenuScreen(ModalScreen[str]):
         ("Stats Monitoring", "stats"),
         ("SSH Terminal", "term"),
         ("File Manager", "file_manager"),
+        ("Storage Manager", "storage"),
         ("Package Manager", "packages"),
         ("Backup Manager", "backup"),
         ("Snapshot Manager", "snapshot"),

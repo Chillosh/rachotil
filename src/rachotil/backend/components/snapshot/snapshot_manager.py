@@ -45,6 +45,7 @@ class SnapshotManager:
             return {}
 
     def get_snapshots(self) -> tuple[bool, list[tuple[str, str, str, str]] | str]:
+        """Retrieve a list of available system snapshots."""
         if not self.ssh:
             return False, "SSH client is not connected."
 
@@ -59,7 +60,7 @@ class SnapshotManager:
             
             reading_data = False
             for line in lines:
-                if "Num" in line and "Device" in line:
+                if "Num" in line and "Name" in line and "Tags" in line:
                     reading_data = True
                     continue
                 if reading_data and line.startswith("--"):
@@ -73,11 +74,11 @@ class SnapshotManager:
                         s_id = parts[0]
                         offset = 1 if parts[1] == '>' else 0
                         
-                        if len(parts) > offset + 2:
-                            s_dev = parts[offset + 1]
-                            s_size = parts[offset + 2]
+                        if len(parts) > offset + 1:
+                            s_date = parts[offset + 1]
+                            s_tags = parts[offset + 2] if len(parts) > offset + 2 else ""
                             s_desc = " ".join(parts[offset + 3:]) if len(parts) > offset + 3 else ""
-                            parsed_data.append((s_id, s_dev, s_size, s_desc))
+                            parsed_data.append((s_id, s_date, s_tags, s_desc))
 
             return True, parsed_data
         except Exception as e:
