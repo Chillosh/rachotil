@@ -1,14 +1,14 @@
 # Rachotil
 
-Rachotil is a simple Python TUI app (using Textual) for SSH server and homelab management from one place.
+Rachotil is a Python TUI app (using Textual) for SSH server and homelab management from one place. It uses a client-server architecture where the client runs locally on your machine and controls the remote server via SSH.
 
 You can use it for:
 
 - SSH terminal access
 - live server stats with custom blocks
-- settings and `.env` management in app
-- management actions for systemd, journalctl, processes, and APT and other services tracking
-- docker managment
+- settings and credentials management in app
+- management actions for systemd, journalctl, processes, APT and service tracking
+- docker management including docker-compose deployments
 - file managing
 - firewall settings
 - backup and snapshot
@@ -23,11 +23,11 @@ You can use it for:
 - **Stats screen**
   - enable/disable stat blocks
   - add/delete custom stat blocks
-  - config stored in `stats_config.json`
+  - config stored locally in `stats_config.json`
 - **Settings screen**
   - save SSH host/user/password
   - save optional sudo password
-  - values are stored in `.env`
+  - values are stored locally
 - **Management screen**
   - services: list, status, enable/start, disable/stop
   - logs: quick `journalctl` actions
@@ -42,11 +42,12 @@ You can use it for:
   - Return, Create, Delete state of machine
 - **Docker screen**
   - create, delete, edit containers
-  - interactive managment
-- **file manager screen**
+  - interactive management
+  - direct deployment via docker-compose (YAML)
+- **File manager screen**
   - browsing
   - copying, deleting, creating files
-  - remotly management
+  - remote management
 - **Firewall screen**
   - UFW interact
   - basic control for port forwarding etc.
@@ -57,94 +58,57 @@ You can use it for:
   - lists all running services on server
   - restart, end, start
 
+---
 
+## Installation
+
+Rachotil requires setup on both your remote server and your local client machine.
+
+### 1. Server-side Setup (Required)
+Currently works only on Debian/Ubuntu based servers (mainly because of APT and specific package names).
+
+SSH into your server and run:
+```bash
+git clone [https://github.com/Chillosh/rachotil.git](https://github.com/Chillosh/rachotil.git)
+cd rachotil
+chmod +x install.sh
+sudo ./install.sh
+```
+This script installs core dependencies like Docker, docker-compose-plugin, Python, UFW, Wireguard, and sets up required permissions.
+
+### 2. Client-side Setup (Windows)
+For Windows users, there is no need to install Python. 
+
+1. Go to the **Releases** tab on GitHub.
+2. Download the `Rachotil-vX.X-Windows.zip` file.
+3. Extract the ZIP to any folder.
+4. Run `rachotil.exe` from your terminal or by double-clicking it.
+
+*Note: Because the .exe is compiled via PyInstaller without a commercial certificate, Windows SmartScreen or Defender might block it at first launch. Click "More info" and "Run anyway". This is a false positive.*
+
+### 2. Client-side Setup (Linux / macOS)
+If you are on Linux or macOS, you can run the app from source:
+
+```bash
+git clone [https://github.com/Chillosh/rachotil.git](https://github.com/Chillosh/rachotil.git)
+cd rachotil
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python3 src/rachotil/main.py
+```
 
 ---
 
-## Install
+## Configuration
 
-Pick any folder where you want the project.
+Rachotil handles configuration and credentials locally on the client side so they are never leaked to the server or Git repository. 
 
-```bash
-git clone https://github.com/Chillosh/rachotil.git
-cd rachotil
-python -m pip install .
-rachotil
-```
-
-If `rachotil` command is not found, run:
-
-```bash
-python -m rachotil.main
-```
-
----
-
-## Install on Windows / Linux / macOS
-
-### Windows (PowerShell)
-
-```powershell
-git clone https://github.com/Chillosh/rachotil.git
-cd rachotil
-py -3 -m pip install .
-rachotil
-```
-
-### Linux
-
-```bash
-git clone https://github.com/Chillosh/rachotil.git
-cd rachotil
-python3 -m pip install .
-rachotil
-```
-
-### macOS
-
-```bash
-git clone https://github.com/Chillosh/rachotil.git
-cd rachotil
-python3 -m pip install .
-rachotil
-```
-
-I haven't actually tested it on Linux and macOS, but it should work fine
-
----
-
-## Remote server requirements (important)
-Currently works only on Debian based servers (mainly because of APT)
-
-### Setup on server-side
-```
-git clone https://github.com/Chillosh/rachotil.git
-cd rachotil
-./install.sh
-```
-Follow the setup as guided in install.sh and then you should be able to to connect through client
-
-
-
-
----
-
-## Configuration (`.env`)
-
-Rachotil reads and writes `.env` in the project root.
-
-```env
-SSH_HOST=192.168.1.10
-SSH_USER=root
-SSH_PASSWORD=your_ssh_password
-SSH_SUDO_PASSWORD=your_sudo_password
-```
+Sensitive data (like IP addresses and passwords) are set within the **Settings** menu in the app and stored in local JSON/env files (which are ignored by Git).
 
 Notes:
-
-- `SSH_SUDO_PASSWORD` is optional.
-- If missing, Rachotil uses `SSH_PASSWORD` for sudo.
-- You can set these values from `Settings` in the app.
+- Sudo password is optional.
+- If missing, Rachotil uses the standard SSH password for sudo operations.
 
 ---
 
@@ -167,7 +131,7 @@ Menu sections:
 9. `Firewall Manager`
 10. `Docker Dashboard`
 11. `Network Services`
-6. `Settings`
+12. `Settings`
 
 ---
 
@@ -175,11 +139,13 @@ Menu sections:
 
 - **SSH connection fails**
   - verify host, user, password in `Settings`
-  - test manually with `ssh user@host`
+  - test manually with `ssh user@host` from your PC
 - **APT/systemctl commands fail**
-  - verify user has sudo rights
-  - verify `SSH_SUDO_PASSWORD`
-  - verify remote server is Linux with systemd and apt
+  - verify user has sudo rights on the server
+  - verify sudo password in Settings
+  - verify remote server is Debian/Ubuntu with systemd and apt
+- **Docker deployment fails**
+  - make sure you restarted your SSH session after running `install.sh` so Docker group permissions apply
 - **No stats output**
   - check enabled blocks in `Settings -> Stats Configuration`
   - check command validity in `stats_config.json`
@@ -189,12 +155,12 @@ Menu sections:
 ## Project structure
 
 - Backend - logic
--   Components - store each component, that is then utilized in screens
--   Storage - store json files
+  - Components - store each component, that is then utilized in screens
+  - Storage - store json files (ignored by git if containing local data)
 - Frontend - textual ui for screens
--   Components - components then utilized in screens (e.g. manu.py)
--   Screens - displayed each component
--   App.py - screen switcher
+  - Components - components then utilized in screens
+  - Screens - displayed each component
+  - main.py - app entry point and screen switcher
 
 ---
 
