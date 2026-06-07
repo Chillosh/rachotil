@@ -1,0 +1,28 @@
+HelperScreen {
+    align: center middle;
+    background: black 60%;
+}
+
+.helper-modal {
+    width: 60;
+    height: auto;
+    padding: 2;
+    border: double cyan;
+    background: $surface;
+}
+
+#helper-title {
+    text-style: bold;
+    color: cyan;
+    margin-bottom: 1;
+    content-align: center middle;
+}
+
+#helper-content {
+    margin-bottom: 2;
+}
+
+#helper-actions {
+    align: right middle;
+    height: 3;
+}

@@ -31,3 +31,17 @@
 .card-buttons Button {
     margin-right: 2;
 }
+
+StatsSettingsModal {
+    align: center middle;
+    background: black 40%;
+}
+
+#save {
+    background: green 60%;
+}
+
+#cancel {
+    background: red 60%;
+}
+

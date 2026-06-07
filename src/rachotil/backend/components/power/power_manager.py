@@ -19,6 +19,15 @@ class PowerManager:
             return True, "Shutdown command sent. Server is powering off."
         except Exception as e:
             return True, "Server connection closed (powering off)."
+    
+    def restart(self) -> tuple[bool, str]:
+        if not self.ssh:
+            return False, "SSH client is not connected."
+        try:
+            self.ssh.run_sudo_command("reboot")
+            return True, "Reboot command sent. Server is restarting."
+        except Exception as e:
+            return True, "Server connection closed (restarting)."
 
     def wake_on_lan(self, mac_address: str, broadcast_ip: str = "255.255.255.255") -> tuple[bool, str]:
         """

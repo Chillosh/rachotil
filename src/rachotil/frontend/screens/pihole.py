@@ -36,7 +36,10 @@ class PiholeScreen(Screen):
             with Horizontal(id="pihole-actions"):
                 yield Button("Refresh Status", id="btn-refresh", variant="primary")
                 yield Button("Fix Port 53 (systemd-resolved)", id="btn-fix-53", variant="warning")
-                yield Button("How to Install", id="btn-install", variant="success")
+                yield Button("Start Pi-hole", id="btn-start", variant="success")
+                yield Button("Install", id="btn-install", variant="success")
+                yield Button("Update", id="btn-update", variant="success")
+                yield Button("Uninstall", id="btn-uninstall", variant="error")
                 
             yield Log(id="pihole-log", classes="status-display")
 
@@ -70,7 +73,13 @@ class PiholeScreen(Screen):
         elif btn_id == "btn-fix-53":
             self.fix_port_53()
         elif btn_id == "btn-install":
-            self.show_install_info()
+            self.install_pihole()
+        elif btn_id == "btn-update":
+            self.update_pihole()
+        elif btn_id == "btn-uninstall":
+            self.uninstall_pihole()
+        elif btn_id == "btn-start":
+            self.start_service()
 
     @work(thread=True)
     def check_status(self) -> None:
@@ -107,16 +116,35 @@ class PiholeScreen(Screen):
         self.write_log("Applying fix for port 53 (systemd-resolved)...")
         success, msg = self.pihole_mgr.fix_port_53()
         self.write_log(msg)
+    
+    @work(thread=True)
+    def start_service(self) -> None:
+        if not self.pihole_mgr: return
+        self.write_log("Starting Pi-hole service...")
+        success, msg = self.pihole_mgr.start_pihole()
+        self.write_log(msg)
+        self.check_status()
 
-    def show_install_info(self) -> None:
-        """
-        Display instructions for the interactive Pi-hole installation process.
-        """
-        if not self.pihole_mgr:
-            return
-        cmd = self.pihole_mgr.get_install_command()
-        self.write_log("--- HOW TO INSTALL PI-HOLE ---")
-        self.write_log("Pi-hole requires an interactive setup screen (whiptail).")
-        self.write_log("Please open the 'Terminal' screen in this app and run:")
-        self.write_log(f"[bold cyan]{cmd}[/bold cyan]")
-        self.write_log("------------------------------")
+    @work(thread=True)
+    def install_pihole(self) -> None:
+        if not self.pihole_mgr: return
+        self.write_log("Starting unattended installation... This will take a few minutes!")
+        success, msg = self.pihole_mgr.install_pihole()
+        self.write_log(msg)
+        self.check_status()
+
+    @work(thread=True)
+    def update_pihole(self) -> None:
+        if not self.pihole_mgr: return
+        self.write_log("Updating Pi-hole...")
+        success, msg = self.pihole_mgr.update_pihole()
+        self.write_log(msg)
+        self.check_status()
+
+    @work(thread=True)
+    def uninstall_pihole(self) -> None:
+        if not self.pihole_mgr: return
+        self.write_log("Uninstalling Pi-hole and its dependencies...")
+        success, msg = self.pihole_mgr.uninstall_pihole()
+        self.write_log(msg)
+        self.check_status()

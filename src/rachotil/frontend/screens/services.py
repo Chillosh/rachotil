@@ -15,7 +15,7 @@ class ServicesScreen(Screen):
     """
     UI Screen that allows starting, stopping, and restarting system services.
     """
-    CSS_PATH = ["../components/styles/global.tcss", "../components/styles/dashboard.tcss"]
+    CSS_PATH = ["../components/styles/global.tcss", "../components/styles/services.tcss"]
 
     def __init__(self):
         super().__init__()

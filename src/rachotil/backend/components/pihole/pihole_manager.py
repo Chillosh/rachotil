@@ -1,6 +1,7 @@
 """
 Manager for handling Pi-hole diagnostics and environment preparation.
 """
+import base64
 
 from ...components.ssh.ssh import SSH
 
@@ -13,37 +14,27 @@ class PiholeManager:
         self.ssh = ssh_client
 
     def check_status(self) -> tuple[bool, dict | str]:
-        """
-        Check if Pi-hole is installed, running, and retrieve the web interface IP address.
-        
-        Returns:
-            tuple[bool, dict | str]: A boolean indicating success, and a dictionary with status details or an error message.
-        """
         if not self.ssh:
             return False, "SSH client is not connected."
             
         try:
-            out, err = self.ssh.run_command("which pihole")
-            is_installed = bool(out.strip())
+            out, _ = self.ssh.run_sudo_command("systemctl is-active pihole-FTL")
+            is_running = "active" in out.lower()
+            
+            out_check, _ = self.ssh.run_command("which pihole")
+            is_installed = bool(out_check.strip())
             
             ip_out, _ = self.ssh.run_command("hostname -I | awk '{print $1}'")
-            server_ip = ip_out.strip()
+            server_ip = ip_out.split()[0] if ip_out.strip() else "Unknown"
             
-            if is_installed:
-                status_out, _ = self.ssh.run_sudo_command("pihole status")
-                is_running = "Listening" in status_out or "active" in status_out.lower()
-                status_text = "Running" if is_running else "Stopped or Error"
-            else:
-                status_text = "Not Installed"
-                
             return True, {
                 "installed": is_installed,
-                "status": status_text,
+                "status": "Running" if is_running else "Stopped",
                 "ip": server_ip,
-                "web_url": f"http://{server_ip}/admin" if server_ip else "Unknown"
+                "web_url": f"http://{server_ip}/admin"
             }
         except Exception as e:
-            return False, f"Error checking Pi-hole: {str(e)}"
+            return False, f"Error: {str(e)}"
 
     def fix_port_53(self) -> tuple[bool, str]:
         """
@@ -65,12 +56,45 @@ class PiholeManager:
             return True, "Port 53 freed. systemd-resolved stub listener disabled."
         except Exception as e:
             return False, f"Failed to fix port 53: {str(e)}"
+    
+    def start_pihole(self) -> tuple[bool, str]:
+        if not self.ssh:
+            return False, "SSH client is not connected."
+        try:
+            self.ssh.run_sudo_command("sudo systemctl restart pihole-FTL")
+            return True, "Pi-hole service started."
+        except Exception as e:
+            return False, f"Failed to start: {str(e)}"
             
-    def get_install_command(self) -> str:
-        """
-        Get the official curl command required to install Pi-hole.
-        
-        Returns:
-            str: The installation command.
-        """
-        return "curl -sSL https://install.pi-hole.net | bash"
+    def install_pihole(self) -> tuple[bool, str]:   
+        if not self.ssh:
+            return False, "SSH client is not connected."
+            
+        try:
+            cmd = "curl -sSL https://install.pi-hole.net | bash"
+            
+            out, err = self.ssh.run_sudo_command(cmd)
+            
+            return True, "Installation has been completed. Please check the status after a moment."
+        except Exception as e:
+            return False, f"Install failed: {str(e)}"
+
+    def update_pihole(self) -> tuple[bool, str]:
+        if not self.ssh:
+            return False, "SSH client is not connected."
+            
+        try:
+            out, err = self.ssh.run_sudo_command("pihole -up")
+            return True, "Pi-hole successfully updated."
+        except Exception as e:
+            return False, f"Update failed: {str(e)}"
+
+    def uninstall_pihole(self) -> tuple[bool, str]:
+        if not self.ssh:
+            return False, "SSH client is not connected."
+            
+        try:
+            out, err = self.ssh.run_sudo_command("bash -c 'yes | pihole uninstall'")
+            return True, "Pi-hole was successfully uninstalled."
+        except Exception as e:
+            return False, f"Uninstall failed: {str(e)}"

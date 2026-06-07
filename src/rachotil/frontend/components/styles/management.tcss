@@ -1,0 +1,14 @@
+#mgmt_title {
+    margin: 1 2;
+    text-style: bold;
+}
+
+#mgmt_sections {
+    height: auto;
+    margin: 0 1;
+}
+
+#mgmt_controls {
+    height: auto;
+    margin: 0 1;
+}

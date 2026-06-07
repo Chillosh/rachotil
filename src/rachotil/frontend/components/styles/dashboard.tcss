@@ -1,10 +1,10 @@
-#dashboard-main, #services-main, #firewall-main {
+#dashboard-main {
     height: 100%;
     width: 100%;
     padding: 1;
 }
 
-#dashboard-title, #services-title, #firewall-title {
+#dashboard-title {
     margin-bottom: 1;
     text-style: bold;
 }
@@ -22,36 +22,3 @@
     margin-right: 1;
 }
 
-#services-actions, #firewall-controls, #firewall-add-rule {
-    height: auto;
-    width: 100%;
-    margin-bottom: 1;
-}
-
-#services-actions Button, #firewall-controls Button, #firewall-add-rule Button {
-    margin-right: 1;
-}
-
-#firewall-add-rule Input {
-    width: 30;
-    margin-right: 1;
-}
-
-#services-table, #firewall-table {
-    height: 1fr;
-    width: 100%;
-    border: solid blue;
-    margin-bottom: 1;
-}
-
-#menu-container {
-    padding: 1;
-    background: $surface;
-    border: double $accent;
-    width: 50;
-    height: auto;
-}
-
-#menu-search {
-    margin-bottom: 1;
-}

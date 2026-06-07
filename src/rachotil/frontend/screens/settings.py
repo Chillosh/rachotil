@@ -105,7 +105,7 @@ class StatsSettingsModal(ModalScreen):
     """
     Modal dialog for configuring which statistics blocks are displayed.
     """
-    CSS_PATH = ["../components/styles/global.tcss"]
+    CSS_PATH = ["../components/styles/global.tcss", "../components/styles/settings.tcss"]
 
     def __init__(self):
         super().__init__()
@@ -233,7 +233,7 @@ class SSHSettingsModal(ModalScreen):
     """
     Modal dialog for editing SSH connection credentials.
     """
-    CSS_PATH = ["../components/styles/global.tcss"]
+    CSS_PATH = ["../components/styles/global.tcss", "../components/styles/settings.tcss"]
 
     def compose(self) -> None:
         config = get_ssh_config()
@@ -301,7 +301,7 @@ class KeybindsSettingsModal(ModalScreen):
         self.app.pop_screen()
 
 class AsciiArtModal(ModalScreen):
-    CSS_PATH = ["../components/styles/global.tcss"]
+    CSS_PATH = ["../components/styles/global.tcss", "../components/styles/settings.tcss"]
     def _storage_path(self) -> Path:
         return Path(__file__).resolve().parents[2] / "backend" / "storage" / "dashboard_config.json"
 

@@ -14,14 +14,7 @@ from ...backend.components.storage.storage_manager import StorageManager
 class StorageScreen(Screen):
     """UI Screen for storage monitoring and formatting."""
     
-    CSS = """
-    #storage-main { padding: 1 2; }
-    #storage-title { text-style: bold; margin-bottom: 1; color: cyan; }
-    #storage-table { height: 1fr; margin-bottom: 1; border: solid cyan; }
-    #storage-actions { height: 3; align: right middle; }
-    #storage-actions Button { margin-left: 1; }
-    .status-display { height: 6; border: solid green; }
-    """
+    CSS_PATH = ["../components/styles/global.tcss", "../components/styles/storage.tcss"]
 
     def __init__(self):
         super().__init__()

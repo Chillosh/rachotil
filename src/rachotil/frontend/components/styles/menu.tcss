@@ -1,0 +1,43 @@
+MenuScreen {
+    align: center middle;
+    background: black 50%;
+}
+
+OptionList {
+    width: 40;
+    height: auto;
+    border: double $accent;
+    background: $surface;
+}
+
+#menu-container {
+    padding: 1;
+    background: $surface;
+    border: double $accent;
+    width: 50;
+    height: auto;
+}
+
+#menu-search {
+    margin-bottom: 1;
+}
+
+#menu-power-actions {
+    height: 3;
+    align: left middle;
+    margin-bottom: 1;
+}
+
+#btn-wol {
+    margin-right: 1;
+}
+
+#btn-poweroff {
+    margin-right: 1;
+}
+
+#menu-power-log {
+    color: yellow;
+    margin-bottom: 1;
+    height: auto;
+}

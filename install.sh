@@ -25,11 +25,17 @@ sudo apt install -y \
     timeshift \
     rsync \
     docker.io \
+    docker-compose-plugin \
     wireguard \
     wireguard-tools \
     qrencode \
     htop \
-    tree
+    tree \
+    build-essential \
+    python3-dev
+
+echo "[2.1/5] Enabling Docker service..."
+sudo systemctl enable --now docker
 
 echo "[3/5] Setting up Python Virtual Environment..."
 cd "$(dirname "$0")"

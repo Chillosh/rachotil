@@ -13,7 +13,7 @@ class HelperScreen(ModalScreen):
     """
     A modal screen that displays global keybinds and basic application info.
     """
-    CSS_PATH = ["../components/styles/global.tcss"]
+    CSS_PATH = ["../components/styles/global.tcss", "../components/styles/helper.tcss"]
 
     def compose(self) -> ComposeResult:
         with Vertical(id="helper-container", classes="helper-modal"):

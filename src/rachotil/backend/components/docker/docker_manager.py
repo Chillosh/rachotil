@@ -116,7 +116,7 @@ class DockerManager:
             cmd_write = f"echo '{safe_content}' | sudo tee /tmp/rachotil_compose.yml > /dev/null"
             self.ssh.run_sudo_command(cmd_write)
             
-            cmd_up = "docker compose -f /tmp/rachotil_compose.yml up -d"
+            cmd_up = "sudo docker compose -f /tmp/rachotil_compose.yml up -d"
             
             for line in self.ssh.run_sudo_command_stream(cmd_up):
                 clean_line = self._ansi_escape.sub('', line).strip()

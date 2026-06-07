@@ -8,23 +8,6 @@ Log {
     color: lightgreen;
 }
 
-MenuScreen {
-    align: center middle;
-    background: black 50%;
-}
-
-StatsSettingsModal {
-    align: center middle;
-    background: black 40%;
-}
-
-OptionList {
-    width: 40;
-    height: auto;
-    border: double $accent;
-    background: $surface;
-}
-
 Horizontal {
     width: auto;
     height: 3;
@@ -32,27 +15,9 @@ Horizontal {
     margin-top: 1;
 }
 
-#save {
-    background: green 60%;
-}
-
-#cancel {
-    background: red 60%;
-}
-
-#mgmt_title {
-    margin: 1 2;
-    text-style: bold;
-}
-
-#mgmt_sections {
-    height: auto;
-    margin: 0 1;
-}
-
-#mgmt_controls {
-    height: auto;
-    margin: 0 1;
+.status-display {
+    height: 6;
+    border: solid green;
 }
 
 .light-layout Screen {
@@ -106,53 +71,4 @@ Horizontal {
 .retro-layout .card-label {
     color: #ffffff;
     text-style: bold;
-}
-
-HelperScreen {
-    align: center middle;
-    background: black 60%;
-}
-
-.helper-modal {
-    width: 60;
-    height: auto;
-    padding: 2;
-    border: double cyan;
-    background: $surface;
-}
-
-#helper-title {
-    text-style: bold;
-    color: cyan;
-    margin-bottom: 1;
-    content-align: center middle;
-}
-
-#helper-content {
-    margin-bottom: 2;
-}
-
-#helper-actions {
-    align: right middle;
-    height: 3;
-}
-
-#menu-search {
-    margin-bottom: 1;
-}
-
-#menu-power-actions {
-    height: 3;
-    align: left middle;
-    margin-bottom: 1;
-}
-
-#btn-wol {
-    margin-right: 1;
-}
-
-#menu-power-log {
-    color: yellow;
-    margin-bottom: 1;
-    height: auto;
 }

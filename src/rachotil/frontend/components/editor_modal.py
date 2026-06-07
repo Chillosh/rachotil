@@ -9,35 +9,7 @@ from textual import on, work
 from pathlib import Path
 
 class EditorModal(ModalScreen):
-    CSS = """
-    EditorModal {
-        align: center middle;
-        background: rgba(0, 0, 0, 0.7);
-    }
-    #editor-modal-container {
-        width: 90%;
-        height: 90%;
-        border: solid cyan;
-        background: $surface;
-        padding: 1;
-    }
-    #editor-title {
-        text-style: bold;
-        color: cyan;
-        margin-bottom: 1;
-    }
-    #file-editor {
-        height: 1fr;
-        margin-bottom: 1;
-    }
-    #editor-actions {
-        height: 3;
-        align: right middle;
-    }
-    #editor-actions Button {
-        margin-left: 1;
-    }
-    """
+    CSS_PATH = ["styles/global.tcss", "styles/editor_modal.tcss"]
 
     def __init__(self, filepath: str, initial_content: str, file_mgr):
         super().__init__()

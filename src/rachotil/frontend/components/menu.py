@@ -15,7 +15,7 @@ class MenuScreen(ModalScreen[str]):
     """
     Modal UI Screen that presents a searchable list of available application modules.
     """
-    CSS_PATH = ["styles/global.tcss", "styles/dashboard.tcss"]
+    CSS_PATH = ["styles/global.tcss", "styles/menu.tcss"]
 
     ALL_OPTIONS = [
         ("System Dashboard", "dashboard"),
@@ -39,6 +39,7 @@ class MenuScreen(ModalScreen[str]):
             with Horizontal(id="menu-power-actions"):
                 yield Button("Wake up (WOL)", id="btn-wol", variant="success")
                 yield Button("Power Off", id="btn-poweroff", variant="error")
+                yield Button("Restart", id="btn-restart", variant="warning")
                 
             yield Static("", id="menu-power-log")
             yield OptionList(id="main_menu")
@@ -72,6 +73,8 @@ class MenuScreen(ModalScreen[str]):
             self.execute_poweroff()
         elif event.button.id == "btn-wol":
             self.execute_wol()
+        elif event.button.id == "btn-restart":
+            self.execute_restart()
 
     @work(thread=True)
     def execute_poweroff(self) -> None:
@@ -82,6 +85,19 @@ class MenuScreen(ModalScreen[str]):
             ssh.connect()
             pm = PowerManager(ssh)
             success, msg = pm.power_off()
+            self.app.call_from_thread(lambda: self.query_one("#menu-power-log", Static).update(msg))
+        except Exception as e:
+            self.app.call_from_thread(lambda: self.query_one("#menu-power-log", Static).update(f"Error: {e}"))
+
+    @work(thread=True)
+    def execute_restart(self) -> None:
+        self.app.call_from_thread(lambda: self.query_one("#menu-power-log", Static).update("Connecting to restart..."))
+        try:
+            config = get_ssh_config()
+            ssh = SSH(config["host"], config["user"], config["password"], config.get("sudo_password"))
+            ssh.connect()
+            pm = PowerManager(ssh)
+            success, msg = pm.restart()
             self.app.call_from_thread(lambda: self.query_one("#menu-power-log", Static).update(msg))
         except Exception as e:
             self.app.call_from_thread(lambda: self.query_one("#menu-power-log", Static).update(f"Error: {e}"))
