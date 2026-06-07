@@ -13,6 +13,7 @@ from textual.widgets import Button, Footer, Header, Input, SelectionList, Static
 from ...backend.components.ssh.config import get_ssh_config, save_ssh_config
 from ...backend.components.stats.config import load_stats_config, save_stats_config
 from ...backend.components.keybinds.keybinds_manager import load_keybinds, save_keybinds
+from ...backend.components.snapshot.snapshot_manager import SnapshotManager
 from ...backend.components.power.power_manager import PowerManager
 from ...backend.components.network.netplan_manager import NetplanManager
 from ...backend.components.ssh.ssh import SSH
@@ -47,6 +48,7 @@ class SettingsScreen(Screen):
                     yield Button("Dashboard ASCII Art", id="ascii_art_btn", variant="primary")
                     yield Button("MAC Address (WOL)", id="wol_settings_btn", variant="warning")
                     yield Button("Set Static IP", id="static_ip_btn", variant="error")
+                    yield Button("Timeshift Device Config", id="timeshift_btn", variant="primary")
 
     def action_open_main_menu(self) -> None:
         self.app.action_show_menu()
@@ -93,6 +95,10 @@ class SettingsScreen(Screen):
     @on(Button.Pressed, "#static_ip_btn")
     def show_static_ip_modal(self) -> None:
         self.app.push_screen(StaticIpModal())
+    
+    @on(Button.Pressed, "#timeshift_btn")
+    def show_ts_modal(self) -> None:
+        self.app.push_screen(TimeshiftSettingsModal())
 
 
 class StatsSettingsModal(ModalScreen):
@@ -389,5 +395,39 @@ class StaticIpModal(ModalScreen):
         self.apply_ip()
 
     @on(Button.Pressed, "#cancel_ip")
+    def cancel(self) -> None:
+        self.app.pop_screen()
+
+class TimeshiftSettingsModal(ModalScreen):
+    def compose(self) -> None:
+        mgr = SnapshotManager(None) 
+        config = mgr.load_config()
+        current_dev = config.get("backup_device", "")
+        
+        with Vertical(classes="settings-modal"):
+            yield Static("Timeshift Target Device")
+            yield Static("Enter target partition path (e.g. /dev/sdb1, /dev/dm-0). Leave empty for auto.")
+            yield Input(value=current_dev, id="ts_dev_input")
+            
+            with Horizontal():
+                yield Button("Save", id="save_ts", variant="success")
+                yield Button("Cancel", id="cancel_ts", variant="error")
+
+    @on(Button.Pressed, "#save_ts")
+    def save(self) -> None:
+        dev = self.query_one("#ts_dev_input", Input).value.strip()
+        
+        mgr = SnapshotManager(None)
+        config = mgr.load_config()
+        config["backup_device"] = dev
+        
+        path = mgr._storage_path()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        import json
+        path.write_text(json.dumps(config))
+        
+        self.app.pop_screen()
+
+    @on(Button.Pressed, "#cancel_ts")
     def cancel(self) -> None:
         self.app.pop_screen()

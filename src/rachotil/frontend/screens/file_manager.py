@@ -3,7 +3,7 @@ from textual.widgets import Header, Footer, Static, Button, DataTable, Log, Inpu
 from textual.containers import Vertical, Horizontal
 from textual import work
 import os
-
+from ..components.editor_modal import EditorModal
 from ...backend.components.ssh.config import get_ssh_config
 from ...backend.components.ssh.ssh import SSH
 from ...backend.components.file_manager.sftp_manager import SFTPManager
@@ -28,6 +28,8 @@ class FileManagerScreen(Screen):
                 yield Static("Path:", id="fm-path-label")
                 yield Static("/", id="fm-current-path")
                 yield Button("Up (..)", id="btn-up-dir", variant="warning")
+                yield Button("Upload File", id="btn-upload-file", variant="primary")
+                yield Button("Edit File", id="btn-edit-file", variant="warning")
                 yield Button("Refresh", id="btn-refresh-dir", variant="default")
 
             with Horizontal(id="fm-actions"):
@@ -90,6 +92,10 @@ class FileManagerScreen(Screen):
             self.copy_item()
         elif btn_id == "btn-delete-item":
             self.delete_item()
+        elif btn_id == "btn-edit-file":
+            self.open_editor()
+        elif btn_id == "btn-upload-file":
+            self.upload_file()
 
     def navigate_up(self) -> None:
         if self.current_path != "/":
@@ -221,7 +227,49 @@ class FileManagerScreen(Screen):
         if success:
             self.app.call_from_thread(lambda: setattr(self.query_one("#fm-input", Input), "value", ""))
             self.load_directory()
+    
+    @work(thread=True)
+    def open_editor(self) -> None:
+        if not self.sftp_mgr:
+            return
+            
+        table = self.query_one("#fm-table", DataTable)
+        try:
+            row_val = table.coordinate_to_cell_key(table.cursor_coordinate).row_key.value
+            item_type, filename = row_val.split("|", 1)
+        except:
+            self.write_log("Error: No file selected.")
+            return
 
-    def on_unmount(self) -> None:
-        if self.sftp_mgr:
-            self.sftp_mgr.close_sftp()
+        if item_type == "[DIR]":
+            self.write_log("Error: Cannot edit a directory.")
+            return
+
+        current_path = self.current_path
+        full_path = f"{current_path}/{filename}".replace("//", "/")
+
+        self.write_log(f"Downloading {filename} for editing...")
+        
+        success, content = self.sftp_mgr.read_file(full_path)
+        
+        if success:
+            from rachotil.frontend.components.editor_modal import EditorModal
+            self.app.call_from_thread(self.app.push_screen, EditorModal(full_path, content, self.sftp_mgr))
+        else:
+            self.write_log(f"Cannot edit file: {content}")
+
+    @work(thread=True)
+    def upload_file(self) -> None:
+        if not self.sftp_mgr: return
+        local_filepath = self.query_one("#fm-input", Input).value.strip()
+        if not local_filepath:
+            self.write_log("Type local file path into the input box first!")
+            return
+            
+        current_path = self.current_path
+        self.write_log(f"Uploading {local_filepath}...")
+        success, msg = self.sftp_mgr.upload_file(local_filepath, current_path)
+        self.write_log(msg)
+        if success:
+            self.app.call_from_thread(lambda: setattr(self.query_one("#fm-input", Input), "value", ""))
+            self.load_directory()

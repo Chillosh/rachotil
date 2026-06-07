@@ -3,6 +3,7 @@ Screen for managing and creating remote server backups.
 """
 
 import os
+from pathlib import Path
 from datetime import datetime
 from textual.screen import Screen
 from textual.widgets import Header, Footer, Static, Button, Input, Label, Checkbox, OptionList, Log
@@ -69,8 +70,11 @@ class BackupScreen(Screen):
                     id="backup-name",
                     placeholder="Backup file name"
                 )
+                
+                default_dl = str(Path.home() / "Downloads")
+                yield Label("Local Destination Path:")
                 yield Input(
-                    placeholder="Local download destination (e.g. C:/backups). Leaves empty for Downloads folder.",
+                    value=default_dl,
                     id="backup-dest-input"
                 )
             

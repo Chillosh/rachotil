@@ -1,5 +1,6 @@
 import os
 import stat
+import base64
 from ...components.ssh.ssh import SSH
 
 class SFTPManager:
@@ -104,3 +105,53 @@ class SFTPManager:
             return True, f"Copied to: {dest_path}"
         except Exception as e:
             return False, f"Error copying: {str(e)}"
+    
+    def read_file(self, filepath: str) -> tuple[bool, str]:
+        if not self.ssh:
+            return False, "SSH client is not connected."
+            
+        size_check, _ = self.ssh.run_sudo_command(f"stat -c%s '{filepath}'")
+        try:
+            if int(size_check.strip()) > 500000:
+                return False, "File is too large to edit safely."
+        except:
+            pass
+
+        out, err = self.ssh.run_sudo_command(f"cat '{filepath}'")
+        if err and "No such file" in err:
+            return False, err
+            
+        return True, out
+
+    def save_file(self, filepath: str, content: str) -> tuple[bool, str]:
+        if not self.ssh:
+            return False, "SSH client is not connected."
+
+        try:
+            b64_content = base64.b64encode(content.encode('utf-8')).decode('utf-8')
+            
+            self.ssh.run_command(f"echo '{b64_content}' > /tmp/r_edit.b64")
+            
+            cmd = f"base64 -d /tmp/r_edit.b64 > /tmp/r_edit.txt && sudo mv /tmp/r_edit.txt '{filepath}'"
+            self.ssh.run_sudo_command(cmd)
+            
+            self.ssh.run_command("rm -f /tmp/r_edit.b64 /tmp/r_edit.txt")
+            
+            return True, f"File saved successfully."
+        except Exception as e:
+            return False, f"Failed to save file: {str(e)}"
+        
+    def upload_file(self, local_path: str, remote_path: str) -> tuple[bool, str]:
+        if not self.sftp:
+            return False, "SFTP session is not open."
+        import os
+        if not os.path.exists(local_path):
+            return False, "Local file not found."
+            
+        try:
+            filename = os.path.basename(local_path)
+            full_remote_path = f"{remote_path}/{filename}".replace("//", "/")
+            self.sftp.put(local_path, full_remote_path)
+            return True, f"Uploaded {filename} successfully."
+        except Exception as e:
+            return False, f"Upload failed: {str(e)}"
