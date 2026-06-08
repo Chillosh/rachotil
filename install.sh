@@ -25,7 +25,6 @@ sudo apt install -y \
     timeshift \
     rsync \
     docker.io \
-    docker-compose-plugin \
     wireguard \
     wireguard-tools \
     qrencode \
