@@ -74,6 +74,16 @@ cd rachotil
 chmod +x install.sh
 sudo ./install.sh
 ```
+There is possibility you will need to install openssh manually and allow port 22 : 
+```bash 
+sudo apt install openssh-server -y
+sudo systemctl enable --now ssh
+```
+```bash
+sudo ufw allow 22/tcp
+sudo ufw reload
+```
+
 This script installs core dependencies like Docker, docker-compose-plugin, Python, UFW, Wireguard, and sets up required permissions.
 
 ### 2. Client-side Setup (Windows)
